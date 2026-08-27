@@ -26,14 +26,15 @@ npm start
 
 Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
 
-## Current public skill
+## Current public skills
 
 - `handoff` — Create a compact continuation brief for another conversation.
+- `to-spec` — Synthesize settled work into a GitHub specification without restarting discovery.
+- `to-tickets` — Turn settled work into approved GitHub tracer-bullet tickets with explicit relationships.
 
 The MCP surface contains exactly `load_skill` and `list_skills`. Call
-`load_skill` with the exact canonical name `handoff`; its input is deliberately a
-plain string so the installed catalog does not occupy every conversation's tool
-schema.
+`load_skill` with an exact canonical skill name; its input is deliberately a plain
+string so the installed catalog does not occupy every conversation's tool schema.
 
 ## Skill bundles
 
