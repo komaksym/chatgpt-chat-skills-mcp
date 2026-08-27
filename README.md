@@ -26,22 +26,23 @@ npm start
 
 Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
 
-## Current public skill
+## Current public skills
 
 - `grill-with-docs` — Stress-test a plan through evidence-led decisions and
   durable domain language.
 - `handoff` — Create a compact continuation brief for another conversation.
 - `setup-matt-pocock-skills` — Establish minimal GitHub-first domain
   documentation from repository evidence.
+- `to-spec` — Synthesize settled work into a GitHub specification without restarting discovery.
+- `to-tickets` — Turn settled work into approved GitHub tracer-bullet tickets with explicit relationships.
 
 `grilling` and `domain-modeling` are hidden dependencies. They can be loaded by
 exact canonical name when `grill-with-docs` reaches their declared phase, but they
 never appear in `list_skills` and are never concatenated into the parent runtime.
 
 The MCP surface contains exactly `load_skill` and `list_skills`. Call
-`load_skill` with the exact canonical name `handoff`; its input is deliberately a
-plain string so the installed catalog does not occupy every conversation's tool
-schema.
+`load_skill` with an exact canonical skill name; its input is deliberately a plain
+string so the installed catalog does not occupy every conversation's tool schema.
 
 ## Skill bundles
 

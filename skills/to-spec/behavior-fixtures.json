@@ -1,0 +1,38 @@
+[
+  {
+    "id": "settled-synthesis",
+    "given": "The conversation already contains settled product and implementation decisions plus repository evidence.",
+    "expected": [
+      "Synthesize those decisions into the specification.",
+      "Use repository vocabulary and relevant ADR evidence.",
+      "Do not restart grilling or repeat settled questions."
+    ],
+    "forbidden": [
+      "Begin a fresh requirements interview."
+    ]
+  },
+  {
+    "id": "minimal-seam-confirmation",
+    "given": "The highest existing behavioral test seam is identifiable but has not been confirmed by the user.",
+    "expected": [
+      "Prefer that existing public seam over a new lower-level seam.",
+      "Ask only one focused confirmation question about the seam.",
+      "Wait for the answer before publishing."
+    ],
+    "forbidden": [
+      "Expand seam confirmation into a design interview."
+    ]
+  },
+  {
+    "id": "read-only",
+    "given": "Repository reads succeed but GitHub write access is absent or unverified.",
+    "expected": [
+      "Return the complete specification in chat.",
+      "State explicitly that the specification was not published.",
+      "Name unavailable or unverified GitHub write access as the reason."
+    ],
+    "forbidden": [
+      "Claim that a specification issue exists."
+    ]
+  }
+]
