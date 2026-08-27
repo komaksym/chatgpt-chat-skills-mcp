@@ -1,0 +1,51 @@
+[
+  {
+    "id": "approval-gating",
+    "given": "A complete ticket breakdown has been drafted but the user has not approved it.",
+    "expected": [
+      "Show the numbered breakdown in chat.",
+      "Ask the user to approve or revise granularity and blockers.",
+      "Perform no GitHub issue write until explicit approval."
+    ],
+    "forbidden": [
+      "Publish tickets before approval."
+    ]
+  },
+  {
+    "id": "vertical-slicing",
+    "given": "The feature crosses multiple layers and can be delivered in narrow end-to-end increments.",
+    "expected": [
+      "Make each ticket a complete behavior path through the layers it needs.",
+      "Keep each ticket independently verifiable and sized for one fresh context window.",
+      "Declare only genuine blockers."
+    ],
+    "forbidden": [
+      "Create separate horizontal tickets for schema, API, UI, and tests when a vertical slice can stay green."
+    ]
+  },
+  {
+    "id": "relationship-fallback-order",
+    "given": "Approved child tickets need parent membership and blocking relationships, but capability support varies.",
+    "expected": [
+      "Try native connected GitHub relationships first.",
+      "Use authenticated GitHub REST second when native relationship capability is unavailable.",
+      "Use explicit Parent and Blocked by Markdown references third.",
+      "Keep parent membership distinct from blocking order and report the representation used."
+    ],
+    "forbidden": [
+      "Silently omit a parent or blocking relationship."
+    ]
+  },
+  {
+    "id": "wide-refactor-expand-contract",
+    "given": "One mechanical change has a repository-wide blast radius that cannot land green as a normal vertical slice.",
+    "expected": [
+      "Create an expand ticket before migration batches.",
+      "Size migration batches by blast radius and block them on expand.",
+      "Create a contract ticket blocked by every migration batch."
+    ],
+    "forbidden": [
+      "Force the wide mechanical refactor into an artificial tracer-bullet ticket."
+    ]
+  }
+]
