@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "eval:behavioral:validate": "node evals/behavioral/validate-run.mjs",
     "lint": "eslint .",
     "start": "node dist/main.js",
     "test": "vitest run",
