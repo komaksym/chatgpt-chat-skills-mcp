@@ -20,4 +20,5 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm test -- test/behavioral-evals.test.ts
+      - run: npm test
+      - run: npm run build
