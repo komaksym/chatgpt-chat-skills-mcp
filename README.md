@@ -46,6 +46,8 @@ loaded only by an exact canonical name.
 The catalog is validated before the HTTP listener starts. Invalid metadata,
 duplicate names, missing runtimes, and unresolved dependencies stop startup. Tool
 calls resolve names through the validated in-memory catalog rather than converting
-caller input into filesystem paths. Loading returns the shared contract and exactly
-one adapted runtime; provenance, upstream source, and unloaded dependencies remain
-out of the response.
+caller input into filesystem paths. Runtime content is pinned in that catalog at
+startup, so later file or directory swaps cannot redirect a load outside the
+validated bundle. Loading returns the shared contract and exactly one adapted
+runtime; provenance, upstream source, and unloaded dependencies remain out of the
+response.

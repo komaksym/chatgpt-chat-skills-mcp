@@ -204,7 +204,42 @@ function defineCatalogDiscoverySuite(): void {
         arguments: { name: "safe-skill" },
       }),
     );
-    expect(result.isError).toBe(true);
+    expect(JSON.stringify(result)).toContain("ORIGINAL_RUNTIME_MARKER");
+    expect(JSON.stringify(result)).not.toContain("OUTSIDE_SECRET_MARKER");
+  }
+
+  /** Proves a post-start bundle-directory swap cannot redirect a runtime read. */
+  async function rejectsBundleDirectorySymlinkSwaps(): Promise<void> {
+    const base = await mkdtemp(join(tmpdir(), "skills-mcp-"));
+    roots.push(base);
+    const root = join(base, "skills");
+    const outside = join(base, "outside");
+    await mkdir(root);
+    await mkdir(outside);
+    await createBundle(root, {
+      name: "safe-skill",
+      visibility: "public",
+      description: "Safe fixture.",
+      runtime: "ORIGINAL_RUNTIME_MARKER",
+    });
+    await writeFile(join(outside, "runtime.md"), "OUTSIDE_SECRET_MARKER", "utf8");
+
+    service = await startService({ port: 0, skillsRoot: root });
+    client = new Client({ name: "directory-symlink-test", version: "1.0.0" });
+    await client.connect(
+      new StreamableHTTPClientTransport(new URL("/mcp", service.url)),
+    );
+    const bundle = join(root, "safe-skill");
+    await rm(bundle, { recursive: true });
+    await symlink(outside, bundle, "dir");
+
+    const result = CallToolResultSchema.parse(
+      await client.callTool({
+        name: "load_skill",
+        arguments: { name: "safe-skill" },
+      }),
+    );
+    expect(JSON.stringify(result)).toContain("ORIGINAL_RUNTIME_MARKER");
     expect(JSON.stringify(result)).not.toContain("OUTSIDE_SECRET_MARKER");
   }
 
@@ -267,6 +302,22 @@ function defineCatalogDiscoverySuite(): void {
 
     await expect(startService({ port: 0, skillsRoot: root })).rejects.toThrow(
       'Invalid skill bundle "broken": provenance.json must contain valid JSON.',
+    );
+  }
+
+  /** Proves validation reports the same first invalid bundle by canonical path order. */
+  async function reportsValidationFailuresDeterministically(): Promise<void> {
+    const root = await mkdtemp(join(tmpdir(), "skills-mcp-"));
+    roots.push(root);
+    for (const directory of ["z-broken", "a-broken"]) {
+      const bundle = join(root, directory);
+      await mkdir(bundle);
+      await writeFile(join(bundle, "provenance.json"), "{", "utf8");
+      await writeFile(join(bundle, "runtime.md"), "runtime", "utf8");
+    }
+
+    await expect(startService({ port: 0, skillsRoot: root })).rejects.toThrow(
+      'Invalid skill bundle "a-broken": provenance.json must contain valid JSON.',
     );
   }
 
@@ -333,11 +384,19 @@ function defineCatalogDiscoverySuite(): void {
     discoversPublicAndHiddenSkills,
   );
   it("rejects malformed metadata", rejectsMalformedMetadata);
+  it(
+    "reports validation failures deterministically",
+    reportsValidationFailuresDeterministically,
+  );
   it("rejects duplicate canonical names", rejectsDuplicateNames);
   it("rejects missing runtime content", rejectsMissingRuntime);
   it("rejects unresolved dependencies", rejectsUnresolvedDependencies);
   it("rejects unknown and path-shaped names concisely", rejectsUnknownAndPathShapedNames);
   it("rejects runtime symlink swaps", rejectsRuntimeSymlinkSwaps);
+  it(
+    "rejects bundle-directory symlink swaps",
+    rejectsBundleDirectorySymlinkSwaps,
+  );
   it("keeps tool schemas independent of catalog size", keepsToolSchemasCatalogIndependent);
 }
 

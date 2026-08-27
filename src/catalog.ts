@@ -1,4 +1,4 @@
-import { constants } from "node:fs";
+import { constants, type Dirent } from "node:fs";
 import { open, readdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
@@ -29,7 +29,7 @@ type SkillMetadata = z.infer<typeof metadataSchema>;
 
 interface SkillBundle {
   metadata: SkillMetadata;
-  runtimePath: string;
+  runtime: string;
 }
 
 export interface PublicSkill {
@@ -39,6 +39,11 @@ export interface PublicSkill {
 
 /** Orders public skills by canonical name for deterministic listings. */
 function comparePublicSkills(left: PublicSkill, right: PublicSkill): number {
+  return left.name.localeCompare(right.name);
+}
+
+/** Orders filesystem entries so validation selects failures deterministically. */
+function compareDirectoryEntries(left: Dirent, right: Dirent): number {
   return left.name.localeCompare(right.name);
 }
 
@@ -93,14 +98,14 @@ async function readBundle(root: string, directory: string): Promise<SkillBundle>
     throw new Error(`Invalid skill bundle "${directory}": metadata is invalid.`);
   }
 
-  const runtimePath = join(bundlePath, "runtime.md");
+  let runtime: string;
   try {
-    await readBundleFile(runtimePath, "runtime.md");
+    runtime = await readBundleFile(join(bundlePath, "runtime.md"), "runtime.md");
   } catch (error) {
     const message = error instanceof Error ? error.message : "Invalid runtime.";
     throw new Error(`Invalid skill bundle "${directory}": ${message}`);
   }
-  return { metadata: parsed.data, runtimePath };
+  return { metadata: parsed.data, runtime };
 }
 
 /** Represents a validated, read-only set of installed skill bundles. */
@@ -132,8 +137,7 @@ export class SkillCatalog {
     if (!bundle) {
       throw new Error(`Unknown skill: ${name}.`);
     }
-    const runtime = await readBundleFile(bundle.runtimePath, "runtime.md");
-    return `${REMOTE_EXECUTION_CONTRACT}\n\n# ${name}\n\n${runtime.trim()}\n`;
+    return `${REMOTE_EXECUTION_CONTRACT}\n\n# ${name}\n\n${bundle.runtime.trim()}\n`;
   }
 }
 
@@ -142,6 +146,7 @@ export async function discoverCatalog(
   skillsRoot: string = DEFAULT_SKILLS_ROOT,
 ): Promise<SkillCatalog> {
   const entries = await readdir(skillsRoot, { withFileTypes: true });
+  entries.sort(compareDirectoryEntries);
   const bundles = new Map<string, SkillBundle>();
 
   for (const entry of entries) {
