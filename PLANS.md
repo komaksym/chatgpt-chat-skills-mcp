@@ -26,3 +26,27 @@ shared contract + handoff runtime
 
 Later eligible milestones are #3, #4, and #5. Issue #6 and tickets blocked by it
 are explicitly excluded.
+
+## Milestone 2 — Issue #3: Harden catalog-independent skill loading
+
+Summary: replace the ticket #2 single-skill registry with a validated bundle catalog
+whose contents never alter the stable two-tool schema.
+
+```text
+skills/*/provenance.json + runtime.md
+                  |
+                  v
+       validated startup catalog
+          /               \
+         v                 v
+public-only listing   exact-name loading
+                           |
+                           v
+             shared contract + one runtime
+```
+
+1. Discover public and hidden bundles from metadata.
+2. Reject malformed bundles and unresolved dependencies before listening.
+3. Resolve only validated canonical identifiers, never caller-built paths.
+4. Prove roughly 100 extra skills do not grow serialized tool definitions.
+5. Commit, review against issue #3, fix findings, and reverify.
