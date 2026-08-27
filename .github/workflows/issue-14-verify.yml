@@ -9,15 +9,16 @@ permissions:
   contents: read
 
 jobs:
-  verify-base-failures:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: 096686144f387f7f47f2f4bb688647ae69417a18
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm test -- test/server.test.ts test/spec-ticket-runtime.test.ts
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test -- test/behavioral-evals.test.ts
+      - run: npm run build
