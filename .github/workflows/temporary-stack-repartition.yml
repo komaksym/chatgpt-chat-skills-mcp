@@ -23,9 +23,7 @@ jobs:
             const headers = { 'X-GitHub-Api-Version': '2026-03-10' };
 
             const expectedBases = new Map([
-              [16, 'main'],
-              [25, 'codex/issue-2-handoff-mcp'],
-              [17, 'codex/issue-2-handoff-mcp'],
+              [17, 'main'],
               [18, 'codex/issue-3-catalog-loader'],
               [19, 'codex/issue-4-remote-setup'],
               [21, 'codex/issue-5-grill-domain'],
@@ -46,19 +44,28 @@ jobs:
               }
             }
 
-            const original = [16,17,18,19,21,24,23,22,28,27];
+            const currentStacked = [17,18,19,21,24,23,22,28,27];
+            for (const pr of currentStacked) {
+              const { data } = await github.request('GET /repos/{owner}/{repo}/pulls/{pull_number}', {
+                owner, repo, pull_number: pr, headers,
+              });
+              if (data.stack?.number !== 20) {
+                throw new Error(`Refusing migration: PR #${pr} is not in stack #20`);
+              }
+            }
+
             const desired = [
-              [16,25],
               [17,18,19,21,24,23,22,26],
               [28,27],
             ];
+            const originalOpen = [17,18,19,21,24,23,22,28,27];
             const created = [];
 
             try {
               await github.request('POST /repos/{owner}/{repo}/stacks/{stack_number}/unstack', {
                 owner, repo, stack_number: 20, headers,
               });
-              core.info('Dissolved stack #20');
+              core.info('Removed unmerged PRs from stack #20');
 
               for (const pull_requests of desired) {
                 const { data } = await github.request('POST /repos/{owner}/{repo}/stacks', {
@@ -80,11 +87,11 @@ jobs:
               }
               try {
                 const { data } = await github.request('POST /repos/{owner}/{repo}/stacks', {
-                  owner, repo, pull_requests: original, headers,
+                  owner, repo, pull_requests: originalOpen, headers,
                 });
-                core.info(`Restored original stack as #${data.number}`);
+                core.info(`Restored original open chain as stack #${data.number}`);
               } catch (restoreError) {
-                core.error(`CRITICAL: restoring original stack failed: ${restoreError.message}`);
+                core.error(`CRITICAL: restoring original open chain failed: ${restoreError.message}`);
               }
               throw error;
             }
