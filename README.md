@@ -34,3 +34,18 @@ The MCP surface contains exactly `load_skill` and `list_skills`. Call
 `load_skill` with the exact canonical name `handoff`; its input is deliberately a
 plain string so the installed catalog does not occupy every conversation's tool
 schema.
+
+## Skill bundles
+
+Each direct child of `skills/` is discovered from its `provenance.json` and
+`runtime.md`. Metadata owns the canonical name, visibility, description,
+dependencies, and upstream provenance; server source contains no second skill
+registry. Public bundles appear in `list_skills`. Public and hidden bundles can be
+loaded only by an exact canonical name.
+
+The catalog is validated before the HTTP listener starts. Invalid metadata,
+duplicate names, missing runtimes, and unresolved dependencies stop startup. Tool
+calls resolve names through the validated in-memory catalog rather than converting
+caller input into filesystem paths. Loading returns the shared contract and exactly
+one adapted runtime; provenance, upstream source, and unloaded dependencies remain
+out of the response.
