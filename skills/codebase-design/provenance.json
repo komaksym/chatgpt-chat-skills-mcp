@@ -1,0 +1,18 @@
+{
+  "name": "codebase-design",
+  "visibility": "hidden",
+  "description": "Provide canonical deep-module vocabulary and principles for architecture analysis.",
+  "dependencies": [],
+  "upstream": {
+    "repository": "https://github.com/mattpocock/skills",
+    "location": "skills/engineering/codebase-design/SKILL.md",
+    "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76"
+  },
+  "license": "MIT",
+  "attribution": "Copyright (c) 2026 Matt Pocock",
+  "adaptations": [
+    "Preserve the exact module, interface, depth, seam, adapter, leverage, and locality vocabulary.",
+    "Keep deletion-test, interface-as-test-surface, and real-seam principles while removing local-only harness assumptions.",
+    "Treat child exploration as optional and require direct GitHub access for any child used."
+  ]
+}

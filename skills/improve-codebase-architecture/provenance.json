@@ -1,0 +1,23 @@
+{
+  "name": "improve-codebase-architecture",
+  "visibility": "public",
+  "description": "Find deepening opportunities in a remote repository and present candidate architecture improvements.",
+  "dependencies": [
+    "codebase-design",
+    "grilling",
+    "domain-modeling"
+  ],
+  "upstream": {
+    "repository": "https://github.com/mattpocock/skills",
+    "location": "skills/engineering/improve-codebase-architecture/SKILL.md",
+    "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76"
+  },
+  "license": "MIT",
+  "attribution": "Copyright (c) 2026 Matt Pocock",
+  "adaptations": [
+    "Inspect the active repository through connected GitHub capabilities and bias toward observed active-change history.",
+    "Load codebase-design for canonical architecture vocabulary before analysis; defer grilling and domain-modeling until after candidate selection.",
+    "Return Markdown candidates by default with diagrams only when useful instead of creating temporary HTML infrastructure.",
+    "Make no production-code change during candidate analysis and wait for the user to choose an opportunity."
+  ]
+}

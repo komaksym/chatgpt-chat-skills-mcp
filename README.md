@@ -35,6 +35,8 @@ Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
 - `handoff` — Create a compact continuation brief for another conversation.
 - `implement` — Implement one settled GitHub ticket through TDD, observed
   verification, committed review, and a pull request.
+- `improve-codebase-architecture` — Find deepening opportunities in a remote
+  repository and present candidate architecture improvements.
 - `setup-matt-pocock-skills` — Establish minimal GitHub-first domain
   documentation from repository evidence.
 - `to-spec` — Synthesize settled work into a GitHub specification without restarting discovery.

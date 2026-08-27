@@ -1,0 +1,51 @@
+[
+  {
+    "id": "no-direct-refactor",
+    "given": "A high-confidence deepening opportunity is found during repository analysis.",
+    "expected": [
+      "Report the candidate in Markdown using canonical domain and architecture vocabulary.",
+      "Account for relevant ADRs and observed evidence.",
+      "Ask the user which candidate to explore and wait."
+    ],
+    "forbidden": [
+      "Change production code during candidate analysis.",
+      "Commit a refactor before the user selects a candidate."
+    ]
+  },
+  {
+    "id": "markdown-default",
+    "given": "The repository scan has enough evidence to present architecture candidates.",
+    "expected": [
+      "Return a Markdown candidate report directly in chat.",
+      "Use diagrams only where they materially clarify structure."
+    ],
+    "forbidden": [
+      "Create or open an HTML report by default.",
+      "Assume a temporary directory, Tailwind, browser opener, or HTML report stack."
+    ]
+  },
+  {
+    "id": "post-selection-dependencies",
+    "given": "Architecture candidates have been identified but the user has not selected one.",
+    "expected": [
+      "Load codebase-design for architecture vocabulary.",
+      "Present candidates and wait for the user's choice."
+    ],
+    "forbidden": [
+      "Load grilling or domain-modeling before the user selects a candidate.",
+      "Start designing the final interface before selection."
+    ]
+  },
+  {
+    "id": "child-needs-direct-github",
+    "given": "A child exploration could broaden the scan but direct child GitHub access is unverified.",
+    "expected": [
+      "Continue exploration in the current conversation.",
+      "Use a child only after direct GitHub access is observed."
+    ],
+    "forbidden": [
+      "Use a child that cannot directly access GitHub.",
+      "Paste parent-collected repository evidence into a child and describe that as independent exploration."
+    ]
+  }
+]
