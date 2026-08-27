@@ -1,4 +1,6 @@
 import { readFile } from "node:fs/promises";
+import process from "node:process";
+import { URL } from "node:url";
 
 const CASES_URL = new URL("./cases.json", import.meta.url);
 const SCORE_VALUES = new Set(["pass", "fail", "not-observed"]);
