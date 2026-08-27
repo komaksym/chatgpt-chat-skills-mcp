@@ -1,10 +1,12 @@
 import type { Server } from "node:http";
+import { once } from "node:events";
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { createMcpExpressApp } from "@modelcontextprotocol/sdk/server/express.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import type { Request, Response } from "express";
 import * as z from "zod/v4";
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 
 import { loadSkill, PUBLIC_SKILLS } from "./skills.js";
 
@@ -15,6 +17,21 @@ export interface RunningService {
 
 export interface ServiceOptions {
   port?: number;
+}
+
+/** Returns the requested skill as MCP text content. */
+async function handleLoadSkill({ name }: { name: string }): Promise<CallToolResult> {
+  return {
+    content: [{ type: "text", text: await loadSkill(name) }],
+  };
+}
+
+/** Returns the public skill catalog as text and structured MCP content. */
+async function handleListSkills(): Promise<CallToolResult> {
+  return {
+    content: [{ type: "text", text: JSON.stringify({ skills: PUBLIC_SKILLS }) }],
+    structuredContent: { skills: [...PUBLIC_SKILLS] },
+  };
 }
 
 /** Creates one stateless MCP server with the stable two-tool interface. */
@@ -31,9 +48,7 @@ function createServer(): McpServer {
       inputSchema: { name: z.string() },
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
-    async ({ name }) => ({
-      content: [{ type: "text", text: await loadSkill(name) }],
-    }),
+    handleLoadSkill,
   );
 
   server.registerTool(
@@ -51,10 +66,7 @@ function createServer(): McpServer {
       },
       annotations: { readOnlyHint: true, openWorldHint: false },
     },
-    async () => ({
-      content: [{ type: "text", text: JSON.stringify({ skills: PUBLIC_SKILLS }) }],
-      structuredContent: { skills: [...PUBLIC_SKILLS] },
-    }),
+    handleListSkills,
   );
 
   return server;
@@ -93,12 +105,9 @@ function rejectUnsupportedMethod(_req: Request, res: Response): void {
 
 /** Closes the underlying HTTP listener after active connections complete. */
 async function closeServer(server: Server): Promise<void> {
-  await new Promise<void>((resolve, reject) => {
-    server.close((error) => {
-      if (error) reject(error);
-      else resolve();
-    });
-  });
+  const closed = once(server, "close");
+  server.close();
+  await closed;
 }
 
 /** Starts the MCP HTTP service on the loopback interface. */
@@ -110,20 +119,21 @@ export async function startService(
   app.get("/mcp", rejectUnsupportedMethod);
   app.delete("/mcp", rejectUnsupportedMethod);
 
-  const server = await new Promise<Server>((resolve, reject) => {
-    const listener = app.listen(options.port ?? 2092, "127.0.0.1", () => {
-      resolve(listener);
-    });
-    listener.once("error", reject);
-  });
+  const server = app.listen(options.port ?? 2092, "127.0.0.1");
+  await once(server, "listening");
   const address = server.address();
   if (address === null || typeof address === "string") {
     await closeServer(server);
     throw new Error("HTTP service did not expose a TCP address");
   }
 
+  /** Closes this running service. */
+  async function close(): Promise<void> {
+    await closeServer(server);
+  }
+
   return {
     url: new URL(`http://127.0.0.1:${address.port}`),
-    close: async () => closeServer(server),
+    close,
   };
 }

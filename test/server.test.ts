@@ -5,16 +5,31 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import { startService, type RunningService } from "../src/service.js";
 
-describe("skills MCP service", () => {
+/** Returns a tool's canonical protocol name. */
+function readToolName(tool: { name: string }): string {
+  return tool.name;
+}
+
+/** Identifies the load tool in a discovered tool list. */
+function isLoadTool(tool: { name: string }): boolean {
+  return tool.name === "load_skill";
+}
+
+/** Defines the black-box service behavior suite. */
+function defineServiceSuite(): void {
   let service: RunningService | undefined;
   let client: Client | undefined;
 
-  afterEach(async () => {
+  /** Releases protocol and network resources after each test. */
+  async function cleanup(): Promise<void> {
     await client?.close();
     await service?.close();
-  });
+  }
 
-  it("lists and loads handoff through the real loopback transport", async () => {
+  afterEach(cleanup);
+
+  /** Proves discovery and loading through the production HTTP boundary. */
+  async function listsAndLoadsHandoff(): Promise<void> {
     service = await startService({ port: 0 });
     client = new Client({ name: "black-box-test", version: "1.0.0" });
     const transport = new StreamableHTTPClientTransport(
@@ -24,12 +39,12 @@ describe("skills MCP service", () => {
     await client.connect(transport);
 
     const tools = await client.listTools();
-    expect(tools.tools.map(({ name }) => name)).toEqual([
+    expect(tools.tools.map(readToolName)).toEqual([
       "load_skill",
       "list_skills",
     ]);
 
-    const loadTool = tools.tools.find(({ name }) => name === "load_skill");
+    const loadTool = tools.tools.find(isLoadTool);
     expect(loadTool?.inputSchema).toMatchObject({
       type: "object",
       required: ["name"],
@@ -65,5 +80,9 @@ describe("skills MCP service", () => {
     expect(text.text).toContain("suggested skills");
     expect(text.text).not.toContain("6654f6b60cd9d5be8b54c6fafe44346dabeb3b76");
     expect(text.text).not.toContain("Copyright (c) 2026 Matt Pocock");
-  });
-});
+  }
+
+  it("lists and loads handoff through the real loopback transport", listsAndLoadsHandoff);
+}
+
+describe("skills MCP service", defineServiceSuite);
