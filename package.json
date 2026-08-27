@@ -1,0 +1,30 @@
+{
+  "name": "chatgpt-chat-skills-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint .",
+    "start": "node dist/main.js",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "express": "5.2.1",
+    "zod": "4.1.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.34.0",
+    "@types/express": "5.0.3",
+    "@types/node": "24.3.0",
+    "eslint": "9.34.0",
+    "typescript": "5.9.2",
+    "typescript-eslint": "8.41.0",
+    "vitest": "4.1.11"
+  }
+}
