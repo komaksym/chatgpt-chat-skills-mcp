@@ -82,7 +82,9 @@ async function readBundle(root: string, directory: string): Promise<SkillBundle>
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Invalid metadata.";
-    throw new Error(`Invalid skill bundle "${directory}": ${message}`);
+    throw new Error(`Invalid skill bundle "${directory}": ${message}`, {
+      cause: error,
+    });
   }
 
   let raw: unknown;
@@ -103,7 +105,9 @@ async function readBundle(root: string, directory: string): Promise<SkillBundle>
     runtime = await readBundleFile(join(bundlePath, "runtime.md"), "runtime.md");
   } catch (error) {
     const message = error instanceof Error ? error.message : "Invalid runtime.";
-    throw new Error(`Invalid skill bundle "${directory}": ${message}`);
+    throw new Error(`Invalid skill bundle "${directory}": ${message}`, {
+      cause: error,
+    });
   }
   return { metadata: parsed.data, runtime };
 }
