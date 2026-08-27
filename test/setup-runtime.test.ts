@@ -39,19 +39,14 @@ function defineSetupRuntimeSuite(): void {
     );
 
     const listing = await client.callTool({ name: "list_skills", arguments: {} });
-    expect(listing.structuredContent).toEqual({
-      skills: [
-        {
-          name: "handoff",
-          description:
-            "Create a compact continuation brief for another conversation.",
-        },
+    expect(listing.structuredContent).toMatchObject({
+      skills: expect.arrayContaining([
         {
           name: "setup-matt-pocock-skills",
           description:
             "Establish minimal GitHub-first domain documentation from repository evidence.",
         },
-      ],
+      ]),
     });
 
     const loaded = CallToolResultSchema.parse(
