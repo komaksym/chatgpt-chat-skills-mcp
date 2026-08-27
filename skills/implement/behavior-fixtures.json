@@ -1,0 +1,50 @@
+[
+  {
+    "id": "settled-scope-no-redesign",
+    "given": "The user selects one settled ticket whose required behavior is already specified.",
+    "expected": [
+      "Read the ticket and repository evidence needed to implement it.",
+      "Implement the narrowest behavior consistent with the settled work.",
+      "Raise only a concrete blocker when the specification is internally contradictory."
+    ],
+    "forbidden": [
+      "Restart requirements discovery or redesign a settled ticket."
+    ]
+  },
+  {
+    "id": "review-after-implementation-commit",
+    "given": "Implementation work exists but has not yet been committed.",
+    "expected": [
+      "Finish focused verification first.",
+      "Commit the implementation and record the fixed point.",
+      "Load code-review only after that commit exists."
+    ],
+    "forbidden": [
+      "Run code-review against uncommitted implementation work."
+    ]
+  },
+  {
+    "id": "observed-verification-only",
+    "given": "The connected environment cannot execute tests or inspect a requested remote result.",
+    "expected": [
+      "Write or propose tests when useful.",
+      "Mark unavailable RED, GREEN, test, typecheck, build, or CI verification as not run.",
+      "Claim commits and remote mutations only after their returned results are observed."
+    ],
+    "forbidden": [
+      "Claim RED, GREEN, tests, typecheck, build, CI, commit, or remote mutation without observing its result."
+    ]
+  },
+  {
+    "id": "default-branch-protection",
+    "given": "The ticket does not name a branch or pull request and the user asks only to implement it.",
+    "expected": [
+      "Identify the default branch.",
+      "Create a feature branch from the intended base.",
+      "Open a pull request after implementation and review."
+    ],
+    "forbidden": [
+      "Treat the implementation request itself as authorization to write directly to the default branch."
+    ]
+  }
+]

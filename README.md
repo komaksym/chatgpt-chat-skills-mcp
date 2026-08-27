@@ -33,6 +33,8 @@ Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
 - `grill-with-docs` — Stress-test a plan through evidence-led decisions and
   durable domain language.
 - `handoff` — Create a compact continuation brief for another conversation.
+- `implement` — Implement one settled GitHub ticket through TDD, observed
+  verification, committed review, and a pull request.
 - `setup-matt-pocock-skills` — Establish minimal GitHub-first domain
   documentation from repository evidence.
 - `to-spec` — Synthesize settled work into a GitHub specification without restarting discovery.
@@ -64,7 +66,9 @@ Each direct child of `skills/` is discovered from its `provenance.json` and
 `runtime.md`. Metadata owns the canonical name, visibility, description,
 dependencies, and upstream provenance; server source contains no second skill
 registry. Public bundles appear in `list_skills`. Public and hidden bundles can be
-loaded only by an exact canonical name.
+loaded only by an exact canonical name. `implement` lazily loads hidden `tdd` when
+testing begins and the public `code-review` dependency only after the implementation
+commit exists.
 
 The catalog is validated before the HTTP listener starts. Invalid metadata,
 duplicate names, missing runtimes, and unresolved dependencies stop startup. Tool

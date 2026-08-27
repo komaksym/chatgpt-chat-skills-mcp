@@ -1,0 +1,20 @@
+{
+  "name": "tdd",
+  "visibility": "hidden",
+  "description": "Drive implementation through observable RED/GREEN cycles at agreed public seams.",
+  "dependencies": [],
+  "upstream": {
+    "repository": "https://github.com/mattpocock/skills",
+    "location": "skills/engineering/tdd/SKILL.md",
+    "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76"
+  },
+  "license": "MIT",
+  "attribution": "Copyright (c) 2026 Matt Pocock",
+  "adaptations": [
+    "Keep tests at pre-agreed stable/public seams and use the repository's existing integration patterns.",
+    "Inline the linked upstream tests.md and mocking.md methodology into the remote runtime so dependency loads remain self-contained.",
+    "Mock only true system boundaries and reject implementation-coupled, side-channel, and tautological tests.",
+    "Require observed execution before claiming RED, GREEN, or any passing verification result.",
+    "Keep large refactoring out of the RED/GREEN loop and defer it to the committed review phase."
+  ]
+}
