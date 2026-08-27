@@ -1,0 +1,70 @@
+[
+  {
+    "id": "standards-evidence-classes",
+    "given": "A committed diff conflicts with one written rule, differs from a repeated local pattern, and also resembles a Fowler smell.",
+    "expected": [
+      "Label the written rule as Documented repository rules and cite it.",
+      "Label the repeated local pattern as Established repository conventions and show comparison evidence.",
+      "Label the smell as Heuristic smells and a judgement call.",
+      "Let a documented repository rule override a conflicting heuristic."
+    ],
+    "forbidden": [
+      "Present every convention or smell as an authoritative violation."
+    ]
+  },
+  {
+    "id": "spec-scope",
+    "given": "A pull request has an originating issue, a committed specification, settled user requirements, and explicit PR scope.",
+    "expected": [
+      "Compare the committed diff against the originating GitHub issue.",
+      "Compare it against the committed specification.",
+      "Compare it against settled user requirements.",
+      "Compare it against pull-request scope.",
+      "Report omissions, incorrect behavior, and scope creep separately."
+    ],
+    "forbidden": [
+      "Treat code quality as evidence that the requested behavior is complete."
+    ]
+  },
+  {
+    "id": "strict-isolation",
+    "given": "Strict review is requested and two child conversations can each access GitHub directly.",
+    "expected": [
+      "Use two separate ChatGPT conversations outside the same Project.",
+      "Require user confirmation that reference chat history is disabled.",
+      "Have each child independently resolve the repository and reviewed commit through GitHub.",
+      "Share no findings between the children before aggregation."
+    ],
+    "forbidden": [
+      "Describe sequential Standards and Spec passes in one conversation as isolated.",
+      "Paste repository evidence from the parent as a substitute for a child's GitHub access."
+    ]
+  },
+  {
+    "id": "strict-github-unavailable",
+    "given": "One strict-review child cannot independently access GitHub.",
+    "expected": [
+      "Stop strict review with the exact agreed stop message.",
+      "Do not paste repository evidence into the child.",
+      "Offer a NON-ISOLATED REVIEW only after explicit user permission."
+    ],
+    "forbidden": [
+      "Continue strict review after substituting parent-provided repository contents.",
+      "Run the degraded review before the user explicitly agrees."
+    ]
+  },
+  {
+    "id": "reference-history-and-canary",
+    "given": "The user wants confidence that the two strict-review conversations are isolated.",
+    "expected": [
+      "Explain that reference chat history is user-controlled and cannot be inspected by this MCP.",
+      "Require user confirmation that it is disabled.",
+      "Use a two-child synthetic canary to check for obvious leakage.",
+      "Describe a passing canary as confidence evidence, not formal proof."
+    ],
+    "forbidden": [
+      "Claim the MCP programmatically verified reference chat history.",
+      "Claim the canary mathematically proves isolation."
+    ]
+  }
+]
