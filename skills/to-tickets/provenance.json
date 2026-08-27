@@ -1,0 +1,20 @@
+{
+  "name": "to-tickets",
+  "visibility": "public",
+  "description": "Turn settled work into approved GitHub tracer-bullet tickets with explicit relationships.",
+  "dependencies": [],
+  "upstream": {
+    "repository": "https://github.com/mattpocock/skills",
+    "location": "skills/engineering/to-tickets/SKILL.md",
+    "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76"
+  },
+  "license": "MIT",
+  "attribution": "Copyright (c) 2026 Matt Pocock",
+  "adaptations": [
+    "Use GitHub Issues as the only tracker and remove local-file and non-GitHub tracker branches.",
+    "Require explicit user approval of the complete breakdown before any issue write.",
+    "Keep parent/sub-issue membership distinct from blocking dependencies.",
+    "Represent relationships with native connected GitHub capability first, authenticated REST second, and explicit Markdown references third, never silently dropping an edge.",
+    "Do not require configured triage labels."
+  ]
+}
