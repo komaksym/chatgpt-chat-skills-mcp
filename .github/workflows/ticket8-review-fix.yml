@@ -1,0 +1,21 @@
+name: ticket8-review-fix
+
+on:
+  push:
+    branches:
+      - codex/issue-8-implement
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test -- test/implement-runtime.test.ts
+      - run: npm test
+      - run: npm run build

@@ -1,0 +1,24 @@
+{
+  "name": "implement",
+  "visibility": "public",
+  "description": "Implement one settled GitHub ticket through TDD, observed verification, committed review, and a pull request.",
+  "dependencies": [
+    "tdd",
+    "code-review"
+  ],
+  "upstream": {
+    "repository": "https://github.com/mattpocock/skills",
+    "location": "skills/engineering/implement/SKILL.md",
+    "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76"
+  },
+  "license": "MIT",
+  "attribution": "Copyright (c) 2026 Matt Pocock",
+  "adaptations": [
+    "Operate against the connected GitHub repository and one settled ticket or small specification without reopening design.",
+    "Use an existing specified branch or pull request, otherwise create a feature branch and pull request; direct default-branch mutation requires separate explicit authorization.",
+    "Load hidden tdd only when the testing phase begins and load public code-review only after the implementation is committed.",
+    "Preserve observed RED, minimum implementation, observed GREEN, useful behavior-preserving cleanup, and stable/public test seams.",
+    "Require all verification, commit, CI, and remote-mutation claims to be backed by observed results.",
+    "Resolve review ordering as implementation, focused verification, commit, committed-diff review, justified fixes, later commit, final reverification, then pull request."
+  ]
+}

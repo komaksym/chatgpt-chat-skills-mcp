@@ -30,6 +30,8 @@ Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
 
 - `code-review` — Review a committed GitHub diff on separate Standards and Spec axes
   with strict child-chat isolation.
+- `implement` — Implement one settled GitHub ticket through TDD, observed
+  verification, committed review, and a pull request.
 - `handoff` — Create a compact continuation brief for another conversation.
 
 The MCP surface contains exactly `load_skill` and `list_skills`. Call `load_skill`
@@ -54,7 +56,9 @@ Each direct child of `skills/` is discovered from its `provenance.json` and
 `runtime.md`. Metadata owns the canonical name, visibility, description,
 dependencies, and upstream provenance; server source contains no second skill
 registry. Public bundles appear in `list_skills`. Public and hidden bundles can be
-loaded only by an exact canonical name.
+loaded only by an exact canonical name. `implement` lazily loads hidden `tdd` when
+testing begins and the public `code-review` dependency only after the implementation
+commit exists.
 
 The catalog is validated before the HTTP listener starts. Invalid metadata,
 duplicate names, missing runtimes, and unresolved dependencies stop startup. Tool
