@@ -1,0 +1,20 @@
+{
+  "name": "code-review",
+  "visibility": "public",
+  "description": "Review a committed GitHub diff on separate Standards and Spec axes with strict child-chat isolation.",
+  "dependencies": [],
+  "upstream": {
+    "repository": "https://github.com/mattpocock/skills",
+    "location": "skills/engineering/code-review/SKILL.md",
+    "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76"
+  },
+  "license": "MIT",
+  "attribution": "Copyright (c) 2026 Matt Pocock",
+  "adaptations": [
+    "Use connected GitHub capabilities against committed refs and pull requests instead of local Git commands or tracker indirection.",
+    "Keep Standards and Spec as separate axes while distinguishing documented rules, established repository conventions, and heuristic smells.",
+    "Run strict mode in two separate ChatGPT conversations outside the same Project, with independent direct GitHub access and no cross-sharing of findings.",
+    "Stop strict mode when either child lacks direct GitHub access; offer a clearly labeled non-isolated fallback only after explicit user permission.",
+    "Treat reference chat history as a user-controlled prerequisite the MCP cannot inspect, and document a two-child synthetic-canary smoke procedure as confidence evidence rather than formal proof."
+  ]
+}

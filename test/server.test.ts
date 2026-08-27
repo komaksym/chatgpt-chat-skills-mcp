@@ -57,6 +57,11 @@ function defineServiceSuite(): void {
     expect(listing.structuredContent).toEqual({
       skills: [
         {
+          name: "code-review",
+          description:
+            "Review a committed GitHub diff on separate Standards and Spec axes with strict child-chat isolation.",
+        },
+        {
           name: "grill-with-docs",
           description:
             "Stress-test a plan through evidence-led decisions and durable domain language.",

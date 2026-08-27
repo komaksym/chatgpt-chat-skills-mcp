@@ -28,6 +28,8 @@ Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
 
 ## Current public skills
 
+- `code-review` — Review a committed GitHub diff on separate Standards and Spec axes
+  with strict child-chat isolation.
 - `grill-with-docs` — Stress-test a plan through evidence-led decisions and
   durable domain language.
 - `handoff` — Create a compact continuation brief for another conversation.
@@ -43,6 +45,18 @@ never appear in `list_skills` and are never concatenated into the parent runtime
 The MCP surface contains exactly `load_skill` and `list_skills`. Call
 `load_skill` with an exact canonical skill name; its input is deliberately a plain
 string so the installed catalog does not occupy every conversation's tool schema.
+
+## Strict code review
+
+Strict `code-review` requires two separate ChatGPT child conversations outside the
+same Project, user confirmation that reference chat history is disabled, and
+independent direct GitHub access from both children. The MCP cannot inspect the
+reference-chat-history setting. If either child lacks GitHub access, strict review
+stops rather than substituting repository evidence from the parent. A non-isolated
+fallback requires explicit user permission and is labeled accordingly.
+
+See `docs/code-review-strict-smoke.md` for the two-child synthetic-canary procedure
+and the required `PASS` / `FAIL` / `NOT EXERCISED` result semantics.
 
 ## Skill bundles
 
