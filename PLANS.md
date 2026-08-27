@@ -50,3 +50,28 @@ public-only listing   exact-name loading
 3. Resolve only validated canonical identifiers, never caller-built paths.
 4. Prove roughly 100 extra skills do not grow serialized tool definitions.
 5. Commit, review against issue #3, fix findings, and reverify.
+
+## Milestone 3 — Issue #4: Add remote-first repository setup
+
+Summary: add the public setup workflow as a self-contained GitHub capability
+workflow with evidence-backed domain-document decisions.
+
+```text
+connected GitHub repository
+          |
+          v
+read/write capability evidence + domain docs
+          |
+          v
+single context by default
+    /                  \
+writable             read-only
+   |                     |
+minimal persisted docs   explicit unpersisted proposal
+```
+
+1. Vendor the pinned upstream setup source and provenance separately.
+2. Adapt setup to connected GitHub capabilities without local harness plumbing.
+3. Add writable, read-only, single-context, and evidence-backed multi-context fixtures.
+4. Verify public listing and exact runtime loading over MCP.
+5. Commit, review against issue #4, fix findings, and reverify.

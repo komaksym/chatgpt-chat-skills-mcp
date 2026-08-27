@@ -61,6 +61,11 @@ function defineServiceSuite(): void {
           description:
             "Create a compact continuation brief for another conversation.",
         },
+        {
+          name: "setup-matt-pocock-skills",
+          description:
+            "Establish minimal GitHub-first domain documentation from repository evidence.",
+        },
       ],
     });
 

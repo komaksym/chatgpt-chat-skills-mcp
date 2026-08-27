@@ -1,0 +1,62 @@
+[
+  {
+    "id": "writable-single-context",
+    "given": [
+      "Repository read access is observed.",
+      "Repository permissions explicitly allow writes and a connected write capability is available.",
+      "Source and documentation use one coherent domain vocabulary."
+    ],
+    "expected": [
+      "Use the single-context layout.",
+      "Persist only populated, evidence-backed domain documentation.",
+      "Report the exact files changed."
+    ],
+    "forbidden": [
+      "Create an empty glossary or ADR.",
+      "Claim an unobserved commit or pull request."
+    ]
+  },
+  {
+    "id": "read-only",
+    "given": [
+      "Repository reads succeed.",
+      "Write permission or a connected write capability is absent or unverified."
+    ],
+    "expected": [
+      "Return complete proposed document content in chat.",
+      "State that the proposal was not persisted.",
+      "Name the capability that blocked persistence."
+    ],
+    "forbidden": [
+      "Imply that a file, commit, or pull request exists."
+    ]
+  },
+  {
+    "id": "single-context-default",
+    "given": [
+      "The repository has one vocabulary, or evidence for bounded contexts is incomplete."
+    ],
+    "expected": [
+      "Use one root context document and system-wide ADR location.",
+      "Do not infer bounded contexts from directory layout alone."
+    ],
+    "forbidden": [
+      "Create a context map merely because the repository is a monorepo."
+    ]
+  },
+  {
+    "id": "evidence-backed-multi-context",
+    "given": [
+      "Repository structure separates independently evolving areas.",
+      "Those areas use distinct domain language and boundaries."
+    ],
+    "expected": [
+      "Explain both structural and language evidence.",
+      "Propose a root context map and scoped context documents.",
+      "Wait for confirmation before persisting the multi-context layout."
+    ],
+    "forbidden": [
+      "Persist multi-context structure without evidence or confirmation."
+    ]
+  }
+]

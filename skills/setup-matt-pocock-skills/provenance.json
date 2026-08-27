@@ -1,0 +1,19 @@
+{
+  "name": "setup-matt-pocock-skills",
+  "visibility": "public",
+  "description": "Establish minimal GitHub-first domain documentation from repository evidence.",
+  "dependencies": [],
+  "upstream": {
+    "repository": "https://github.com/mattpocock/skills",
+    "location": "skills/engineering/setup-matt-pocock-skills/SKILL.md",
+    "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76"
+  },
+  "license": "MIT",
+  "attribution": "Copyright (c) 2026 Matt Pocock",
+  "adaptations": [
+    "Replace local repository and CLI inspection with connected GitHub capabilities.",
+    "Remove non-GitHub tracker selection and agent-instruction configuration.",
+    "Require observed read/write capability evidence and truthful read-only behavior.",
+    "Create only evidence-backed domain documentation, with single-context as the default."
+  ]
+}
