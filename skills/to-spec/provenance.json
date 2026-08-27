@@ -1,0 +1,19 @@
+{
+  "name": "to-spec",
+  "visibility": "public",
+  "description": "Synthesize settled work into a GitHub specification without restarting discovery.",
+  "dependencies": [],
+  "upstream": {
+    "repository": "https://github.com/mattpocock/skills",
+    "location": "skills/engineering/to-spec/SKILL.md",
+    "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76"
+  },
+  "license": "MIT",
+  "attribution": "Copyright (c) 2026 Matt Pocock",
+  "adaptations": [
+    "Use the active GitHub repository directly and remove tracker/setup indirection.",
+    "Do not require triage labels when publishing specifications.",
+    "Publish through connected GitHub write capabilities when available; otherwise return the complete unpublished specification in chat.",
+    "Treat settled discussion as authoritative and ask at most one focused question only when the highest existing behavioral test seam still needs confirmation."
+  ]
+}
