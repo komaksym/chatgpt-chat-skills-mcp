@@ -1,0 +1,18 @@
+{
+  "name": "grilling",
+  "visibility": "hidden",
+  "description": "Drive evidence-led decision rounds until the design frontier is empty.",
+  "dependencies": [],
+  "upstream": {
+    "repository": "https://github.com/mattpocock/skills",
+    "location": "skills/productivity/grilling/SKILL.md",
+    "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76"
+  },
+  "license": "MIT",
+  "attribution": "Copyright (c) 2026 Matt Pocock",
+  "adaptations": [
+    "Investigate facts through connected capabilities instead of local filesystem or sub-agent assumptions.",
+    "Expose assumptions and material tradeoffs explicitly for every decision.",
+    "Allow all remaining questions at once only when the user explicitly requests it."
+  ]
+}

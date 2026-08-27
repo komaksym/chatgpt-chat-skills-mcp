@@ -1,0 +1,19 @@
+{
+  "name": "grill-with-docs",
+  "visibility": "public",
+  "description": "Stress-test a plan through evidence-led decisions and durable domain language.",
+  "dependencies": ["grilling", "domain-modeling"],
+  "upstream": {
+    "repository": "https://github.com/mattpocock/skills",
+    "location": "skills/engineering/grill-with-docs/SKILL.md",
+    "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76"
+  },
+  "license": "MIT",
+  "attribution": "Copyright (c) 2026 Matt Pocock",
+  "adaptations": [
+    "Load grilling only when the first decision frontier is ready.",
+    "Load domain-modeling only when terminology or durable decisions stabilize.",
+    "Replace local exploration with observed connected capabilities.",
+    "Require explicit non-persistence reporting when repository writes are unavailable."
+  ]
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "fact-investigation",
+    "given": "A repository fact is needed before one branch can be decided.",
+    "expected": [
+      "Investigate the fact through connected capabilities.",
+      "Keep only dependent questions pending.",
+      "Continue with the rest of the current frontier."
+    ],
+    "forbidden": [
+      "Ask the user for a fact the workflow can inspect."
+    ]
+  },
+  {
+    "id": "decision-frontier",
+    "given": "Several decisions have settled prerequisites and another depends on them.",
+    "expected": [
+      "Ask the ready frontier in one numbered round.",
+      "Expose assumptions, recommendation, and material tradeoff for each question.",
+      "Wait for the user's choices before asking dependent questions."
+    ],
+    "forbidden": [
+      "Answer the user's decision silently."
+    ]
+  },
+  {
+    "id": "stable-domain-language",
+    "given": "A domain term stabilizes and repository write access is observed.",
+    "expected": [
+      "Load domain-modeling at this phase.",
+      "Use one canonical term and record conflicting synonyms as avoided language.",
+      "Persist only the justified glossary change."
+    ],
+    "forbidden": [
+      "Create a placeholder ADR or implementation specification."
+    ]
+  },
+  {
+    "id": "no-premature-delivery",
+    "given": "The interview still has an open decision frontier.",
+    "expected": [
+      "Ask the next ready decision round and wait.",
+      "Keep specification and implementation outside this workflow."
+    ],
+    "forbidden": [
+      "Jump directly to a specification.",
+      "Begin implementation."
+    ]
+  }
+]
