@@ -1,0 +1,19 @@
+{
+  "name": "domain-modeling",
+  "visibility": "hidden",
+  "description": "Sharpen and persist stable domain language and consequential decisions.",
+  "dependencies": [],
+  "upstream": {
+    "repository": "https://github.com/mattpocock/skills",
+    "location": "skills/engineering/domain-modeling/SKILL.md",
+    "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76"
+  },
+  "license": "MIT",
+  "attribution": "Copyright (c) 2026 Matt Pocock",
+  "adaptations": [
+    "Read and write domain artifacts through connected GitHub capabilities.",
+    "Persist only after terminology or a qualifying consequential decision stabilizes.",
+    "State non-persistence explicitly whenever writes are unavailable or unverified.",
+    "Preserve canonical terms, conflicting synonyms, lazy context creation, and strict ADR criteria."
+  ]
+}

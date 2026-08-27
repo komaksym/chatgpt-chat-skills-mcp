@@ -75,3 +75,24 @@ minimal persisted docs   explicit unpersisted proposal
 3. Add writable, read-only, single-context, and evidence-backed multi-context fixtures.
 4. Verify public listing and exact runtime loading over MCP.
 5. Commit, review against issue #4, fix findings, and reverify.
+
+## Milestone 4 — Issue #5: Add decision grilling with domain modeling
+
+Summary: compose one public interview workflow from two hidden, exact-loadable
+methodology bundles without pre-composing their runtime bodies.
+
+```text
+grill-with-docs (public)
+        |
+        +-- decision frontier reached --> load grilling (hidden)
+        |
+        +-- stable term/decision -------> load domain-modeling (hidden)
+                                              |
+                         writable GitHub -----+----- read-only report
+```
+
+1. Vendor pinned public and hidden upstream sources with separate adaptations.
+2. Declare dependencies in metadata and keep hidden bundles out of public listing.
+3. Preserve fact investigation, decision rounds, recommendations, and tradeoffs.
+4. Persist only stable terminology and qualifying ADRs when writes are observed.
+5. Add no-premature-specification fixtures, commit, review, fix, and reverify.
