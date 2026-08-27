@@ -12,9 +12,12 @@ interface RubricCriterion {
 
 interface BehavioralCase {
   id: string;
+  justification?: string;
   prompt: string;
   repositoryContext: {
+    baseSha: string;
     setup: string;
+    sourceRepository: string;
     writes: boolean;
   };
   rubric: RubricCriterion[];
@@ -71,7 +74,8 @@ function makeCompletedRun(suite: BehavioralSuite): Record<string, unknown> {
           model,
           repository: {
             url: "https://github.com/example/baseline-fixture",
-            baseSha: releaseSha,
+            sourceRepository: candidate.repositoryContext.sourceRepository,
+            baseSha: candidate.repositoryContext.baseSha,
           },
           outcome: "Baseline outcome recorded from the fresh no-skill conversation.",
           rubric: baselineRubric,
@@ -81,7 +85,8 @@ function makeCompletedRun(suite: BehavioralSuite): Record<string, unknown> {
           model,
           repository: {
             url: "https://github.com/example/adapted-fixture",
-            baseSha: releaseSha,
+            sourceRepository: candidate.repositoryContext.sourceRepository,
+            baseSha: candidate.repositoryContext.baseSha,
           },
           outcome: "Adapted outcome recorded from the fresh skill conversation.",
           rubric: adaptedRubric,
@@ -93,9 +98,7 @@ function makeCompletedRun(suite: BehavioralSuite): Record<string, unknown> {
   };
 }
 
-async function writeRun(
-  run: Record<string, unknown>,
-): Promise<string> {
+async function writeRun(run: Record<string, unknown>): Promise<string> {
   const root = await mkdtemp(join(tmpdir(), "behavioral-eval-"));
   tempRoots.push(root);
   const path = join(root, "run.json");
@@ -110,7 +113,7 @@ afterEach(async () => {
 });
 
 describe("behavioral release evaluation pack", () => {
-  it("stays manual-only and keeps one or two cases per public workflow", async () => {
+  it("stays manual-only and keeps one or two cases per workflow by default", async () => {
     const suite = await loadSuite();
     const expected = [
       "code-review",
@@ -128,11 +131,15 @@ describe("behavioral release evaluation pack", () => {
       expected,
     );
     for (const workflow of expected) {
-      const count = suite.cases.filter(
+      const cases = suite.cases.filter(
         (candidate) => candidate.workflow === workflow,
-      ).length;
-      expect(count).toBeGreaterThanOrEqual(1);
-      expect(count).toBeLessThanOrEqual(2);
+      );
+      expect(cases.length).toBeGreaterThanOrEqual(1);
+      for (const extra of cases.slice(2)) {
+        expect(extra.justification).toMatch(
+          /^(regression|uncovered-behavior):/,
+        );
+      }
     }
   });
 
@@ -188,7 +195,7 @@ describe("behavioral release evaluation pack", () => {
     }
   });
 
-  it("accepts a completed run only through the manual validator", async () => {
+  it("accepts a completed paired run through the manual validator", async () => {
     const suite = await loadSuite();
     const runPath = await writeRun(makeCompletedRun(suite));
 
@@ -216,6 +223,37 @@ describe("behavioral release evaluation pack", () => {
     });
 
     expect(result.stderr).toContain("same exact model");
+  });
+
+  it("rejects repository state that differs from the fixed case context", async () => {
+    const suite = await loadSuite();
+    const run = makeCompletedRun(suite);
+    const cases = run.cases as Array<Record<string, unknown>>;
+    const first = cases[0]!;
+    const adapted = first.adapted as Record<string, unknown>;
+    const repository = adapted.repository as Record<string, unknown>;
+    repository.baseSha = "b".repeat(40);
+    const runPath = await writeRun(run);
+
+    const result = spawnSync(process.execPath, [VALIDATOR_PATH, runPath], {
+      encoding: "utf8",
+    });
+
+    expect(result.stderr).toContain("fixed case repository context");
+  });
+
+  it("rejects a prompt that differs from the fixed task", async () => {
+    const suite = await loadSuite();
+    const run = makeCompletedRun(suite);
+    const cases = run.cases as Array<Record<string, unknown>>;
+    cases[0]!.prompt = "changed task";
+    const runPath = await writeRun(run);
+
+    const result = spawnSync(process.execPath, [VALIDATOR_PATH, runPath], {
+      encoding: "utf8",
+    });
+
+    expect(result.stderr).toContain("fixed suite prompt");
   });
 
   it("rejects completed cases without pass/fail rationale", async () => {
