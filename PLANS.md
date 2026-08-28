@@ -75,3 +75,24 @@ minimal persisted docs   explicit unpersisted proposal
 3. Add writable, read-only, single-context, and evidence-backed multi-context fixtures.
 4. Verify public listing and exact runtime loading over MCP.
 5. Commit, review against issue #4, fix findings, and reverify.
+
+## Milestone 4 — Issue #30: Align grilling workflow with upstream semantics
+
+Summary: preserve the pinned upstream composition and methodologies while adapting
+only the MCP invocation and unavailable execution mechanics.
+
+```text
+grill-with-docs (public)
+        |
+        +-- immediately --> load grilling (hidden)
+        |
+        +-- immediately --> load domain-modeling (hidden)
+                              |
+                 same ChatGPT conversation
+```
+
+1. Keep `grill-with-docs` minimal and immediately load both declared dependencies.
+2. Preserve upstream `grilling` except for connected-capability fact investigation.
+3. Preserve upstream `domain-modeling` and inline its pinned CONTEXT/ADR formats.
+4. Keep child skills separately loadable and hidden from public discovery.
+5. Verify the upstream-derived runtime invariants through the real MCP HTTP seam.

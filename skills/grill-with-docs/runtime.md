@@ -1,0 +1,1 @@
+Immediately call `load_skill("grilling")` and `load_skill("domain-modeling")` in this conversation.

@@ -57,6 +57,11 @@ function defineServiceSuite(): void {
     expect(listing.structuredContent).toEqual({
       skills: [
         {
+          name: "grill-with-docs",
+          description:
+            "Stress-test a plan through evidence-led decisions and durable domain language.",
+        },
+        {
           name: "handoff",
           description:
             "Create a compact continuation brief for another conversation.",

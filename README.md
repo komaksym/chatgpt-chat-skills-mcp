@@ -28,9 +28,16 @@ Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
 
 ## Current public skill
 
+- `grill-with-docs` — Stress-test a plan through evidence-led decisions and
+  durable domain language.
 - `handoff` — Create a compact continuation brief for another conversation.
 - `setup-matt-pocock-skills` — Establish minimal GitHub-first domain
   documentation from repository evidence.
+
+`grilling` and `domain-modeling` are hidden dependencies. Loading
+`grill-with-docs` instructs ChatGPT to load both immediately in the same
+conversation. They never appear in `list_skills`, remain separately loadable by
+exact canonical name, and are never concatenated into the parent runtime.
 
 The MCP surface contains exactly `load_skill` and `list_skills`. Call
 `load_skill` with the exact canonical name `handoff`; its input is deliberately a
