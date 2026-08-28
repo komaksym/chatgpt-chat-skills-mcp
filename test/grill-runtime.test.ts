@@ -108,7 +108,7 @@ function defineGrillRuntimeSuite(): void {
     expect(grilling).toContain("Assumption:");
     expect(grilling).toContain("recommended answer");
     expect(grilling).toContain("Material tradeoff");
-    expect(grilling).toContain("wait for the user's answer");
+    expect(grilling).toContain("wait for the user's answers");
     expect(grilling).toContain("frontier");
     expect(domain).toContain("propose a precise canonical term");
     expect(domain).toContain("# CONTEXT.md Format");
