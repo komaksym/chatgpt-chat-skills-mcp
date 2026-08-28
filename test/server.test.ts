@@ -5,6 +5,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import { afterEach, describe, expect, it } from "vitest";
 
+import { REMOTE_EXECUTION_CONTRACT } from "../src/contract.js";
 import { startService, type RunningService } from "../src/service.js";
 
 /** Returns a tool's canonical protocol name. */
@@ -92,13 +93,9 @@ function defineServiceSuite(): void {
       new URL("../skills/handoff/runtime.md", import.meta.url),
       "utf8",
     );
-    const runtimeMarker = "# handoff\n\n";
-    const runtimeStart = text.text.indexOf(runtimeMarker);
-    expect(runtimeStart).toBeGreaterThan(-1);
-    expect(text.text.slice(runtimeStart + runtimeMarker.length)).toBe(
-      `${committedRuntime.trim()}\n`,
+    expect(text.text).toBe(
+      `${REMOTE_EXECUTION_CONTRACT}\n\n# handoff\n\n${committedRuntime.trim()}\n`,
     );
-    expect(text.text).toContain("Remote execution contract");
     expect(text.text).toContain("---\nname: handoff\n");
     expect(text.text).toContain("suggested skills");
     expect(text.text).not.toContain("6654f6b60cd9d5be8b54c6fafe44346dabeb3b76");
