@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   CANONICAL_NAME,
-  provenanceSchema,
+  parseSkillProvenance,
   type SkillProvenance,
 } from "./provenance.js";
 
@@ -51,13 +51,7 @@ async function readProvenance(
     throw new Error(`Missing provenance: ${name}/provenance.json.`);
   }
 
-  let raw: unknown;
-  try {
-    raw = JSON.parse(source);
-  } catch {
-    throw new Error(`Invalid provenance for ${name}.`);
-  }
-  const parsed = provenanceSchema.safeParse(raw);
+  const parsed = parseSkillProvenance(source);
   if (!parsed.success || parsed.data.name !== name) {
     throw new Error(`Invalid provenance for ${name}.`);
   }
