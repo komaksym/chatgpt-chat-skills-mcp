@@ -5,8 +5,10 @@ export interface ProjectionOptions {
 
 /** Generates one committed runtime candidate from its pinned upstream bundle. */
 export async function generateSkillRuntime(
-  _name: string,
-  _options: ProjectionOptions = {},
+  name: string,
+  options: ProjectionOptions = {},
 ): Promise<string> {
+  void name;
+  void options;
   throw new Error("Mechanical Projection generator is not implemented.");
 }
