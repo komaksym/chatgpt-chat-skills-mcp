@@ -21,6 +21,9 @@ interface FixtureOptions {
   changeRecords?: Array<Record<string, unknown>>;
   fix?: {
     adr: string;
+    match?: string;
+    replacement?: string;
+    source?: string;
     test: string;
     upstreamCommit: string;
   };
@@ -69,13 +72,13 @@ async function createProjectionFixture(
   if (options.fix) {
     projection.temporaryUpstreamFix = {
       upstreamCommit: options.fix.upstreamCommit,
-      source: "upstream.md",
+      source: options.fix.source ?? "upstream.md",
       adr: options.fix.adr,
       test: options.fix.test,
       transform: {
         type: "replace-exact",
-        match: "PINNED_SOURCE",
-        replacement: "FIXED_SOURCE",
+        match: options.fix.match ?? "PINNED_SOURCE",
+        replacement: options.fix.replacement ?? "FIXED_SOURCE",
       },
     };
   }
@@ -309,6 +312,46 @@ function defineProjectionSuite(): void {
     ).resolves.toBe("ENTRYPOINT\n\n---\n\nPINNED SUPPORTING DOCUMENT\n");
   }
 
+  /** Proves an active Temporary Upstream Fix can target a pinned Supporting Document. */
+  async function appliesTemporaryFixToSupportingSource(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      expectedSource: "ENTRYPOINT\n",
+      supportingSources: [
+        {
+          path: "supporting.md",
+          content: "SUPPORT BUG\n",
+        },
+      ],
+      changeRecords: [
+        {
+          allowedRuntimeChange: "inline-supporting-document",
+          source: "supporting.md",
+          evidence: "The runtime must be self-contained.",
+          transform: {
+            type: "append-source",
+            separator: "\n---\n\n",
+          },
+        },
+      ],
+      fix: {
+        upstreamCommit: PIN_B,
+        source: "supporting.md",
+        match: "BUG",
+        replacement: "FIXED",
+        adr: "docs/adr/fixture-fix.md",
+        test: "test/fixture-fix.test.ts",
+      },
+      writeAdr: true,
+      writeFocusedTest: true,
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).resolves.toBe("ENTRYPOINT\n\n---\n\nSUPPORT FIXED\n");
+  }
+
   /** Proves a Temporary Upstream Fix expires as soon as the pinned commit changes. */
   async function rejectsExpiredTemporaryFix(): Promise<void> {
     const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
@@ -419,6 +462,10 @@ function defineProjectionSuite(): void {
   );
   it("transforms pinned supporting source bytes", transformsPinnedSupportingSource);
   it("inlines pinned supporting source bytes", inlinesPinnedSupportingSource);
+  it(
+    "applies a Temporary Upstream Fix to a pinned Supporting Document",
+    appliesTemporaryFixToSupportingSource,
+  );
   it("expires a Temporary Upstream Fix on pin change", rejectsExpiredTemporaryFix);
   it("rejects a non-ADR Temporary Upstream Fix path", rejectsTemporaryFixNonAdrPath);
   it("requires a Temporary Upstream Fix ADR", requiresTemporaryFixAdr);
