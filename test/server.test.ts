@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
@@ -85,11 +87,26 @@ function defineServiceSuite(): void {
     if (!text || text.type !== "text") {
       throw new Error("Expected text content");
     }
+
+    const committedRuntime = await readFile(
+      new URL("../skills/handoff/runtime.md", import.meta.url),
+      "utf8",
+    );
+    const runtimeMarker = "# handoff\n\n";
+    const runtimeStart = text.text.indexOf(runtimeMarker);
+    expect(runtimeStart).toBeGreaterThan(-1);
+    expect(text.text.slice(runtimeStart + runtimeMarker.length)).toBe(
+      `${committedRuntime.trim()}\n`,
+    );
     expect(text.text).toContain("Remote execution contract");
-    expect(text.text).toContain("# handoff");
+    expect(text.text).toContain("---\nname: handoff\n");
     expect(text.text).toContain("suggested skills");
     expect(text.text).not.toContain("6654f6b60cd9d5be8b54c6fafe44346dabeb3b76");
     expect(text.text).not.toContain("Copyright (c) 2026 Matt Pocock");
+    expect(text.text).not.toContain("changeRecords");
+    expect(text.text).not.toContain(
+      "7c62de979fdc7ac32fb5ddb2146156c917f80ee070d30fadc9d40343c4b6ed25",
+    );
   }
 
   it("lists and loads handoff through the real loopback transport", listsAndLoadsHandoff);

@@ -1,11 +1,16 @@
-Create a self-contained Markdown continuation brief in chat so another conversation
-can resume the work without access to this conversation's history.
+---
+name: handoff
+description: Compact the current conversation into a handoff document for another agent to pick up.
+argument-hint: "What will the next session be used for?"
+disable-model-invocation: true
+---
 
-Include the current state, rationale, settled decisions, remaining work, the next
-concrete action, and a `suggested skills` section. Tailor the brief to any focus the
-user supplied.
+Write a handoff document summarising the current conversation so a fresh agent can continue the work. Return the handoff document in chat so the user can pass it to the next conversation.
 
-Reference durable GitHub issues, pull requests, commits, specifications, and ADRs
-instead of duplicating their contents. Redact credentials, secrets, and sensitive
-personal data. Save the brief remotely only when the user supplies an explicit
-writable destination; otherwise return it in chat and do not imply it was persisted.
+Include a "suggested skills" section in the document, naming which skills the next agent should load with `load_skill`.
+
+Do not duplicate content already captured in other artifacts (specs, plans, ADRs, issues, commits, diffs). Reference them by path or URL instead.
+
+Redact any sensitive information, such as API keys, passwords, or personally identifiable information.
+
+If the user passed arguments, treat them as a description of what the next session will focus on and tailor the doc accordingly.

@@ -16,7 +16,13 @@ npm run lint
 npm run typecheck
 npm test
 npm run build
+npm run generate:check
 ```
+
+Projection-enabled skills are generated during development, never at MCP startup
+or request time. Regenerate one skill with `npm run generate -- handoff`, or run
+`npm run generate` without a name to regenerate every projection-enabled bundle.
+The committed `runtime.md` is the artifact served in production.
 
 Start the built service on `127.0.0.1:2092`:
 
@@ -51,6 +57,11 @@ Each direct child of `skills/` is discovered from its `provenance.json` and
 dependencies, and upstream provenance; server source contains no second skill
 registry. Public bundles appear in `list_skills`. Public and hidden bundles can be
 loaded only by an exact canonical name.
+
+Projection-enabled provenance also records pinned source digests, ordered Change
+Records, and any Temporary Upstream Fix. Those fields are development-time build
+inputs only; the MCP still serves the committed runtime and never returns
+provenance.
 
 The catalog is validated before the HTTP listener starts. Invalid metadata,
 duplicate names, missing runtimes, and unresolved dependencies stop startup. Tool

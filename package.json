@@ -8,6 +8,8 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
+    "generate": "npm run build && node dist/generate.js",
+    "generate:check": "npm run build && node dist/generate.js --check",
     "lint": "eslint .",
     "start": "node dist/main.js",
     "test": "vitest run",

@@ -17,6 +17,7 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
+      - run: npm run generate:check -- handoff
       - run: npm test -- test/projection.test.ts
       - run: npm test
       - run: npm run build
