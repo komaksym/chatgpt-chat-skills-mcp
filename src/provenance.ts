@@ -21,6 +21,11 @@ const replaceExactSchema = z.strictObject({
   replacement: z.string(),
 });
 
+const appendSourceSchema = z.strictObject({
+  type: z.literal("append-source"),
+  separator: z.string(),
+});
+
 const changeRecordSchema = z.strictObject({
   allowedRuntimeChange: z.enum([
     "inline-supporting-document",
@@ -30,7 +35,7 @@ const changeRecordSchema = z.strictObject({
   ]),
   source: artifactPathSchema,
   evidence: z.string().min(1),
-  transform: replaceExactSchema,
+  transform: z.discriminatedUnion("type", [replaceExactSchema, appendSourceSchema]),
 });
 
 const sourceArtifactSchema = z.strictObject({
