@@ -1,0 +1,22 @@
+name: Issue 32 verification
+
+on:
+  push:
+    branches:
+      - codex/issue-32-handoff-mechanical-projection
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test -- test/projection.test.ts
+      - run: npm test
+      - run: npm run build

@@ -1,0 +1,235 @@
+import { createHash } from "node:crypto";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+import { afterEach, describe, expect, it } from "vitest";
+
+import { generateSkillRuntime } from "../src/projection.js";
+
+const HANDOFF_ROOT = new URL("../skills/handoff/", import.meta.url);
+const PIN_A = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+const PIN_B = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+
+interface FixtureOptions {
+  actualSource?: string;
+  expectedSource?: string;
+  fix?: {
+    adr: string;
+    test: string;
+    upstreamCommit: string;
+  };
+  writeAdr?: boolean;
+  writeFocusedTest?: boolean;
+}
+
+/** Returns a SHA-256 digest for exact pinned UTF-8 source bytes. */
+function sha256(source: string): string {
+  return createHash("sha256").update(source).digest("hex");
+}
+
+/** Creates one projection-enabled skill fixture under a temporary repository root. */
+async function createProjectionFixture(
+  repositoryRoot: string,
+  options: FixtureOptions = {},
+): Promise<{ skillsRoot: string }> {
+  const skillsRoot = join(repositoryRoot, "skills");
+  const bundleRoot = join(skillsRoot, "fixture-skill");
+  const expectedSource = options.expectedSource ?? "PINNED_SOURCE\n";
+  const actualSource = options.actualSource ?? expectedSource;
+  await mkdir(bundleRoot, { recursive: true });
+  await writeFile(join(bundleRoot, "upstream.md"), actualSource, "utf8");
+
+  const projection: Record<string, unknown> = {
+    entrypoint: "upstream.md",
+    sources: [
+      {
+        path: "upstream.md",
+        sha256: sha256(expectedSource),
+      },
+    ],
+    changeRecords: [],
+  };
+  if (options.fix) {
+    projection.temporaryUpstreamFix = {
+      upstreamCommit: options.fix.upstreamCommit,
+      source: "upstream.md",
+      adr: options.fix.adr,
+      test: options.fix.test,
+      transform: {
+        type: "replace-exact",
+        match: "PINNED_SOURCE",
+        replacement: "FIXED_SOURCE",
+      },
+    };
+  }
+
+  await writeFile(
+    join(bundleRoot, "provenance.json"),
+    JSON.stringify(
+      {
+        name: "fixture-skill",
+        visibility: "public",
+        description: "Projection fixture.",
+        dependencies: [],
+        upstream: {
+          repository: "https://github.com/example/skills",
+          location: "skills/fixture/SKILL.md",
+          commit: PIN_B,
+        },
+        license: "MIT",
+        attribution: "Fixture author",
+        adaptations: [],
+        projection,
+      },
+      null,
+      2,
+    ),
+    "utf8",
+  );
+
+  if (options.writeAdr && options.fix) {
+    const path = join(repositoryRoot, options.fix.adr);
+    await mkdir(join(path, ".."), { recursive: true });
+    await writeFile(path, "# Temporary fix ADR\n", "utf8");
+  }
+  if (options.writeFocusedTest && options.fix) {
+    const path = join(repositoryRoot, options.fix.test);
+    await mkdir(join(path, ".."), { recursive: true });
+    await writeFile(path, "// focused regression test\n", "utf8");
+  }
+
+  return { skillsRoot };
+}
+
+/** Defines the deterministic Mechanical Projection seam. */
+function defineProjectionSuite(): void {
+  const roots: string[] = [];
+
+  /** Removes temporary repositories created by fixture tests. */
+  async function cleanup(): Promise<void> {
+    for (const root of roots) {
+      await rm(root, { recursive: true, force: true });
+    }
+  }
+
+  afterEach(cleanup);
+
+  /** Proves handoff is the exact pinned upstream skill plus two recorded adaptations. */
+  async function generatesHandoffDeterministically(): Promise<void> {
+    const upstream = await readFile(new URL("upstream.md", HANDOFF_ROOT), "utf8");
+    const committed = await readFile(new URL("runtime.md", HANDOFF_ROOT), "utf8");
+    const expected = upstream
+      .replace(
+        "Save to the temporary directory of the user's OS - not the current workspace.",
+        "Return the handoff document in chat so the user can pass it to the next conversation.",
+      )
+      .replace("call the Skill tool for", "load with `load_skill`");
+
+    const first = await generateSkillRuntime("handoff");
+    const second = await generateSkillRuntime("handoff");
+
+    expect(first).toBe(expected);
+    expect(second).toBe(first);
+    expect(committed).toBe(first);
+  }
+
+  /** Proves a changed pinned source blocks generation before any projection is emitted. */
+  async function rejectsAlteredPinnedSource(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      actualSource: "ALTERED_SOURCE\n",
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow("Source integrity mismatch for fixture-skill/upstream.md.");
+  }
+
+  /** Proves a missing pinned source blocks generation rather than degrading. */
+  async function rejectsMissingPinnedSource(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot);
+    await rm(join(skillsRoot, "fixture-skill", "upstream.md"));
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow("Missing pinned source: fixture-skill/upstream.md.");
+  }
+
+  /** Proves a Temporary Upstream Fix expires as soon as the pinned commit changes. */
+  async function rejectsExpiredTemporaryFix(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      fix: {
+        upstreamCommit: PIN_A,
+        adr: "docs/adr/fixture-fix.md",
+        test: "test/fixture-fix.test.ts",
+      },
+      writeAdr: true,
+      writeFocusedTest: true,
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow(
+      "Temporary Upstream Fix for fixture-skill expired when the upstream pin changed.",
+    );
+  }
+
+  /** Proves an active Temporary Upstream Fix must point at a real ADR. */
+  async function requiresTemporaryFixAdr(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      fix: {
+        upstreamCommit: PIN_B,
+        adr: "docs/adr/fixture-fix.md",
+        test: "test/fixture-fix.test.ts",
+      },
+      writeFocusedTest: true,
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow("Missing Temporary Upstream Fix ADR: docs/adr/fixture-fix.md.");
+  }
+
+  /** Proves an active Temporary Upstream Fix must point at its focused regression test. */
+  async function requiresTemporaryFixFocusedTest(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      fix: {
+        upstreamCommit: PIN_B,
+        adr: "docs/adr/fixture-fix.md",
+        test: "test/fixture-fix.test.ts",
+      },
+      writeAdr: true,
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow(
+      "Missing Temporary Upstream Fix focused test: test/fixture-fix.test.ts.",
+    );
+  }
+
+  it(
+    "generates handoff deterministically from its pinned bundle",
+    generatesHandoffDeterministically,
+  );
+  it("rejects altered pinned source", rejectsAlteredPinnedSource);
+  it("rejects missing pinned source", rejectsMissingPinnedSource);
+  it("expires a Temporary Upstream Fix on pin change", rejectsExpiredTemporaryFix);
+  it("requires a Temporary Upstream Fix ADR", requiresTemporaryFixAdr);
+  it(
+    "requires a Temporary Upstream Fix focused test",
+    requiresTemporaryFixFocusedTest,
+  );
+}
+
+describe("Mechanical Projection generator", defineProjectionSuite);
