@@ -14,6 +14,11 @@ const PIN_B = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 interface FixtureOptions {
   actualSource?: string;
   expectedSource?: string;
+  supportingSources?: Array<{
+    content: string;
+    path: string;
+  }>;
+  changeRecords?: Array<Record<string, unknown>>;
   fix?: {
     adr: string;
     test: string;
@@ -40,6 +45,13 @@ async function createProjectionFixture(
   await mkdir(bundleRoot, { recursive: true });
   await writeFile(join(bundleRoot, "upstream.md"), actualSource, "utf8");
 
+  const supportingSources = options.supportingSources ?? [];
+  for (const supportingSource of supportingSources) {
+    const path = join(bundleRoot, supportingSource.path);
+    await mkdir(join(path, ".."), { recursive: true });
+    await writeFile(path, supportingSource.content, "utf8");
+  }
+
   const projection: Record<string, unknown> = {
     entrypoint: "upstream.md",
     sources: [
@@ -47,8 +59,12 @@ async function createProjectionFixture(
         path: "upstream.md",
         sha256: sha256(expectedSource),
       },
+      ...supportingSources.map((supportingSource) => ({
+        path: supportingSource.path,
+        sha256: sha256(supportingSource.content),
+      })),
     ],
-    changeRecords: [],
+    changeRecords: options.changeRecords ?? [],
   };
   if (options.fix) {
     projection.temporaryUpstreamFix = {
@@ -159,6 +175,36 @@ function defineProjectionSuite(): void {
     ).rejects.toThrow("Missing pinned source: fixture-skill/upstream.md.");
   }
 
+  /** Proves supporting documents enter the runtime from their exact pinned bytes. */
+  async function inlinesPinnedSupportingSource(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      expectedSource: "ENTRYPOINT\n",
+      supportingSources: [
+        {
+          path: "supporting.md",
+          content: "PINNED SUPPORTING DOCUMENT\n",
+        },
+      ],
+      changeRecords: [
+        {
+          allowedRuntimeChange: "inline-supporting-document",
+          source: "supporting.md",
+          evidence: "The runtime must be self-contained.",
+          transform: {
+            type: "append-source",
+            separator: "\n---\n\n",
+          },
+        },
+      ],
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).resolves.toBe("ENTRYPOINT\n\n---\n\nPINNED SUPPORTING DOCUMENT\n");
+  }
+
   /** Proves a Temporary Upstream Fix expires as soon as the pinned commit changes. */
   async function rejectsExpiredTemporaryFix(): Promise<void> {
     const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
@@ -224,6 +270,7 @@ function defineProjectionSuite(): void {
   );
   it("rejects altered pinned source", rejectsAlteredPinnedSource);
   it("rejects missing pinned source", rejectsMissingPinnedSource);
+  it("inlines pinned supporting source bytes", inlinesPinnedSupportingSource);
   it("expires a Temporary Upstream Fix on pin change", rejectsExpiredTemporaryFix);
   it("requires a Temporary Upstream Fix ADR", requiresTemporaryFixAdr);
   it(
