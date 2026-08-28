@@ -141,7 +141,7 @@ function defineProjectionSuite(): void {
     const expected = upstream
       .replace(
         "Save to the temporary directory of the user's OS - not the current workspace.",
-        "Return the handoff document in chat so the user can pass it to the next conversation.",
+        "Return the handoff directly in chat as a single fenced Markdown block so the user can copy it in one click and paste it into the next conversation. Do not create a separate document, artifact, or file.",
       )
       .replace("call the Skill tool for", "load with `load_skill`");
 
