@@ -290,6 +290,25 @@ function defineProjectionSuite(): void {
     ).rejects.toThrow("Missing Temporary Upstream Fix ADR: docs/adr/fixture-fix.md.");
   }
 
+  /** Proves a Temporary Upstream Fix cannot use an arbitrary file as its focused test. */
+  async function rejectsTemporaryFixNonTestPath(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      fix: {
+        upstreamCommit: PIN_B,
+        adr: "docs/adr/fixture-fix.md",
+        test: "package.json",
+      },
+      writeAdr: true,
+      writeFocusedTest: true,
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow("Invalid provenance for fixture-skill.");
+  }
+
   /** Proves an active Temporary Upstream Fix must point at its focused regression test. */
   async function requiresTemporaryFixFocusedTest(): Promise<void> {
     const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
@@ -321,6 +340,10 @@ function defineProjectionSuite(): void {
   it("expires a Temporary Upstream Fix on pin change", rejectsExpiredTemporaryFix);
   it("rejects a non-ADR Temporary Upstream Fix path", rejectsTemporaryFixNonAdrPath);
   it("requires a Temporary Upstream Fix ADR", requiresTemporaryFixAdr);
+  it(
+    "rejects a non-test Temporary Upstream Fix path",
+    rejectsTemporaryFixNonTestPath,
+  );
   it(
     "requires a Temporary Upstream Fix focused test",
     requiresTemporaryFixFocusedTest,
