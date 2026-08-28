@@ -11,7 +11,7 @@
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
   "adaptations": [
-    "Replace unavailable OS-temporary-directory persistence with returning the handoff document in chat.",
+    "Replace unavailable OS-temporary-directory persistence with returning the handoff directly in chat as a single fenced Markdown block for one-click copying into the next conversation.",
     "Translate the upstream Skill-tool invocation wording to the MCP load_skill tool."
   ],
   "projection": {
@@ -26,11 +26,11 @@
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
-        "evidence": "The Target Runtime Profile has no operating-system temporary directory or filesystem. Returning the handoff document in chat preserves the externally visible handoff document for the user to pass to another conversation.",
+        "evidence": "The Target Runtime Profile is remote-first and does not assume a local checkout, OS filesystem, or temporary directory. Returning the handoff directly in chat preserves a transferable handoff without requiring persistence.",
         "transform": {
           "type": "replace-exact",
           "match": "Save to the temporary directory of the user's OS - not the current workspace.",
-          "replacement": "Return the handoff document in chat so the user can pass it to the next conversation."
+          "replacement": "Return the handoff directly in chat as a single fenced Markdown block so the user can copy it in one click and paste it into the next conversation. Do not create a separate document, artifact, or file."
         }
       },
       {
