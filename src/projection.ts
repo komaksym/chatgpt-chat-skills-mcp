@@ -96,20 +96,26 @@ async function requireEvidence(path: string, label: string): Promise<void> {
   }
 }
 
-/** Applies one deterministic exact replacement and rejects unused/ambiguous records. */
+/** Returns the unique exact-match offset or rejects unused/ambiguous material. */
+function findExactMatch(source: string, match: string, label: string): number {
+  const first = source.indexOf(match);
+  if (first === -1) {
+    throw new Error(`${label} does not match its affected upstream material.`);
+  }
+  if (source.indexOf(match, first + 1) !== -1) {
+    throw new Error(`${label} matches its affected upstream material more than once.`);
+  }
+  return first;
+}
+
+/** Applies one deterministic exact replacement. */
 function replaceExactlyOnce(
   runtime: string,
   match: string,
   replacement: string,
   label: string,
 ): string {
-  const first = runtime.indexOf(match);
-  if (first === -1) {
-    throw new Error(`${label} does not match its affected upstream material.`);
-  }
-  if (runtime.indexOf(match, first + 1) !== -1) {
-    throw new Error(`${label} matches its affected upstream material more than once.`);
-  }
+  const first = findExactMatch(runtime, match, label);
   return `${runtime.slice(0, first)}${replacement}${runtime.slice(first + match.length)}`;
 }
 
@@ -169,11 +175,13 @@ export async function generateSkillRuntime(
         `Change Record ${index + 1} for ${name} cannot apply replace-exact outside the projection entrypoint.`,
       );
     }
+    const label = `Change Record ${index + 1} for ${name}`;
+    findExactMatch(source, record.transform.match, label);
     runtime = replaceExactlyOnce(
       runtime,
       record.transform.match,
       record.transform.replacement,
-      `Change Record ${index + 1} for ${name}`,
+      label,
     );
   }
 
