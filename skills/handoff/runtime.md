@@ -5,7 +5,7 @@ argument-hint: "What will the next session be used for?"
 disable-model-invocation: true
 ---
 
-Write a handoff document summarising the current conversation so a fresh agent can continue the work. Return the handoff document in chat so the user can pass it to the next conversation.
+Write a handoff document summarising the current conversation so a fresh agent can continue the work. Return the handoff directly in chat as a single fenced Markdown block so the user can copy it in one click and paste it into the next conversation. Do not create a separate document, artifact, or file.
 
 Include a "suggested skills" section in the document, naming which skills the next agent should load with `load_skill`.
 
