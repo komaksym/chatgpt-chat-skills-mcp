@@ -14,6 +14,8 @@
     "Replace local repository and CLI inspection with connected GitHub capabilities.",
     "Remove non-GitHub tracker selection and agent-instruction configuration.",
     "Require observed read/write capability evidence and truthful read-only behavior.",
-    "Create only evidence-backed domain documentation, with single-context as the default."
+    "Preserve Matt's CONTEXT.md, CONTEXT-MAP.md, and ADR semantics while recording only repository-established domain language.",
+    "Require proposal review before persistence, prefer reviewable branch and pull-request writes, and report partial remote failures exactly.",
+    "Keep setup reruns idempotent and preserve existing canonical vocabulary and context topology."
   ]
 }
