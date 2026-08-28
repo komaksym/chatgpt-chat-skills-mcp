@@ -150,7 +150,7 @@ export async function generateSkillRuntime(
     );
   }
 
-  let runtime = entrypoint;
+  const projectedSources = new Map(sources);
   for (const [index, record] of projection.changeRecords.entries()) {
     const source = sources.get(record.source);
     if (source === undefined) {
@@ -167,21 +167,25 @@ export async function generateSkillRuntime(
           `Change Record ${index + 1} for ${name} cannot append that projection source.`,
         );
       }
-      runtime = `${runtime}${record.transform.separator}${source}`;
       continue;
     }
-    if (record.source !== projection.entrypoint) {
-      throw new Error(
-        `Change Record ${index + 1} for ${name} cannot apply replace-exact outside the projection entrypoint.`,
-      );
-    }
+
     const label = `Change Record ${index + 1} for ${name}`;
     findExactMatch(source, record.transform.match, label);
-    runtime = replaceExactlyOnce(
-      runtime,
-      record.transform.match,
-      record.transform.replacement,
-      label,
+    const projectedSource = projectedSources.get(record.source);
+    if (projectedSource === undefined) {
+      throw new Error(
+        `Change Record ${index + 1} for ${name} references an unpinned source: ${record.source}.`,
+      );
+    }
+    projectedSources.set(
+      record.source,
+      replaceExactlyOnce(
+        projectedSource,
+        record.transform.match,
+        record.transform.replacement,
+        label,
+      ),
     );
   }
 
@@ -205,12 +209,38 @@ export async function generateSkillRuntime(
       join(repositoryRoot, fix.test),
       `Temporary Upstream Fix focused test: ${fix.test}`,
     );
-    runtime = replaceExactlyOnce(
-      runtime,
-      fix.transform.match,
-      fix.transform.replacement,
-      `Temporary Upstream Fix for ${name}`,
+    const projectedSource = projectedSources.get(fix.source);
+    if (projectedSource === undefined) {
+      throw new Error(
+        `Temporary Upstream Fix for ${name} references an invalid source: ${fix.source}.`,
+      );
+    }
+    projectedSources.set(
+      fix.source,
+      replaceExactlyOnce(
+        projectedSource,
+        fix.transform.match,
+        fix.transform.replacement,
+        `Temporary Upstream Fix for ${name}`,
+      ),
     );
+  }
+
+  let runtime = projectedSources.get(projection.entrypoint);
+  if (runtime === undefined) {
+    throw new Error(
+      `Projection entrypoint for ${name} is not listed in pinned sources: ${projection.entrypoint}.`,
+    );
+  }
+  for (const record of projection.changeRecords) {
+    if (record.transform.type !== "append-source") continue;
+    const source = projectedSources.get(record.source);
+    if (source === undefined) {
+      throw new Error(
+        `Projection source for ${name} is not pinned: ${record.source}.`,
+      );
+    }
+    runtime = `${runtime}${record.transform.separator}${source}`;
   }
 
   return runtime;
