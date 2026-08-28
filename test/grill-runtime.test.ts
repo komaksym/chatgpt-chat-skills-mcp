@@ -10,13 +10,6 @@ import { startService, type RunningService } from "../src/service.js";
 
 const SKILLS_ROOT = new URL("../skills/", import.meta.url);
 
-interface BehaviorFixture {
-  expected: string[];
-  forbidden: string[];
-  given: string;
-  id: string;
-}
-
 /** Loads one skill and returns its protocol text block. */
 async function loadText(client: Client, name: string): Promise<string> {
   const result = CallToolResultSchema.parse(
@@ -29,9 +22,23 @@ async function loadText(client: Client, name: string): Promise<string> {
   return block.text;
 }
 
-/** Returns a fixture's stable identifier. */
-function readFixtureId(fixture: { id: string }): string {
-  return fixture.id;
+/** Returns only the adapted runtime body from a loaded skill response. */
+function runtimeBody(loaded: string, name: string): string {
+  const marker = `# ${name}\n\n`;
+  const start = loaded.indexOf(marker);
+  if (start === -1) {
+    throw new Error(`Missing runtime marker for ${name}`);
+  }
+  return loaded.slice(start + marker.length).trimEnd();
+}
+
+/** Removes upstream YAML frontmatter while preserving the skill body verbatim. */
+function stripFrontmatter(source: string): string {
+  const body = source.replace(/^---\n[\s\S]*?\n---\n\n/, "");
+  if (body === source) {
+    throw new Error("Expected upstream frontmatter");
+  }
+  return body;
 }
 
 /** Computes the SHA-256 digest of a vendored UTF-8 artifact. */
@@ -40,7 +47,7 @@ async function digest(path: URL): Promise<string> {
   return createHash("sha256").update(source).digest("hex");
 }
 
-/** Defines the lazy grilling and domain-modeling runtime contract tests. */
+/** Defines upstream-alignment tests through the production MCP HTTP boundary. */
 function defineGrillRuntimeSuite(): void {
   let service: RunningService | undefined;
   let client: Client | undefined;
@@ -63,8 +70,8 @@ function defineGrillRuntimeSuite(): void {
 
   afterEach(cleanup);
 
-  /** Proves public visibility, hidden loading, and lazy parent composition. */
-  async function composesHiddenDependenciesLazily(): Promise<void> {
+  /** Proves public visibility, hidden loading, and immediate parent composition. */
+  async function composesHiddenDependenciesImmediately(): Promise<void> {
     const connected = await connect();
     const listing = await connected.callTool({
       name: "list_skills",
@@ -85,43 +92,90 @@ function defineGrillRuntimeSuite(): void {
     const parent = await loadText(connected, "grill-with-docs");
     const grilling = await loadText(connected, "grilling");
     const domain = await loadText(connected, "domain-modeling");
-    expect(parent).toContain('load_skill("grilling")');
-    expect(parent).toContain('load_skill("domain-modeling")');
-    expect(parent).not.toContain("Map the design as a decision tree");
-    expect(parent).not.toContain("# Domain Modeling");
-    expect(grilling).toContain("Map this as a **design tree**");
-    expect(domain).toContain("# Domain Modeling");
-  }
 
-  /** Proves the adapted workflows retain ticket #5's behavioral constraints. */
-  async function preservesDecisionAndDocumentationBehavior(): Promise<void> {
-    const connected = await connect();
-    const parent = await loadText(connected, "grill-with-docs");
-    const grilling = await loadText(connected, "grilling");
-    const domain = await loadText(connected, "domain-modeling");
-
-    expect(parent).toMatch(/facts to\s+investigate/);
-    expect(parent).toContain("decisions for the user");
-    expect(parent).toMatch(
-      /Do not produce a specification or begin\s+implementation/,
+    expect(runtimeBody(parent, "grill-with-docs")).toBe(
+      'Immediately call `load_skill("grilling")` and `load_skill("domain-modeling")` in this conversation.',
     );
-    expect(grilling).toContain("Assumption:");
-    expect(grilling).toContain("recommended answer");
-    expect(grilling).toContain("Material tradeoff");
-    expect(grilling).toContain("wait for the user's answers");
-    expect(grilling).toContain("frontier");
-    expect(domain).toContain("propose a precise canonical term");
-    expect(domain).toContain("# CONTEXT.md Format");
-    expect(domain).toContain("_Avoid_: Purchase, transaction");
-    expect(domain).toContain("# ADR Format");
-    expect(domain).toContain("Hard to reverse");
-    expect(domain).toContain("Surprising without context");
-    expect(domain).toContain("The result of a real trade-off");
-    expect(domain).not.toContain("./CONTEXT-FORMAT.md");
-    expect(domain).not.toContain("./ADR-FORMAT.md");
+    expect(parent).not.toContain("Map this as a **design tree**");
+    expect(parent).not.toContain("# Domain Modeling");
+    expect(runtimeBody(grilling, "grilling")).toContain(
+      "Map this as a **design tree**",
+    );
+    expect(runtimeBody(domain, "domain-modeling")).toContain("# Domain Modeling");
   }
 
-  /** Proves all three primary upstream skill sources match their pinned commit. */
+  /** Proves grilling differs from upstream only at unavailable fact lookup mechanics. */
+  async function preservesGrillingMethodology(): Promise<void> {
+    const connected = await connect();
+    const loaded = await loadText(connected, "grilling");
+    const upstream = stripFrontmatter(
+      await readFile(new URL("grilling/upstream.md", SKILLS_ROOT), "utf8"),
+    );
+    const upstreamFactLookup =
+      "Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment (filesystem, tools, etc.), dispatch a sub-agent to find it; don't ask the user for anything you could look up yourself. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the sub-agent to report; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait.";
+    const adaptedFactLookup =
+      "Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment, use available connected capabilities to find it; don't ask the user for anything you could look up yourself. Don't block on it: an in-progress investigation is an unsettled prerequisite, so only the questions downstream of it wait for the result; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait.";
+    expect(upstream).toContain(upstreamFactLookup);
+    const expected = upstream.replace(upstreamFactLookup, adaptedFactLookup);
+
+    const runtime = runtimeBody(loaded, "grilling");
+    expect(runtime).toBe(expected.trimEnd());
+    expect(runtime).toContain("give your recommended answer");
+    expect(runtime).toContain("wait for the user's answers");
+    expect(runtime).toContain("frontier");
+    expect(runtime).toContain("shared understanding");
+    expect(runtime).not.toContain("Assumption:");
+    expect(runtime).not.toContain("Material tradeoff:");
+    expect(runtime).not.toContain("all remaining questions");
+    expect(runtime).not.toContain("dispatch a sub-agent");
+  }
+
+  /** Proves domain modeling is upstream plus the two exact inlined support documents. */
+  async function preservesSelfContainedDomainModeling(): Promise<void> {
+    const connected = await connect();
+    const loaded = await loadText(connected, "domain-modeling");
+    const upstream = stripFrontmatter(
+      await readFile(new URL("domain-modeling/upstream.md", SKILLS_ROOT), "utf8"),
+    );
+    const contextFormat = await readFile(
+      new URL("domain-modeling/CONTEXT-FORMAT.md", SKILLS_ROOT),
+      "utf8",
+    );
+    const adrFormat = await readFile(
+      new URL("domain-modeling/ADR-FORMAT.md", SKILLS_ROOT),
+      "utf8",
+    );
+    const expected =
+      upstream
+        .replace(
+          "Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).",
+          "Use the `CONTEXT.md` format included below.",
+        )
+        .replace(
+          "Use the format in [ADR-FORMAT.md](./ADR-FORMAT.md).",
+          "Use the ADR format included below.",
+        )
+        .trimEnd() +
+      "\n\n---\n\n" +
+      contextFormat.trimEnd() +
+      "\n\n---\n\n" +
+      adrFormat.trimEnd();
+
+    const runtime = runtimeBody(loaded, "domain-modeling");
+    expect(runtime).toBe(expected);
+    expect(runtime).toContain("propose a precise canonical term");
+    expect(runtime).toContain("stress-test them with specific scenarios");
+    expect(runtime).toContain("check whether the code agrees");
+    expect(runtime).toContain("Don't batch these up");
+    expect(runtime).toContain("If `CONTEXT-MAP.md` exists, read it to find contexts");
+    expect(runtime).toContain("Hard to reverse");
+    expect(runtime).toContain("Surprising without context");
+    expect(runtime).toContain("The result of a real trade-off");
+    expect(runtime).not.toContain("./CONTEXT-FORMAT.md");
+    expect(runtime).not.toContain("./ADR-FORMAT.md");
+  }
+
+  /** Proves all pinned skill and supporting source artifacts remain exact. */
   async function preservesPinnedSources(): Promise<void> {
     expect(
       await digest(new URL("grill-with-docs/upstream.md", SKILLS_ROOT)),
@@ -132,47 +186,18 @@ function defineGrillRuntimeSuite(): void {
     expect(await digest(new URL("domain-modeling/upstream.md", SKILLS_ROOT))).toBe(
       "327a2b50620e2fd70abc6893cd6965e76b20f8d0adb0dc2c8d5eb3845efb643e",
     );
+    expect(
+      await digest(new URL("domain-modeling/CONTEXT-FORMAT.md", SKILLS_ROOT)),
+    ).toBe("17ab16ce783e4d2801ee52fd9acdf550cbf44de65ae76797a93943bbedf22a13");
+    expect(
+      await digest(new URL("domain-modeling/ADR-FORMAT.md", SKILLS_ROOT)),
+    ).toBe("944c92aa790e8fbdc9199640b170979abb8a34ba8d0fe18c2a01a63bce140ca0");
   }
 
-  /** Proves the behavior suite covers the ticket's critical failure modes. */
-  async function coversBehavioralFixtures(): Promise<void> {
-    const source = await readFile(
-      new URL("grill-with-docs/behavior-fixtures.json", SKILLS_ROOT),
-      "utf8",
-    );
-    const fixtures = JSON.parse(source) as BehaviorFixture[];
-    expect(fixtures.map(readFixtureId)).toEqual([
-      "fact-investigation",
-      "decision-frontier",
-      "stable-domain-language",
-      "no-premature-delivery",
-    ]);
-    const [fact, decision, domain, noDelivery] = fixtures;
-    if (!fact || !decision || !domain || !noDelivery) {
-      throw new Error("Expected four grilling behavior fixtures");
-    }
-    expect(fact.forbidden).toContain(
-      "Ask the user for a fact the workflow can inspect.",
-    );
-    expect(decision.expected).toContain(
-      "Wait for the user's choices before asking dependent questions.",
-    );
-    expect(domain.expected).toContain(
-      "Persist only the justified glossary change.",
-    );
-    expect(noDelivery.forbidden).toEqual([
-      "Jump directly to a specification.",
-      "Begin implementation.",
-    ]);
-  }
-
-  it("composes hidden dependencies lazily", composesHiddenDependenciesLazily);
-  it(
-    "preserves decision and documentation behavior",
-    preservesDecisionAndDocumentationBehavior,
-  );
+  it("composes hidden dependencies immediately", composesHiddenDependenciesImmediately);
+  it("preserves upstream grilling methodology", preservesGrillingMethodology);
+  it("preserves self-contained upstream domain modeling", preservesSelfContainedDomainModeling);
   it("preserves pinned upstream sources", preservesPinnedSources);
-  it("covers behavioral fixtures", coversBehavioralFixtures);
 }
 
 describe("grill-with-docs runtime", defineGrillRuntimeSuite);

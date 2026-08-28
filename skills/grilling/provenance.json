@@ -11,8 +11,6 @@
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
   "adaptations": [
-    "Replace upstream sub-agent and local-environment fact lookup with available connected capabilities.",
-    "Expose assumptions and material tradeoffs for each decision question as required by issue #5.",
-    "Allow all remaining questions at once only when the user explicitly requests it, as required by issue #5."
+    "Replace upstream sub-agent and local-environment fact lookup with available connected capabilities."
   ]
 }

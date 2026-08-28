@@ -34,9 +34,10 @@ Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
 - `setup-matt-pocock-skills` — Establish minimal GitHub-first domain
   documentation from repository evidence.
 
-`grilling` and `domain-modeling` are hidden dependencies. They can be loaded by
-exact canonical name when `grill-with-docs` reaches their declared phase, but they
-never appear in `list_skills` and are never concatenated into the parent runtime.
+`grilling` and `domain-modeling` are hidden dependencies. Loading
+`grill-with-docs` instructs ChatGPT to load both immediately in the same
+conversation. They never appear in `list_skills`, remain separately loadable by
+exact canonical name, and are never concatenated into the parent runtime.
 
 The MCP surface contains exactly `load_skill` and `list_skills`. Call
 `load_skill` with the exact canonical name `handoff`; its input is deliberately a

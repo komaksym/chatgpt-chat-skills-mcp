@@ -76,23 +76,23 @@ minimal persisted docs   explicit unpersisted proposal
 4. Verify public listing and exact runtime loading over MCP.
 5. Commit, review against issue #4, fix findings, and reverify.
 
-## Milestone 4 — Issue #5: Add decision grilling with domain modeling
+## Milestone 4 — Issue #30: Align grilling workflow with upstream semantics
 
-Summary: compose one public interview workflow from two hidden, exact-loadable
-methodology bundles without pre-composing their runtime bodies.
+Summary: preserve the pinned upstream composition and methodologies while adapting
+only the MCP invocation and unavailable execution mechanics.
 
 ```text
 grill-with-docs (public)
         |
-        +-- decision frontier reached --> load grilling (hidden)
+        +-- immediately --> load grilling (hidden)
         |
-        +-- stable term/decision -------> load domain-modeling (hidden)
-                                              |
-                         writable GitHub -----+----- read-only report
+        +-- immediately --> load domain-modeling (hidden)
+                              |
+                 same ChatGPT conversation
 ```
 
-1. Vendor pinned public and hidden upstream sources with separate adaptations.
-2. Declare dependencies in metadata and keep hidden bundles out of public listing.
-3. Preserve fact investigation, decision rounds, recommendations, and tradeoffs.
-4. Persist only stable terminology and qualifying ADRs when writes are observed.
-5. Add no-premature-specification fixtures, commit, review, fix, and reverify.
+1. Keep `grill-with-docs` minimal and immediately load both declared dependencies.
+2. Preserve upstream `grilling` except for connected-capability fact investigation.
+3. Preserve upstream `domain-modeling` and inline its pinned CONTEXT/ADR formats.
+4. Keep child skills separately loadable and hidden from public discovery.
+5. Verify the upstream-derived runtime invariants through the real MCP HTTP seam.
