@@ -1,8 +1,11 @@
+import { readFile } from "node:fs/promises";
+
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import { afterEach, describe, expect, it } from "vitest";
 
+import { REMOTE_EXECUTION_CONTRACT } from "../src/contract.js";
 import { startService, type RunningService } from "../src/service.js";
 
 /** Returns a tool's canonical protocol name. */
@@ -85,11 +88,22 @@ function defineServiceSuite(): void {
     if (!text || text.type !== "text") {
       throw new Error("Expected text content");
     }
-    expect(text.text).toContain("Remote execution contract");
-    expect(text.text).toContain("# handoff");
+
+    const committedRuntime = await readFile(
+      new URL("../skills/handoff/runtime.md", import.meta.url),
+      "utf8",
+    );
+    expect(text.text).toBe(
+      `${REMOTE_EXECUTION_CONTRACT}\n\n# handoff\n\n${committedRuntime.trim()}\n`,
+    );
+    expect(text.text).toContain("---\nname: handoff\n");
     expect(text.text).toContain("suggested skills");
     expect(text.text).not.toContain("6654f6b60cd9d5be8b54c6fafe44346dabeb3b76");
     expect(text.text).not.toContain("Copyright (c) 2026 Matt Pocock");
+    expect(text.text).not.toContain("changeRecords");
+    expect(text.text).not.toContain(
+      "7c62de979fdc7ac32fb5ddb2146156c917f80ee070d30fadc9d40343c4b6ed25",
+    );
   }
 
   it("lists and loads handoff through the real loopback transport", listsAndLoadsHandoff);

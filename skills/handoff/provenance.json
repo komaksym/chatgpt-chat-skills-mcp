@@ -11,8 +11,38 @@
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
   "adaptations": [
-    "Return the handoff in chat instead of an operating-system temporary directory.",
-    "Use durable remote GitHub references and persist only to an explicit writable destination.",
-    "Replace local Skill-tool wording with a platform-neutral suggested-skills section."
-  ]
+    "Replace unavailable OS-temporary-directory persistence with returning the handoff directly in chat as a single fenced Markdown block for one-click copying into the next conversation.",
+    "Translate the upstream Skill-tool invocation wording to the MCP load_skill tool."
+  ],
+  "projection": {
+    "entrypoint": "upstream.md",
+    "sources": [
+      {
+        "path": "upstream.md",
+        "sha256": "7c62de979fdc7ac32fb5ddb2146156c917f80ee070d30fadc9d40343c4b6ed25"
+      }
+    ],
+    "changeRecords": [
+      {
+        "allowedRuntimeChange": "equivalent-mechanism",
+        "source": "upstream.md",
+        "evidence": "The Target Runtime Profile is remote-first and does not assume a local checkout, OS filesystem, or temporary directory. Returning the handoff directly in chat preserves a transferable handoff without requiring persistence.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "Save to the temporary directory of the user's OS - not the current workspace.",
+          "replacement": "Return the handoff directly in chat as a single fenced Markdown block so the user can copy it in one click and paste it into the next conversation. Do not create a separate document, artifact, or file."
+        }
+      },
+      {
+        "allowedRuntimeChange": "translate-invocation-or-tool",
+        "source": "upstream.md",
+        "evidence": "The Target Runtime Profile invokes skills through the MCP load_skill tool and does not expose the upstream Skill tool.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "call the Skill tool for",
+          "replacement": "load with `load_skill`"
+        }
+      }
+    ]
+  }
 }

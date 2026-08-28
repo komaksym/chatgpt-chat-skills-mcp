@@ -1,34 +1,19 @@
 import { constants, type Dirent } from "node:fs";
 import { open, readdir } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
 import { join } from "node:path";
-
-import * as z from "zod/v4";
+import { fileURLToPath } from "node:url";
 
 import { REMOTE_EXECUTION_CONTRACT } from "./contract.js";
+import {
+  CANONICAL_NAME,
+  parseSkillProvenance,
+  type SkillProvenance,
+} from "./provenance.js";
 
 const DEFAULT_SKILLS_ROOT = fileURLToPath(new URL("../skills/", import.meta.url));
-const CANONICAL_NAME = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
-
-const metadataSchema = z.strictObject({
-  name: z.string().regex(CANONICAL_NAME),
-  visibility: z.enum(["public", "hidden"]),
-  description: z.string().min(1),
-  dependencies: z.array(z.string().regex(CANONICAL_NAME)),
-  upstream: z.strictObject({
-    repository: z.url(),
-    location: z.string().min(1),
-    commit: z.string().regex(/^[a-f0-9]{40}$/),
-  }),
-  license: z.string().min(1),
-  attribution: z.string().min(1),
-  adaptations: z.array(z.string().min(1)),
-});
-
-type SkillMetadata = z.infer<typeof metadataSchema>;
 
 interface SkillBundle {
-  metadata: SkillMetadata;
+  metadata: SkillProvenance;
   runtime: string;
 }
 
@@ -85,16 +70,16 @@ async function readBundle(root: string, directory: string): Promise<SkillBundle>
     throw new Error(`Invalid skill bundle "${directory}": ${message}`);
   }
 
-  let raw: unknown;
-  try {
-    raw = JSON.parse(source);
-  } catch {
-    throw new Error(
-      `Invalid skill bundle "${directory}": provenance.json must contain valid JSON.`,
-    );
+  const parsed = parseSkillProvenance(source);
+  if (!parsed.success) {
+    if (parsed.reason === "invalid-json") {
+      throw new Error(
+        `Invalid skill bundle "${directory}": provenance.json must contain valid JSON.`,
+      );
+    }
+    throw new Error(`Invalid skill bundle "${directory}": metadata is invalid.`);
   }
-  const parsed = metadataSchema.safeParse(raw);
-  if (!parsed.success || parsed.data.description.includes("\n")) {
+  if (parsed.data.description.includes("\n")) {
     throw new Error(`Invalid skill bundle "${directory}": metadata is invalid.`);
   }
 
