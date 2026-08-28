@@ -202,6 +202,43 @@ function defineProjectionSuite(): void {
     );
   }
 
+  /** Proves every replacement names material present in the original pinned source. */
+  async function rejectsChangeRecordMatchIntroducedByEarlierRecord(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      expectedSource: "A\n",
+      changeRecords: [
+        {
+          allowedRuntimeChange: "equivalent-mechanism",
+          source: "upstream.md",
+          evidence: "First fixture replacement.",
+          transform: {
+            type: "replace-exact",
+            match: "A",
+            replacement: "B",
+          },
+        },
+        {
+          allowedRuntimeChange: "equivalent-mechanism",
+          source: "upstream.md",
+          evidence: "Second fixture replacement.",
+          transform: {
+            type: "replace-exact",
+            match: "B",
+            replacement: "C",
+          },
+        },
+      ],
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow(
+      "Change Record 2 for fixture-skill does not match its affected upstream material.",
+    );
+  }
+
   /** Proves supporting documents enter the runtime from their exact pinned bytes. */
   async function inlinesPinnedSupportingSource(): Promise<void> {
     const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
@@ -336,6 +373,10 @@ function defineProjectionSuite(): void {
   it("rejects altered pinned source", rejectsAlteredPinnedSource);
   it("rejects missing pinned source", rejectsMissingPinnedSource);
   it("rejects overlapping Change Record matches", rejectsOverlappingChangeRecordMatch);
+  it(
+    "rejects Change Record matches introduced by earlier records",
+    rejectsChangeRecordMatchIntroducedByEarlierRecord,
+  );
   it("inlines pinned supporting source bytes", inlinesPinnedSupportingSource);
   it("expires a Temporary Upstream Fix on pin change", rejectsExpiredTemporaryFix);
   it("rejects a non-ADR Temporary Upstream Fix path", rejectsTemporaryFixNonAdrPath);
