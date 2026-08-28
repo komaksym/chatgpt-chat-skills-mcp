@@ -17,6 +17,9 @@ const artifactPathSchema = z.string().min(1).refine(isSafeArtifactPath);
 const adrArtifactPathSchema = artifactPathSchema.refine(
   (path) => path.startsWith("docs/adr/") && path.endsWith(".md"),
 );
+const focusedTestArtifactPathSchema = artifactPathSchema.refine((path) =>
+  /^(?:test|tests)\/.+\.(?:test|spec)\.(?:[cm]?[jt]sx?)$/.test(path),
+);
 
 const replaceExactSchema = z.strictObject({
   type: z.literal("replace-exact"),
@@ -50,7 +53,7 @@ const temporaryUpstreamFixSchema = z.strictObject({
   upstreamCommit: z.string().regex(COMMIT_SHA),
   source: artifactPathSchema,
   adr: adrArtifactPathSchema,
-  test: artifactPathSchema,
+  test: focusedTestArtifactPathSchema,
   transform: replaceExactSchema,
 });
 
