@@ -253,6 +253,25 @@ function defineProjectionSuite(): void {
     );
   }
 
+  /** Proves a Temporary Upstream Fix cannot use an arbitrary file as its ADR. */
+  async function rejectsTemporaryFixNonAdrPath(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      fix: {
+        upstreamCommit: PIN_B,
+        adr: "README.md",
+        test: "test/fixture-fix.test.ts",
+      },
+      writeAdr: true,
+      writeFocusedTest: true,
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow("Invalid provenance for fixture-skill.");
+  }
+
   /** Proves an active Temporary Upstream Fix must point at a real ADR. */
   async function requiresTemporaryFixAdr(): Promise<void> {
     const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
@@ -300,6 +319,7 @@ function defineProjectionSuite(): void {
   it("rejects overlapping Change Record matches", rejectsOverlappingChangeRecordMatch);
   it("inlines pinned supporting source bytes", inlinesPinnedSupportingSource);
   it("expires a Temporary Upstream Fix on pin change", rejectsExpiredTemporaryFix);
+  it("rejects a non-ADR Temporary Upstream Fix path", rejectsTemporaryFixNonAdrPath);
   it("requires a Temporary Upstream Fix ADR", requiresTemporaryFixAdr);
   it(
     "requires a Temporary Upstream Fix focused test",
