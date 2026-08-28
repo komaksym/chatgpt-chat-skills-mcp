@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { REMOTE_EXECUTION_CONTRACT } from "./contract.js";
 import {
   CANONICAL_NAME,
-  provenanceSchema,
+  parseSkillProvenance,
   type SkillProvenance,
 } from "./provenance.js";
 
@@ -70,16 +70,16 @@ async function readBundle(root: string, directory: string): Promise<SkillBundle>
     throw new Error(`Invalid skill bundle "${directory}": ${message}`);
   }
 
-  let raw: unknown;
-  try {
-    raw = JSON.parse(source);
-  } catch {
-    throw new Error(
-      `Invalid skill bundle "${directory}": provenance.json must contain valid JSON.`,
-    );
+  const parsed = parseSkillProvenance(source);
+  if (!parsed.success) {
+    if (parsed.reason === "invalid-json") {
+      throw new Error(
+        `Invalid skill bundle "${directory}": provenance.json must contain valid JSON.`,
+      );
+    }
+    throw new Error(`Invalid skill bundle "${directory}": metadata is invalid.`);
   }
-  const parsed = provenanceSchema.safeParse(raw);
-  if (!parsed.success || parsed.data.description.includes("\n")) {
+  if (parsed.data.description.includes("\n")) {
     throw new Error(`Invalid skill bundle "${directory}": metadata is invalid.`);
   }
 
