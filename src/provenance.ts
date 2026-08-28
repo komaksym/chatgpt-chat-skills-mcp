@@ -81,3 +81,23 @@ export const provenanceSchema = z.strictObject({
 });
 
 export type SkillProvenance = z.infer<typeof provenanceSchema>;
+
+export type ProvenanceParseResult =
+  | { data: SkillProvenance; success: true }
+  | { reason: "invalid-json" | "invalid-metadata"; success: false };
+
+/** Parses and validates one provenance document without imposing caller policy. */
+export function parseSkillProvenance(source: string): ProvenanceParseResult {
+  let raw: unknown;
+  try {
+    raw = JSON.parse(source);
+  } catch {
+    return { reason: "invalid-json", success: false };
+  }
+
+  const parsed = provenanceSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { reason: "invalid-metadata", success: false };
+  }
+  return { data: parsed.data, success: true };
+}
