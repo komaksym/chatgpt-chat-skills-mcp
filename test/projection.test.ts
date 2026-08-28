@@ -239,6 +239,46 @@ function defineProjectionSuite(): void {
     );
   }
 
+  /** Proves recorded replacements can target pinned Supporting Documents. */
+  async function transformsPinnedSupportingSource(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      expectedSource: "ENTRYPOINT\n",
+      supportingSources: [
+        {
+          path: "supporting.md",
+          content: "SUPPORT OLD\n",
+        },
+      ],
+      changeRecords: [
+        {
+          allowedRuntimeChange: "translate-invocation-or-tool",
+          source: "supporting.md",
+          evidence: "Fixture supporting-document translation.",
+          transform: {
+            type: "replace-exact",
+            match: "OLD",
+            replacement: "NEW",
+          },
+        },
+        {
+          allowedRuntimeChange: "inline-supporting-document",
+          source: "supporting.md",
+          evidence: "The runtime must be self-contained.",
+          transform: {
+            type: "append-source",
+            separator: "\n---\n\n",
+          },
+        },
+      ],
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).resolves.toBe("ENTRYPOINT\n\n---\n\nSUPPORT NEW\n");
+  }
+
   /** Proves supporting documents enter the runtime from their exact pinned bytes. */
   async function inlinesPinnedSupportingSource(): Promise<void> {
     const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
@@ -377,6 +417,7 @@ function defineProjectionSuite(): void {
     "rejects Change Record matches introduced by earlier records",
     rejectsChangeRecordMatchIntroducedByEarlierRecord,
   );
+  it("transforms pinned supporting source bytes", transformsPinnedSupportingSource);
   it("inlines pinned supporting source bytes", inlinesPinnedSupportingSource);
   it("expires a Temporary Upstream Fix on pin change", rejectsExpiredTemporaryFix);
   it("rejects a non-ADR Temporary Upstream Fix path", rejectsTemporaryFixNonAdrPath);
