@@ -29,6 +29,8 @@ Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
 ## Current public skill
 
 - `handoff` — Create a compact continuation brief for another conversation.
+- `setup-matt-pocock-skills` — Establish minimal GitHub-first domain
+  documentation from repository evidence.
 
 The MCP surface contains exactly `load_skill` and `list_skills`. Call
 `load_skill` with the exact canonical name `handoff`; its input is deliberately a
