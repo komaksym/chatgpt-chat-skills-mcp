@@ -11,8 +11,8 @@
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
   "adaptations": [
-    "Investigate facts through connected capabilities instead of local filesystem or sub-agent assumptions.",
-    "Expose assumptions and material tradeoffs explicitly for every decision.",
-    "Allow all remaining questions at once only when the user explicitly requests it."
+    "Replace upstream sub-agent and local-environment fact lookup with available connected capabilities.",
+    "Expose assumptions and material tradeoffs for each decision question as required by issue #5.",
+    "Allow all remaining questions at once only when the user explicitly requests it, as required by issue #5."
   ]
 }

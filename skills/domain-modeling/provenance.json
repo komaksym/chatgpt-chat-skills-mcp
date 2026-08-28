@@ -11,9 +11,7 @@
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
   "adaptations": [
-    "Read and write domain artifacts through connected GitHub capabilities.",
-    "Persist only after terminology or a qualifying consequential decision stabilizes.",
-    "State non-persistence explicitly whenever writes are unavailable or unverified.",
-    "Preserve canonical terms, conflicting synonyms, lazy context creation, and strict ADR criteria."
+    "Inline the pinned upstream CONTEXT-FORMAT.md and ADR-FORMAT.md contents so one runtime load is self-contained.",
+    "Replace only the two relative supporting-file references with references to the inlined sections; remote execution behavior comes from the shared contract."
   ]
 }

@@ -88,9 +88,9 @@ function defineGrillRuntimeSuite(): void {
     expect(parent).toContain('load_skill("grilling")');
     expect(parent).toContain('load_skill("domain-modeling")');
     expect(parent).not.toContain("Map the design as a decision tree");
-    expect(parent).not.toContain("# Domain-modeling discipline");
-    expect(grilling).toContain("Map the design as a decision tree");
-    expect(domain).toContain("# Domain-modeling discipline");
+    expect(parent).not.toContain("# Domain Modeling");
+    expect(grilling).toContain("Map this as a **design tree**");
+    expect(domain).toContain("# Domain Modeling");
   }
 
   /** Proves the adapted workflows retain ticket #5's behavioral constraints. */
@@ -105,17 +105,20 @@ function defineGrillRuntimeSuite(): void {
     expect(parent).toMatch(
       /Do not produce a specification or begin\s+implementation/,
     );
-    expect(grilling).toContain("Assumption");
-    expect(grilling).toContain("Recommendation");
+    expect(grilling).toContain("Assumption:");
+    expect(grilling).toContain("recommended answer");
     expect(grilling).toContain("Material tradeoff");
     expect(grilling).toContain("wait for the user's answer");
     expect(grilling).toContain("frontier");
-    expect(domain).toContain("canonical term");
-    expect(domain).toContain("conflicting synonyms");
-    expect(domain).toContain("not persisted");
+    expect(domain).toContain("propose a precise canonical term");
+    expect(domain).toContain("# CONTEXT.md Format");
+    expect(domain).toContain("_Avoid_: Purchase, transaction");
+    expect(domain).toContain("# ADR Format");
     expect(domain).toContain("Hard to reverse");
     expect(domain).toContain("Surprising without context");
-    expect(domain).toContain("Genuine tradeoff");
+    expect(domain).toContain("The result of a real trade-off");
+    expect(domain).not.toContain("./CONTEXT-FORMAT.md");
+    expect(domain).not.toContain("./ADR-FORMAT.md");
   }
 
   /** Proves all three primary upstream skill sources match their pinned commit. */

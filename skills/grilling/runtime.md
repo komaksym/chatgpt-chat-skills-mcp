@@ -1,30 +1,31 @@
-# Grilling discipline
+Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
 
-Interview until the plan's decision tree is explicit and the user confirms shared
-understanding. Map the design as a decision tree: each choice branches into only the
-decisions that depend on it.
+Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled: the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round: number each question, state the assumption it depends on, give your recommended answer, and explain the material tradeoff. Then wait for the user's answers before the next round.
 
-The **frontier** is every decision whose prerequisites are settled. Ask the whole
-frontier in one numbered round, then wait for the user's answer before recomputing
-the next frontier. Keep dependent questions for later rounds. If the user explicitly
-asks for all remaining questions at once, comply but label which questions depend on
-still-unsettled assumptions.
+Format a round like so:
 
-For every decision question, state:
+```
+❓ **Q1** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
 
-- **Assumption**: the evidence or current choice the question depends on.
-- **Question**: one concrete decision the user can actually make.
-- **Recommendation**: the answer you recommend and why.
-- **Material tradeoff**: the meaningful cost or risk of the recommendation and its
-  strongest alternative.
+Assumption: <the evidence or settled choice this question depends on>
 
-After presenting the current frontier, wait for the user's answer. Decisions belong
-to the user; do not silently choose for them.
+➡️ <your recommended answer>
 
-Facts are your job. Investigate repository facts through connected capabilities
-instead of asking the user. When a capability is unavailable, say what could not be
-verified and leave only dependent branches unsettled while asking the rest of the
-frontier.
+Material tradeoff: <the meaningful cost or risk of the recommendation and its strongest alternative>
 
-Stop only when the frontier is empty and the user confirms shared understanding. Do
-not turn the result into a specification or implementation within this discipline.
+---
+
+❓ **Q2** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
+
+Assumption: <the evidence or settled choice this question depends on>
+
+➡️ <your recommended answer>
+
+Material tradeoff: <the meaningful cost or risk of the recommendation and its strongest alternative>
+```
+
+Each round the user answers reshapes the tree: settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one. If the user explicitly asks for all remaining questions at once, comply, but label questions whose prerequisites are still unsettled.
+
+Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment, use available connected capabilities to find it; don't ask the user for anything you could look up yourself. An unverified fact is an unsettled prerequisite, so only the questions downstream of it wait; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait.
+
+The session is done when the frontier is empty: every branch of the design tree visited, nothing left silently assumed. Do not act on it until the user confirms you have reached a shared understanding.
