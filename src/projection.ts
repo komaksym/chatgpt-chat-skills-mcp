@@ -196,7 +196,8 @@ export async function generateSkillRuntime(
         `Temporary Upstream Fix for ${name} expired when the upstream pin changed.`,
       );
     }
-    if (!sources.has(fix.source) || fix.source !== projection.entrypoint) {
+    const source = sources.get(fix.source);
+    if (source === undefined) {
       throw new Error(
         `Temporary Upstream Fix for ${name} references an invalid source: ${fix.source}.`,
       );
@@ -209,6 +210,8 @@ export async function generateSkillRuntime(
       join(repositoryRoot, fix.test),
       `Temporary Upstream Fix focused test: ${fix.test}`,
     );
+    const label = `Temporary Upstream Fix for ${name}`;
+    findExactMatch(source, fix.transform.match, label);
     const projectedSource = projectedSources.get(fix.source);
     if (projectedSource === undefined) {
       throw new Error(
@@ -221,7 +224,7 @@ export async function generateSkillRuntime(
         projectedSource,
         fix.transform.match,
         fix.transform.replacement,
-        `Temporary Upstream Fix for ${name}`,
+        label,
       ),
     );
   }
