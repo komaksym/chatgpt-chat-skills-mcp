@@ -114,7 +114,7 @@ function defineGrillRuntimeSuite(): void {
     const upstreamFactLookup =
       "Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment (filesystem, tools, etc.), dispatch a sub-agent to find it; don't ask the user for anything you could look up yourself. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the sub-agent to report; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait.";
     const adaptedFactLookup =
-      "Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment, use available connected capabilities to find it; don't ask the user for anything you could look up yourself. Don't block on it: an in-progress investigation is an unsettled prerequisite, so only the questions downstream of it wait for the result; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait.";
+      "Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment, use available connected capabilities to find it; don't ask the user for anything you could look up yourself. An unverified fact is an unsettled prerequisite, so only the questions downstream of it wait; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait.";
     expect(upstream).toContain(upstreamFactLookup);
     const expected = upstream.replace(upstreamFactLookup, adaptedFactLookup);
 
