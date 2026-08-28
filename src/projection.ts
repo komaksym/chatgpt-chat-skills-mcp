@@ -146,10 +146,23 @@ export async function generateSkillRuntime(
 
   let runtime = entrypoint;
   for (const [index, record] of projection.changeRecords.entries()) {
-    if (!sources.has(record.source)) {
+    const source = sources.get(record.source);
+    if (source === undefined) {
       throw new Error(
         `Change Record ${index + 1} for ${name} references an unpinned source: ${record.source}.`,
       );
+    }
+    if (record.transform.type === "append-source") {
+      if (
+        record.allowedRuntimeChange !== "inline-supporting-document" ||
+        record.source === projection.entrypoint
+      ) {
+        throw new Error(
+          `Change Record ${index + 1} for ${name} cannot append that projection source.`,
+        );
+      }
+      runtime = `${runtime}${record.transform.separator}${source}`;
+      continue;
     }
     if (record.source !== projection.entrypoint) {
       throw new Error(
