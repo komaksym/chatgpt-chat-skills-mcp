@@ -107,7 +107,7 @@ function replaceExactlyOnce(
   if (first === -1) {
     throw new Error(`${label} does not match its affected upstream material.`);
   }
-  if (runtime.indexOf(match, first + match.length) !== -1) {
+  if (runtime.indexOf(match, first + 1) !== -1) {
     throw new Error(`${label} matches its affected upstream material more than once.`);
   }
   return `${runtime.slice(0, first)}${replacement}${runtime.slice(first + match.length)}`;
