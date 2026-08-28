@@ -175,6 +175,33 @@ function defineProjectionSuite(): void {
     ).rejects.toThrow("Missing pinned source: fixture-skill/upstream.md.");
   }
 
+  /** Proves overlapping exact matches are rejected as ambiguous. */
+  async function rejectsOverlappingChangeRecordMatch(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      expectedSource: "aaa",
+      changeRecords: [
+        {
+          allowedRuntimeChange: "equivalent-mechanism",
+          source: "upstream.md",
+          evidence: "Fixture replacement.",
+          transform: {
+            type: "replace-exact",
+            match: "aa",
+            replacement: "b",
+          },
+        },
+      ],
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow(
+      "Change Record 1 for fixture-skill matches its affected upstream material more than once.",
+    );
+  }
+
   /** Proves supporting documents enter the runtime from their exact pinned bytes. */
   async function inlinesPinnedSupportingSource(): Promise<void> {
     const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
@@ -270,6 +297,7 @@ function defineProjectionSuite(): void {
   );
   it("rejects altered pinned source", rejectsAlteredPinnedSource);
   it("rejects missing pinned source", rejectsMissingPinnedSource);
+  it("rejects overlapping Change Record matches", rejectsOverlappingChangeRecordMatch);
   it("inlines pinned supporting source bytes", inlinesPinnedSupportingSource);
   it("expires a Temporary Upstream Fix on pin change", rejectsExpiredTemporaryFix);
   it("requires a Temporary Upstream Fix ADR", requiresTemporaryFixAdr);
