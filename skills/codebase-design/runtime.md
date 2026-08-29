@@ -111,7 +111,7 @@ Good interfaces make testing natural:
 ## Going deeper
 
 - **Deepening a cluster given its dependencies**, see the exact pinned **Deepening** Supporting Document appended below: dependency categories, seam discipline, and replace-don't-layer testing.
-- **Exploring alternative interfaces**, see the exact pinned **Design It Twice** Supporting Document appended below: use parallel independent child explorations only when each child has direct connected GitHub access and remains isolated until comparison; otherwise stop that alternative-interface branch rather than pretending parallel independence.
+- **Exploring alternative interfaces**, see the exact pinned **Design It Twice** Supporting Document appended below: use parallel independent child explorations only when each child can access the repository directly through connected GitHub capabilities and their findings remain isolated until comparison; otherwise stop this alternative-interface branch rather than simulating parallel independence.
 
 
 ---
