@@ -6,6 +6,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import { afterEach, describe, expect, it } from "vitest";
 
+import { REMOTE_EXECUTION_CONTRACT } from "../src/contract.js";
 import { startService, type RunningService } from "../src/service.js";
 
 const SKILLS_ROOT = new URL("../skills/", import.meta.url);
@@ -30,6 +31,15 @@ function runtimeBody(loaded: string, name: string): string {
     throw new Error(`Missing runtime marker for ${name}`);
   }
   return loaded.slice(start + marker.length).trimEnd();
+}
+
+/** Returns the exact protocol text expected for one committed runtime. */
+async function expectedLoadedText(name: string): Promise<string> {
+  const committedRuntime = await readFile(
+    new URL(`${name}/runtime.md`, SKILLS_ROOT),
+    "utf8",
+  );
+  return `${REMOTE_EXECUTION_CONTRACT}\n\n# ${name}\n\n${committedRuntime.trim()}\n`;
 }
 
 /** Computes the SHA-256 digest of a vendored UTF-8 artifact. */
@@ -61,7 +71,7 @@ function defineGrillRuntimeSuite(): void {
 
   afterEach(cleanup);
 
-  /** Proves public visibility, hidden loading, and immediate parent composition. */
+  /** Proves public visibility, exact loading without provenance, and immediate composition. */
   async function composesHiddenDependenciesImmediately(): Promise<void> {
     const connected = await connect();
     const listing = await connected.callTool({
@@ -92,6 +102,14 @@ function defineGrillRuntimeSuite(): void {
       'Immediately call `load_skill("grilling")` and `load_skill("domain-modeling")` in this conversation.',
     );
 
+    for (const [name, loaded] of [
+      ["grill-with-docs", parent],
+      ["grilling", grilling],
+      ["domain-modeling", domain],
+    ] as const) {
+      expect(loaded).toBe(await expectedLoadedText(name));
+    }
+
     expect(runtimeBody(parent, "grill-with-docs")).toBe(expectedParent.trimEnd());
     expect(parent).not.toContain("Map this as a **design tree**");
     expect(parent).not.toContain("# Domain Modeling");
@@ -99,11 +117,6 @@ function defineGrillRuntimeSuite(): void {
       "Map this as a **design tree**",
     );
     expect(runtimeBody(domain, "domain-modeling")).toContain("# Domain Modeling");
-    for (const loaded of [parent, grilling, domain]) {
-      expect(loaded).not.toContain("6654f6b60cd9d5be8b54c6fafe44346dabeb3b76");
-      expect(loaded).not.toContain("Copyright (c) 2026 Matt Pocock");
-      expect(loaded).not.toContain("changeRecords");
-    }
   }
 
   /** Proves grilling differs from upstream only at unavailable fact lookup mechanics. */
