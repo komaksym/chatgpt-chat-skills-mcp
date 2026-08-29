@@ -143,6 +143,7 @@ interface UpstreamOptions {
   changed?: boolean;
   entryChanged?: boolean;
   extraSupportingDocument?: boolean;
+  oldRule?: boolean;
 }
 
 function upstream(options: UpstreamOptions = {}): UpstreamClient {
@@ -150,6 +151,9 @@ function upstream(options: UpstreamOptions = {}): UpstreamClient {
   return {
     async getFile(_repository, path, commit) {
       if (path === "skills/example/SKILL.md") {
+        if (commit === OLD && options.oldRule) {
+          return ENTRY + "\nOLD RULE\n";
+        }
         if (changed && options.entryChanged && commit === NEXT) {
           return options.extraSupportingDocument
             ? CHANGED_ENTRY + "\nSee [extra](EXTRA.md).\n"
