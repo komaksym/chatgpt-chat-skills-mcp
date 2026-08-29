@@ -268,7 +268,7 @@ describe("reviewable upstream Mechanical Projection updates", () => {
     const result = await checkUpstreamUpdates({
       repositoryRoot: root,
       skillsRoot,
-      upstream: upstream({ changed: true, entryChanged: true }),
+      upstream: upstream({ changed: true, entryChanged: true, oldRule: true }),
     });
 
     expect(result.changed).toBe(true);
