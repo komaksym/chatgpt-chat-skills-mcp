@@ -299,8 +299,8 @@ function defineProjectionSuite(): void {
     );
   }
 
-  /** Proves recorded replacements can target pinned Supporting Documents. */
-  async function transformsPinnedSupportingSource(): Promise<void> {
+  /** Proves ordinary Change Records cannot mutate pinned Supporting Documents. */
+  async function rejectsTransformedSupportingSource(): Promise<void> {
     const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
     roots.push(repositoryRoot);
     const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
@@ -336,7 +336,9 @@ function defineProjectionSuite(): void {
 
     await expect(
       generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
-    ).resolves.toBe("ENTRYPOINT\n\n---\n\nSUPPORT NEW\n");
+    ).rejects.toThrow(
+      "Supporting Document supporting.md for fixture-skill must be inlined verbatim.",
+    );
   }
 
   /** Proves supporting documents enter the runtime from their exact pinned bytes. */
@@ -573,7 +575,7 @@ function defineProjectionSuite(): void {
     rejectsChangeRecordMatchIntroducedByEarlierRecord,
   );
   it("rejects overlapping Change Records", rejectsOverlappingChangeRecords);
-  it("transforms pinned supporting source bytes", transformsPinnedSupportingSource);
+  it("rejects transformed Supporting Documents", rejectsTransformedSupportingSource);
   it("inlines pinned supporting source bytes", inlinesPinnedSupportingSource);
   it(
     "applies a Temporary Upstream Fix to a pinned Supporting Document",
