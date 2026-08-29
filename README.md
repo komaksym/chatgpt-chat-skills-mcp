@@ -43,12 +43,24 @@ Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
   verification, and committed code review.
 - `improve-codebase-architecture` — Find deepening opportunities in a remote
   repository and present candidate architecture improvements.
-- `setup-matt-pocock-skills` — Establish minimal GitHub-first domain
-  documentation from repository evidence.
 - `to-spec` — Synthesize settled work into a GitHub specification without
   restarting discovery.
 - `to-tickets` — Turn settled work into approved GitHub tracer-bullet tickets
   with explicit native relationships.
+
+## Fixed repository conventions
+
+Repository setup is product policy rather than a loadable workflow. The Target
+Runtime Profile fixes the upstream setup choices to:
+
+- issue tracker: the active GitHub repository;
+- triage labels: `needs-triage`, `needs-info`, `ready-for-agent`,
+  `ready-for-human`, and `wontfix`;
+- domain docs: root `CONTEXT.md` or `CONTEXT-MAP.md`, with ADRs under
+  `docs/adr/` and context-scoped ADR directories when present.
+
+Skill projections translate upstream setup prerequisites to these defaults and to
+connected GitHub capabilities; users do not run a separate setup skill.
 
 `grilling` and `domain-modeling` are hidden dependencies. Loading
 `grill-with-docs` instructs ChatGPT to load both immediately in the same

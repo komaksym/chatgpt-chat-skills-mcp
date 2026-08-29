@@ -85,11 +85,6 @@ function defineServiceSuite(): void {
             "Find deepening opportunities in a remote repository and present candidate architecture improvements.",
         },
         {
-          name: "setup-matt-pocock-skills",
-          description:
-            "Establish minimal GitHub-first domain documentation from repository evidence.",
-        },
-        {
           name: "to-spec",
           description:
             "Synthesize settled work into a GitHub specification without restarting discovery.",
