@@ -64,15 +64,24 @@ function parseProvenance(name, source, errors) {
 }
 
 function unresolvedSupportingLinks(runtime, provenance) {
-  const supporting = provenance.projection.sources
-    .map((source) => source.path)
-    .filter((path) => path !== provenance.projection.entrypoint);
-  const exact = new Set(supporting);
-  const names = new Set(supporting.map((path) => basename(path)));
+  const sourcePaths = provenance.projection.sources.map((source) => source.path);
+  const generatedPaths = new Set(sourcePaths);
+  const generatedNames = new Set(sourcePaths.map((path) => basename(path)));
+  const inlinedUpstreamNames = new Set([
+    basename(provenance.upstream.location).toLowerCase(),
+    ...sourcePaths
+      .map((path) => basename(path).toLowerCase())
+      .filter((name) => name.startsWith("upstream-"))
+      .map((name) => name.slice("upstream-".length)),
+  ]);
 
   return [...runtime.matchAll(LOCAL_MARKDOWN_LINK)]
     .map((match) => match[1].split("#", 1)[0].replace(/^\.\//, ""))
-    .filter((path) => exact.has(path) || names.has(basename(path)));
+    .filter((path) => {
+      const name = basename(path);
+      if (generatedPaths.has(path) || generatedNames.has(name)) return true;
+      return !inlinedUpstreamNames.has(name.toLowerCase());
+    });
 }
 
 function hasLargeRepeatedBlock(runtime) {
