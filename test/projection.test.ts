@@ -470,6 +470,55 @@ function defineProjectionSuite(): void {
     );
   }
 
+
+  /** Proves a Change Record must produce an observable runtime difference. */
+  async function rejectsNoOpChangeRecord(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      expectedSource: "UNCHANGED\n",
+      changeRecords: [
+        {
+          allowedRuntimeChange: "equivalent-mechanism",
+          source: "upstream.md",
+          evidence: "Fixture no-op must not count as a runtime change.",
+          transform: {
+            type: "replace-exact",
+            match: "UNCHANGED",
+            replacement: "UNCHANGED",
+          },
+        },
+      ],
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow(
+      "Change Record 1 for fixture-skill does not change its affected upstream material.",
+    );
+  }
+
+  /** Proves every pinned Supporting Document must enter the generated runtime exactly once. */
+  async function rejectsUnconsumedSupportingSource(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      expectedSource: "ENTRYPOINT\n",
+      supportingSources: [
+        {
+          path: "supporting.md",
+          content: "PINNED SUPPORTING DOCUMENT\n",
+        },
+      ],
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow(
+      "Supporting Document supporting.md for fixture-skill must be inlined exactly once.",
+    );
+  }
+
   it(
     "generates handoff deterministically from its pinned bundle",
     generatesHandoffDeterministically,
@@ -479,6 +528,8 @@ function defineProjectionSuite(): void {
     generatesGrillingBundleDeterministically,
   );
   it("rejects altered pinned source", rejectsAlteredPinnedSource);
+  it("rejects no-op Change Records", rejectsNoOpChangeRecord);
+  it("rejects unconsumed Supporting Documents", rejectsUnconsumedSupportingSource);
   it("rejects missing pinned source", rejectsMissingPinnedSource);
   it("rejects overlapping Change Record matches", rejectsOverlappingChangeRecordMatch);
   it(

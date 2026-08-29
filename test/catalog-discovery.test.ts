@@ -291,6 +291,42 @@ function defineCatalogDiscoverySuite(): void {
     expect(largeTools).toBe(smallTools);
   }
 
+
+  /** Proves the catalog rejects the retired free-text provenance format. */
+  async function rejectsLegacyFreeTextProvenance(): Promise<void> {
+    const root = await mkdtemp(join(tmpdir(), "skills-mcp-"));
+    roots.push(root);
+    const bundle = join(root, "legacy");
+    await mkdir(bundle);
+    await writeFile(join(bundle, "runtime.md"), "legacy runtime", "utf8");
+    await writeFile(
+      join(bundle, "provenance.json"),
+      JSON.stringify(
+        {
+          name: "legacy",
+          visibility: "public",
+          description: "Legacy fixture.",
+          dependencies: [],
+          upstream: {
+            repository: "https://github.com/example/skills",
+            location: "skills/legacy/SKILL.md",
+            commit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          },
+          license: "MIT",
+          attribution: "Fixture author",
+          adaptations: ["free-text adaptation"],
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+
+    await expect(startService({ port: 0, skillsRoot: root })).rejects.toThrow(
+      'Invalid skill bundle "legacy": metadata is invalid.',
+    );
+  }
+
   /** Proves malformed JSON prevents the service from listening. */
   async function rejectsMalformedMetadata(): Promise<void> {
     const root = await mkdtemp(join(tmpdir(), "skills-mcp-"));
@@ -383,6 +419,7 @@ function defineCatalogDiscoverySuite(): void {
     "discovers public skills and exact-loadable hidden skills from metadata",
     discoversPublicAndHiddenSkills,
   );
+  it("rejects legacy free-text provenance", rejectsLegacyFreeTextProvenance);
   it("rejects malformed metadata", rejectsMalformedMetadata);
   it(
     "reports validation failures deterministically",
