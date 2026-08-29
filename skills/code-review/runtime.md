@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
+description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Requires genuinely independent child-review contexts and reports the axes side by side; strict review stops when equivalent isolation or direct GitHub access is unavailable. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
 ---
 
 Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
@@ -10,9 +10,9 @@ Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
 Both axes run in **genuinely independent review contexts** so they don't pollute each other's context, then this skill aggregates their findings.
 
-Strict review requires a live ChatGPT mechanism that can create two distinct child conversations and let each child use connected GitHub directly. If that isolation or direct child GitHub access is unavailable, stop before reviewing and state the missing capability. Do not imitate isolation with sequential Standards and Spec passes in this conversation.
+Strict review requires the independent child conversation(s) needed by the axes that will run, with direct connected GitHub access in every child. If that isolation or direct child GitHub access is unavailable, stop strict review and state the missing capability. The pinned upstream workflow has no non-isolated fallback branch, so do not substitute sequential Standards and Spec passes in this conversation or label them as isolated child reviews.
 
-Use connected GitHub as the issue-tracker and repository-evidence mechanism; do not require `docs/agents/issue-tracker.md` or `/setup-matt-pocock-skills`.
+Use connected GitHub directly as the issue-tracker and repository-evidence mechanism. Do not require `docs/agents/issue-tracker.md` or `/setup-matt-pocock-skills`.
 
 ## Process
 
@@ -20,9 +20,9 @@ Use connected GitHub as the issue-tracker and repository-evidence mechanism; do 
 
 Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, etc.). If they didn't specify one, ask for it.
 
-Resolve the fixed point and the committed review head through connected GitHub. Compare the fixed point as base against the committed review head with merge-base semantics, note the commit list, and pin the exact head SHA that both review contexts must use.
+Resolve the fixed point and the committed review head through connected GitHub. Compare the fixed point as base against the committed review head with merge-base semantics, note the commit list, and pin the exact head SHA that every child review must use.
 
-Before going further, confirm both refs resolve and the committed comparison is non-empty. A bad ref or empty diff should fail here, not inside the two independent review contexts.
+Before going further, confirm both refs resolve and the committed comparison is non-empty. A bad ref or empty diff should fail here, not inside the independent child reviews.
 
 ### 2. Identify the spec source
 
@@ -59,22 +59,20 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 ### 4. Run both reviews in independent child conversations
 
-Proceed only when a live ChatGPT capability can create and address two distinct child conversations and each child can use connected GitHub directly. Create one Standards child and one Spec child. Give each child the repository coordinates, the same pinned base and head refs, and only its own axis methodology. Do not paste repository files, diffs, issue bodies, or one child's findings into the other child. Do not share either child's interim report before both reviews finish.
+Strict review can continue only when the child-review mechanism required by the axes that will run is live: every review gets its own fresh conversation, every child can use connected GitHub directly, and the parent can keep findings isolated until aggregation. When both axes run, the Standards and Spec children must be distinct. If any prerequisite is missing, stop strict review and state the missing capability. Do not use sequential Standards and Spec passes in this conversation, shared chat history, parent-pasted repository evidence, or one child's findings as substitutes for independent child reviews.
 
-Each child must independently resolve the pinned head SHA through connected GitHub and read the diff, commit list, and its required repository evidence directly. If either child cannot do that, stop strict review and state that independent child contexts with direct GitHub access are unavailable. Do not complete the missing axis in this conversation, and do not describe sequential passes here as isolated. The pinned upstream workflow defines no non-isolated fallback branch.
+Give each child only the repository coordinates, the same pinned base/head refs, and that axis's inputs below. Each child must independently resolve the pinned head SHA and fetch the diff, commit list, and its required repository evidence through connected GitHub. Do not inspect or share any child's findings until all child reviews that will run have completed; aggregate only after that. When both axes run and concurrent child execution is available, dispatch them in parallel.
 
-Where the live child-conversation mechanism supports concurrent execution, dispatch both children in parallel. Regardless of scheduling, keep their contexts and findings isolated until aggregation.
-
-**Standards child prompt** should include:
+**Standards child-review prompt** should include:
 
 - The repository coordinates and pinned base/head refs, with instructions to independently obtain the committed diff and commit list through connected GitHub.
-- The list of standards-source paths you found in step 3, **plus the smell baseline from step 3** pasted in full as review methodology. The child must fetch repository standards itself rather than receiving their contents from the parent.
+- The list of standards-source paths you found in step 3. The child must fetch those repository files itself through connected GitHub. **Also include the smell baseline from step 3 pasted in full as review methodology**, because that baseline is axis methodology rather than repository evidence.
 - The brief: "Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words."
 
-**Spec child prompt** should include:
+**Spec child-review prompt** should include:
 
 - The repository coordinates and pinned base/head refs, with instructions to independently obtain the committed diff and commit list through connected GitHub.
-- The repository locator for the spec source identified in step 2. The child must fetch repository or issue evidence itself rather than receiving fetched contents from the parent.
+- The repository or GitHub-issue locator for the spec source identified in step 2. The child must fetch that evidence itself through connected GitHub; do not paste fetched spec contents from the parent.
 - The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
 
 If the spec is missing, skip the Spec child review and note this in the final report.

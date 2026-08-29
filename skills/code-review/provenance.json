@@ -12,7 +12,7 @@
   "attribution": "Copyright (c) 2026 Matt Pocock",
   "adaptations": [
     "Translate local Git and issue-tracker mechanics to connected GitHub against committed refs while preserving fixed-point, spec-source, and Standards-source ordering.",
-    "Translate parallel sub-agents only to distinct ChatGPT child conversations when each child has direct connected GitHub access and findings remain isolated until aggregation.",
+    "Translate parallel sub-agents only to genuinely independent ChatGPT child conversations when each child has direct connected GitHub access and findings remain isolated until aggregation.",
     "Stop strict review when equivalent independent child contexts or direct child GitHub access are unavailable; do not invent a non-isolated fallback branch that the pinned upstream workflow does not define."
   ],
   "projection": {
@@ -27,27 +27,47 @@
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
-        "evidence": "The upstream parallel-sub-agent contract depends on isolated review contexts. The Target Runtime Profile may use separate ChatGPT child conversations only when a live mechanism can create distinct contexts and each child can access GitHub directly; otherwise strict review must stop rather than weaken the contract.",
+        "evidence": "The upstream frontmatter advertises parallel sub-agents. The Target Runtime Profile can claim that behavior only as independent child-review contexts with direct GitHub access, and must surface the strict stop instead of advertising unavailable sub-agents.",
         "transform": {
           "type": "replace-exact",
-          "match": "Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.\n\nThe issue tracker should have been provided to you. If `docs/agents/issue-tracker.md` is missing, tell the user to run `/setup-matt-pocock-skills`.",
-          "replacement": "Both axes run in **genuinely independent review contexts** so they don't pollute each other's context, then this skill aggregates their findings.\n\nStrict review requires a live ChatGPT mechanism that can create two distinct child conversations and let each child use connected GitHub directly. If that isolation or direct child GitHub access is unavailable, stop before reviewing and state the missing capability. Do not imitate isolation with sequential Standards and Spec passes in this conversation.\n\nUse connected GitHub as the issue-tracker and repository-evidence mechanism; do not require `docs/agents/issue-tracker.md` or `/setup-matt-pocock-skills`."
+          "match": "description: \"Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \\\"review since X\\\".\"",
+          "replacement": "description: \"Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Requires genuinely independent child-review contexts and reports the axes side by side; strict review stops when equivalent isolation or direct GitHub access is unavailable. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \\\"review since X\\\".\""
+        }
+      },
+      {
+        "allowedRuntimeChange": "equivalent-mechanism",
+        "source": "upstream.md",
+        "evidence": "The upstream uses parallel sub-agents to prevent context pollution. In the Target Runtime Profile the only equivalent mechanism is fresh child conversations with direct GitHub access and isolated findings; when that capability is absent the strict workflow must stop because upstream defines no weaker branch.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.",
+          "replacement": "Both axes run in **genuinely independent review contexts** so they don't pollute each other's context, then this skill aggregates their findings.\n\nStrict review requires the independent child conversation(s) needed by the axes that will run, with direct connected GitHub access in every child. If that isolation or direct child GitHub access is unavailable, stop strict review and state the missing capability. The pinned upstream workflow has no non-isolated fallback branch, so do not substitute sequential Standards and Spec passes in this conversation or label them as isolated child reviews."
         }
       },
       {
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
-        "evidence": "The Target Runtime Profile is remote-first and does not assume local Git commands. Connected GitHub can resolve committed refs, compare base and head with merge-base semantics, and return the commit list without changing the upstream fixed-point behavior.",
+        "evidence": "The Target Runtime Profile has connected GitHub rather than the upstream local issue-tracker document/setup command. This translation changes only how the same issue/repository evidence is accessed.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "The issue tracker should have been provided to you. If `docs/agents/issue-tracker.md` is missing, tell the user to run `/setup-matt-pocock-skills`.",
+          "replacement": "Use connected GitHub directly as the issue-tracker and repository-evidence mechanism. Do not require `docs/agents/issue-tracker.md` or `/setup-matt-pocock-skills`."
+        }
+      },
+      {
+        "allowedRuntimeChange": "translate-invocation-or-tool",
+        "source": "upstream.md",
+        "evidence": "The Target Runtime Profile is remote-first and cannot rely on local Git revspecs or commands. Connected GitHub can resolve committed refs, compare base/head with merge-base semantics, and expose the commit list while preserving the upstream fixed-point behavior and early failure.",
         "transform": {
           "type": "replace-exact",
           "match": "Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). If they didn't specify one, ask for it.\n\nCapture the diff command once: `git diff <fixed-point>...HEAD` (three-dot, so the comparison is against the merge-base). Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.\n\nBefore going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here, not inside two parallel sub-agents.",
-          "replacement": "Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, etc.). If they didn't specify one, ask for it.\n\nResolve the fixed point and the committed review head through connected GitHub. Compare the fixed point as base against the committed review head with merge-base semantics, note the commit list, and pin the exact head SHA that both review contexts must use.\n\nBefore going further, confirm both refs resolve and the committed comparison is non-empty. A bad ref or empty diff should fail here, not inside the two independent review contexts."
+          "replacement": "Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, etc.). If they didn't specify one, ask for it.\n\nResolve the fixed point and the committed review head through connected GitHub. Compare the fixed point as base against the committed review head with merge-base semantics, note the commit list, and pin the exact head SHA that every child review must use.\n\nBefore going further, confirm both refs resolve and the committed comparison is non-empty. A bad ref or empty diff should fail here, not inside the independent child reviews."
         }
       },
       {
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
-        "evidence": "The Target Runtime Profile reads issue and repository evidence through connected GitHub rather than a local issue-tracker document or filesystem traversal. This preserves the upstream source-selection order.",
+        "evidence": "The Target Runtime Profile reads issue and repository evidence through connected GitHub rather than a local issue-tracker workflow or filesystem traversal. The upstream source-selection order and missing-spec branch stay unchanged.",
         "transform": {
           "type": "replace-exact",
           "match": "Look for the originating spec, in this order:\n\n1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.), fetched via the workflow in `docs/agents/issue-tracker.md`.\n2. A path the user passed as an argument.\n3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.\n4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report \"no spec available\".",
@@ -57,11 +77,81 @@
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
-        "evidence": "The upstream step requires parallel sub-agents specifically to prevent context pollution. The Target Runtime Profile may translate that mechanism only to two distinct child conversations with direct GitHub access, isolated findings, equivalent axis inputs, and aggregation only after both reports complete. No weaker non-isolated branch exists upstream, so inability to establish these prerequisites stops strict review.",
+        "evidence": "The upstream parallel-sub-agent step exists to isolate the two review contexts and compose only after both reports complete. The Target Runtime Profile may translate it only to fresh child conversations with direct GitHub access, isolated invocation inputs/findings, the same pinned refs, and aggregation after all running axes finish; otherwise strict review stops.",
         "transform": {
           "type": "replace-exact",
-          "match": "### 4. Spawn both sub-agents in parallel\n\n**Standards sub-agent prompt** should include:\n\n- The full diff command and commit list.\n- The list of standards-source files you found in step 3, **plus the smell baseline from step 3** pasted in full (the sub-agent has no other access to it).\n- The brief: \"Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words.\"\n\n**Spec sub-agent prompt** should include:\n\n- The diff command and commit list.\n- The path or fetched contents of the spec.\n- The brief: \"Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words.\"\n\nIf the spec is missing, skip the Spec sub-agent and note this in the final report.",
-          "replacement": "### 4. Run both reviews in independent child conversations\n\nProceed only when a live ChatGPT capability can create and address two distinct child conversations and each child can use connected GitHub directly. Create one Standards child and one Spec child. Give each child the repository coordinates, the same pinned base and head refs, and only its own axis methodology. Do not paste repository files, diffs, issue bodies, or one child's findings into the other child. Do not share either child's interim report before both reviews finish.\n\nEach child must independently resolve the pinned head SHA through connected GitHub and read the diff, commit list, and its required repository evidence directly. If either child cannot do that, stop strict review and state that independent child contexts with direct GitHub access are unavailable. Do not complete the missing axis in this conversation, and do not describe sequential passes here as isolated. The pinned upstream workflow defines no non-isolated fallback branch.\n\nWhere the live child-conversation mechanism supports concurrent execution, dispatch both children in parallel. Regardless of scheduling, keep their contexts and findings isolated until aggregation.\n\n**Standards child prompt** should include:\n\n- The repository coordinates and pinned base/head refs, with instructions to independently obtain the committed diff and commit list through connected GitHub.\n- The list of standards-source paths you found in step 3, **plus the smell baseline from step 3** pasted in full as review methodology. The child must fetch repository standards itself rather than receiving their contents from the parent.\n- The brief: \"Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words.\"\n\n**Spec child prompt** should include:\n\n- The repository coordinates and pinned base/head refs, with instructions to independently obtain the committed diff and commit list through connected GitHub.\n- The repository locator for the spec source identified in step 2. The child must fetch repository or issue evidence itself rather than receiving fetched contents from the parent.\n- The brief: \"Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words.\"\n\nIf the spec is missing, skip the Spec child review and note this in the final report."
+          "match": "### 4. Spawn both sub-agents in parallel",
+          "replacement": "### 4. Run both reviews in independent child conversations\n\nStrict review can continue only when the child-review mechanism required by the axes that will run is live: every review gets its own fresh conversation, every child can use connected GitHub directly, and the parent can keep findings isolated until aggregation. When both axes run, the Standards and Spec children must be distinct. If any prerequisite is missing, stop strict review and state the missing capability. Do not use sequential Standards and Spec passes in this conversation, shared chat history, parent-pasted repository evidence, or one child's findings as substitutes for independent child reviews.\n\nGive each child only the repository coordinates, the same pinned base/head refs, and that axis's inputs below. Each child must independently resolve the pinned head SHA and fetch the diff, commit list, and its required repository evidence through connected GitHub. Do not inspect or share any child's findings until all child reviews that will run have completed; aggregate only after that. When both axes run and concurrent child execution is available, dispatch them in parallel."
+        }
+      },
+      {
+        "allowedRuntimeChange": "equivalent-mechanism",
+        "source": "upstream.md",
+        "evidence": "The Standards reviewer is an independent child conversation rather than the upstream sub-agent. This terminology change names the equivalent mechanism without changing the axis.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "**Standards sub-agent prompt** should include:",
+          "replacement": "**Standards child-review prompt** should include:"
+        }
+      },
+      {
+        "allowedRuntimeChange": "translate-invocation-or-tool",
+        "source": "upstream.md",
+        "evidence": "The child cannot execute the upstream parent-local Git command. Passing repository coordinates plus pinned refs lets the child independently obtain the same diff and commit-list evidence through connected GitHub.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "- The full diff command and commit list.",
+          "replacement": "- The repository coordinates and pinned base/head refs, with instructions to independently obtain the committed diff and commit list through connected GitHub."
+        }
+      },
+      {
+        "allowedRuntimeChange": "translate-invocation-or-tool",
+        "source": "upstream.md",
+        "evidence": "The Target Runtime Profile requires direct child repository access and forbids parent-pasted repository evidence. Passing source locators preserves the upstream Standards evidence class, while the fixed smell baseline remains pasted because it is review methodology rather than repository evidence.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "- The list of standards-source files you found in step 3, **plus the smell baseline from step 3** pasted in full (the sub-agent has no other access to it).",
+          "replacement": "- The list of standards-source paths you found in step 3. The child must fetch those repository files itself through connected GitHub. **Also include the smell baseline from step 3 pasted in full as review methodology**, because that baseline is axis methodology rather than repository evidence."
+        }
+      },
+      {
+        "allowedRuntimeChange": "equivalent-mechanism",
+        "source": "upstream.md",
+        "evidence": "The Spec reviewer is an independent child conversation rather than the upstream sub-agent. This terminology change names the equivalent mechanism without changing the axis.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "**Spec sub-agent prompt** should include:",
+          "replacement": "**Spec child-review prompt** should include:"
+        }
+      },
+      {
+        "allowedRuntimeChange": "translate-invocation-or-tool",
+        "source": "upstream.md",
+        "evidence": "The Spec child cannot execute the upstream parent-local Git command. Passing repository coordinates plus pinned refs lets it independently obtain the same diff and commit-list evidence through connected GitHub.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "- The diff command and commit list.",
+          "replacement": "- The repository coordinates and pinned base/head refs, with instructions to independently obtain the committed diff and commit list through connected GitHub."
+        }
+      },
+      {
+        "allowedRuntimeChange": "translate-invocation-or-tool",
+        "source": "upstream.md",
+        "evidence": "The Target Runtime Profile requires direct child access to repository/issue evidence. Passing only the spec locator preserves the upstream Spec evidence source while preventing parent-mediated evidence from weakening isolation.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "- The path or fetched contents of the spec.",
+          "replacement": "- The repository or GitHub-issue locator for the spec source identified in step 2. The child must fetch that evidence itself through connected GitHub; do not paste fetched spec contents from the parent."
+        }
+      },
+      {
+        "allowedRuntimeChange": "equivalent-mechanism",
+        "source": "upstream.md",
+        "evidence": "The pinned upstream missing-spec branch is preserved exactly; only the reviewer mechanism name changes from sub-agent to child review.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "If the spec is missing, skip the Spec sub-agent and note this in the final report.",
+          "replacement": "If the spec is missing, skip the Spec child review and note this in the final report."
         }
       }
     ]
