@@ -225,7 +225,9 @@ describe("manual faithful-workflow release evaluations", () => {
       const invalid = run as {
         cases: Array<{ adapted: { capabilities: string[] } }>;
       };
-      invalid.cases[0].adapted.capabilities = ["different capability"];
+      const firstCase = invalid.cases[0];
+      if (!firstCase) throw new Error("expected at least one evaluation case");
+      firstCase.adapted.capabilities = ["different capability"];
       await writeFile(runPath, JSON.stringify(invalid), "utf8");
 
       const rejected = spawnSync(process.execPath, [validatorPath, runPath], { encoding: "utf8" });
