@@ -44,6 +44,15 @@ describe("issue 15 release documentation", () => {
     }
   });
 
+  it("keeps the Secure MCP Tunnel guide aligned with the launcher lifecycle", async () => {
+    const tunnel = await read("docs/SECURE_MCP_TUNNEL.md");
+    expect(tunnel).toContain("chatgpt-chat-skills-mcp");
+    expect(tunnel).toContain("mcp-skills");
+    expect(tunnel).toContain("mcps status");
+    expect(tunnel).not.toContain("tunnel-client runtimes create");
+    expect(tunnel).not.toContain("tunnel-client runtimes connect");
+  });
+
   it("keeps release proof truthful until the real ChatGPT Web path is observed", async () => {
     const proof = await read("docs/release-proof.md");
     expect(proof).toContain("Status: NOT EXERCISED");
