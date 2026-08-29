@@ -10,9 +10,6 @@
   },
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
-  "adaptations": [
-    "Replace upstream sub-agent and local-environment fact lookup with available connected capabilities."
-  ],
   "projection": {
     "entrypoint": "upstream.md",
     "sources": [

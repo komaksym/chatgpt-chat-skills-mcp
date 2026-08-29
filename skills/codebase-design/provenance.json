@@ -10,11 +10,6 @@
   },
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
-  "adaptations": [
-    "Inline the exact pinned Deepening and Design It Twice Supporting Documents so the loaded runtime preserves the complete upstream design methodology without local relative-file assumptions.",
-    "Retarget only local supporting-document references needed for a self-contained runtime.",
-    "Use the upstream parallel Design It Twice branch only when independent child contexts have direct connected GitHub access; otherwise stop that branch rather than pretending isolation."
-  ],
   "projection": {
     "entrypoint": "upstream.md",
     "sources": [

@@ -10,10 +10,6 @@
   },
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
-  "adaptations": [
-    "Replace unavailable OS-temporary-directory persistence with returning the handoff directly in chat as a single fenced Markdown block for one-click copying into the next conversation.",
-    "Translate the upstream Skill-tool invocation wording to the MCP load_skill tool."
-  ],
   "projection": {
     "entrypoint": "upstream.md",
     "sources": [
