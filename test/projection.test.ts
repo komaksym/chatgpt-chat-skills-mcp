@@ -138,7 +138,7 @@ function defineProjectionSuite(): void {
 
   afterEach(cleanup);
 
-  /** Proves handoff is the exact pinned upstream skill plus two recorded adaptations. */
+  /** Proves handoff is the exact pinned upstream skill plus two recorded Change Records. */
   async function generatesHandoffDeterministically(): Promise<void> {
     const upstream = await readFile(new URL("upstream.md", HANDOFF_ROOT), "utf8");
     const committed = await readFile(new URL("runtime.md", HANDOFF_ROOT), "utf8");
