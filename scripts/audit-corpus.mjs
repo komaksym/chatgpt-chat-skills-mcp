@@ -95,6 +95,31 @@ function hasLargeRepeatedBlock(runtime) {
   return false;
 }
 
+async function runtimeSizes(root) {
+  let entries;
+  try {
+    entries = await readdir(root, { withFileTypes: true });
+  } catch {
+    return null;
+  }
+
+  const sizes = new Map();
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    try {
+      const runtime = await readFile(join(root, entry.name, "runtime.md"), "utf8");
+      sizes.set(entry.name, Buffer.byteLength(runtime, "utf8"));
+    } catch {
+      continue;
+    }
+  }
+  return sizes;
+}
+
+function signedBytes(value) {
+  return (value >= 0 ? "+" : "") + value + " bytes vs baseline";
+}
+
 export async function auditCorpus(root) {
   const errors = [];
   const skills = [];
@@ -166,6 +191,9 @@ export async function auditCorpus(root) {
 
 const root = process.argv[2] ?? "skills";
 const result = await auditCorpus(root);
+const baselineSizes = process.env.CORPUS_BASELINE_ROOT
+  ? await runtimeSizes(process.env.CORPUS_BASELINE_ROOT)
+  : null;
 const publicCount = result.skills.filter((skill) => skill.visibility === "public").length;
 const hiddenCount = result.skills.filter((skill) => skill.visibility === "hidden").length;
 console.log(
@@ -178,6 +206,11 @@ console.log(
     " hidden)",
 );
 for (const skill of result.skills) {
+  const baselineBytes = baselineSizes?.get(skill.name);
+  const delta =
+    baselineSizes === null
+      ? ""
+      : ", " + signedBytes(skill.runtimeBytes - (baselineBytes ?? 0));
   console.log(
     "runtime " +
       skill.name +
@@ -185,8 +218,16 @@ for (const skill of result.skills) {
       skill.runtimeBytes +
       " bytes (~" +
       Math.ceil(skill.runtimeBytes / 4) +
-      " tokens)",
+      " tokens)" +
+      delta,
   );
+}
+if (baselineSizes !== null) {
+  const currentNames = new Set(result.skills.map((skill) => skill.name));
+  for (const [name, bytes] of baselineSizes) {
+    if (currentNames.has(name)) continue;
+    console.log("runtime " + name + ": removed, " + signedBytes(-bytes));
+  }
 }
 for (const error of result.errors) console.error("error: " + error);
 if (result.errors.length) process.exitCode = 1;
