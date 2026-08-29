@@ -15,7 +15,8 @@
     "start": "node dist/main.js",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "corpus:check": "npm run generate:check && node scripts/audit-corpus.mjs skills"
+    "corpus:check": "npm run upstream:check && npm run generate:check && node scripts/audit-corpus.mjs skills",
+    "upstream:check": "node scripts/verify-upstream.mjs skills"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.30.0",

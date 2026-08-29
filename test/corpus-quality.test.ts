@@ -74,9 +74,9 @@ async function bundle(
     provenance.projection = {
       entrypoint: "upstream.md",
       sources: [
-        { path: "upstream.md", sha256: "b".repeat(64) },
+        { path: "upstream.md", upstreamPath: "skills/" + name + "/SKILL.md", sha256: "b".repeat(64) },
         ...(options.supporting
-          ? [{ path: "supporting.md", sha256: "c".repeat(64) }]
+          ? [{ path: "supporting.md", upstreamPath: "skills/" + name + "/supporting.md", sha256: "c".repeat(64) }]
           : []),
       ],
       changeRecords: options.supporting

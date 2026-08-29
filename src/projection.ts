@@ -229,6 +229,11 @@ export async function generateSkillRuntime(
         `Temporary Upstream Fix for ${name} expired when the upstream pin changed.`,
       );
     }
+    if (fix.source !== projection.entrypoint) {
+      throw new Error(
+        `Temporary Upstream Fix for ${name} cannot modify Supporting Document ${fix.source}.`,
+      );
+    }
     for (const dependencyPin of fix.dependencyPins ?? []) {
       if (!provenance.dependencies.includes(dependencyPin.name)) {
         throw new Error(

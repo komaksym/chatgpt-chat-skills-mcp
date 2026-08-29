@@ -32,6 +32,10 @@ const appendSourceSchema = z.strictObject({
   separator: z.string(),
 });
 
+const targetRuntimeEvidenceSchema = z.strictObject({
+  targetRuntimeProfile: z.string().min(1),
+});
+
 const changeRecordSchema = z.strictObject({
   allowedRuntimeChange: z.enum([
     "inline-supporting-document",
@@ -40,12 +44,13 @@ const changeRecordSchema = z.strictObject({
     "select-upstream-supported-branch",
   ]),
   source: artifactPathSchema,
-  evidence: z.string().min(1),
+  evidence: targetRuntimeEvidenceSchema,
   transform: z.discriminatedUnion("type", [replaceExactSchema, appendSourceSchema]),
 });
 
 const sourceArtifactSchema = z.strictObject({
   path: artifactPathSchema,
+  upstreamPath: artifactPathSchema,
   sha256: z.string().regex(SHA256),
 });
 

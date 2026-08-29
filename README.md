@@ -22,9 +22,10 @@ npm run corpus:check
 Every installed skill is a Mechanical Projection generated during development,
 never at MCP startup or request time. Regenerate one skill with
 `npm run generate -- handoff`, or run `npm run generate` without a name to
-regenerate the complete corpus. `npm run corpus:check` rebuilds every runtime
-byte for byte, validates structural corpus invariants, and reports runtime sizes
-without imposing an arbitrary size cap. In CI, the audit also reports each runtime's
+regenerate the complete corpus. `npm run corpus:check` first fetches each exact
+pinned upstream commit and byte-checks every declared source path, then rebuilds
+every runtime byte for byte, validates structural corpus invariants, and reports
+runtime sizes without imposing an arbitrary size cap. In CI, the audit also reports each runtime's
 byte delta against the compared base commit. The committed `runtime.md` is the
 artifact served in production.
 
@@ -113,8 +114,11 @@ dependencies, and upstream provenance; server source contains no second skill
 registry. Public bundles appear in `list_skills`. Public and hidden bundles can be
 loaded only by an exact canonical name.
 
-Every bundle uses structured Mechanical Projection provenance: exact pinned source
-digests, ordered Change Records, and any Temporary Upstream Fix. The retired
+Every bundle uses structured Mechanical Projection provenance: each source records
+its exact path in the pinned upstream repository plus its local digest, followed by
+ordered Change Records with structured Target Runtime Profile evidence and any Temporary Upstream Fix. Supporting Documents are
+source-verified and must remain verbatim; Temporary Upstream Fixes may modify only
+the entrypoint source. The retired
 free-text adaptation field is rejected. Those fields are development-time build
 inputs only; the MCP still serves the committed Generated Runtime and never returns
 provenance.

@@ -65,10 +65,12 @@ async function createProjectionFixture(
     sources: [
       {
         path: "upstream.md",
+        upstreamPath: "skills/fixture/SKILL.md",
         sha256: sha256(expectedSource),
       },
       ...supportingSources.map((supportingSource) => ({
         path: supportingSource.path,
+        upstreamPath: `skills/fixture/${supportingSource.path}`,
         sha256: sha256(supportingSource.content),
       })),
     ],
@@ -208,7 +210,7 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "equivalent-mechanism",
           source: "upstream.md",
-          evidence: "Fixture replacement.",
+          evidence: { targetRuntimeProfile: "Fixture replacement." },
           transform: {
             type: "replace-exact",
             match: "aa",
@@ -235,7 +237,7 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "equivalent-mechanism",
           source: "upstream.md",
-          evidence: "First fixture replacement.",
+          evidence: { targetRuntimeProfile: "First fixture replacement." },
           transform: {
             type: "replace-exact",
             match: "A",
@@ -245,7 +247,7 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "equivalent-mechanism",
           source: "upstream.md",
-          evidence: "Second fixture replacement.",
+          evidence: { targetRuntimeProfile: "Second fixture replacement." },
           transform: {
             type: "replace-exact",
             match: "B",
@@ -272,7 +274,7 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "equivalent-mechanism",
           source: "upstream.md",
-          evidence: "First fixture replacement.",
+          evidence: { targetRuntimeProfile: "First fixture replacement." },
           transform: {
             type: "replace-exact",
             match: "abc",
@@ -282,7 +284,7 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "equivalent-mechanism",
           source: "upstream.md",
-          evidence: "Second fixture replacement.",
+          evidence: { targetRuntimeProfile: "Second fixture replacement." },
           transform: {
             type: "replace-exact",
             match: "bc",
@@ -315,7 +317,7 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "translate-invocation-or-tool",
           source: "supporting.md",
-          evidence: "Fixture supporting-document translation.",
+          evidence: { targetRuntimeProfile: "Fixture supporting-document translation." },
           transform: {
             type: "replace-exact",
             match: "OLD",
@@ -325,7 +327,7 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "inline-supporting-document",
           source: "supporting.md",
-          evidence: "The runtime must be self-contained.",
+          evidence: { targetRuntimeProfile: "The runtime must be self-contained." },
           transform: {
             type: "append-source",
             separator: "\n---\n\n",
@@ -357,7 +359,7 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "inline-supporting-document",
           source: "supporting.md",
-          evidence: "The runtime must be self-contained.",
+          evidence: { targetRuntimeProfile: "The runtime must be self-contained." },
           transform: {
             type: "append-source",
             separator: "\n---\n\n",
@@ -371,8 +373,8 @@ function defineProjectionSuite(): void {
     ).resolves.toBe("ENTRYPOINT\n\n---\n\nPINNED SUPPORTING DOCUMENT\n");
   }
 
-  /** Proves an active Temporary Upstream Fix can target a pinned Supporting Document. */
-  async function appliesTemporaryFixToSupportingSource(): Promise<void> {
+  /** Proves Supporting Documents remain verbatim even when a Temporary Upstream Fix is declared. */
+  async function rejectsTemporaryFixToSupportingSource(): Promise<void> {
     const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
     roots.push(repositoryRoot);
     const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
@@ -387,7 +389,7 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "inline-supporting-document",
           source: "supporting.md",
-          evidence: "The runtime must be self-contained.",
+          evidence: { targetRuntimeProfile: "The runtime must be self-contained." },
           transform: {
             type: "append-source",
             separator: "\n---\n\n",
@@ -408,7 +410,9 @@ function defineProjectionSuite(): void {
 
     await expect(
       generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
-    ).resolves.toBe("ENTRYPOINT\n\n---\n\nSUPPORT FIXED\n");
+    ).rejects.toThrow(
+      "Temporary Upstream Fix for fixture-skill cannot modify Supporting Document supporting.md.",
+    );
   }
 
   /** Proves a Temporary Upstream Fix expires as soon as the pinned commit changes. */
@@ -509,6 +513,31 @@ function defineProjectionSuite(): void {
   }
 
 
+  /** Proves Target Runtime evidence is structured rather than free text. */
+  async function rejectsFreeTextChangeRecordEvidence(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      expectedSource: "A\n",
+      changeRecords: [
+        {
+          allowedRuntimeChange: "equivalent-mechanism",
+          source: "upstream.md",
+          evidence: "x",
+          transform: {
+            type: "replace-exact",
+            match: "A",
+            replacement: "B",
+          },
+        },
+      ],
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow("Invalid provenance for fixture-skill.");
+  }
+
   /** Proves a Change Record must produce an observable runtime difference. */
   async function rejectsNoOpChangeRecord(): Promise<void> {
     const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
@@ -519,7 +548,7 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "equivalent-mechanism",
           source: "upstream.md",
-          evidence: "Fixture no-op must not count as a runtime change.",
+          evidence: { targetRuntimeProfile: "Fixture no-op must not count as a runtime change." },
           transform: {
             type: "replace-exact",
             match: "UNCHANGED",
@@ -566,6 +595,7 @@ function defineProjectionSuite(): void {
     generatesGrillingBundleDeterministically,
   );
   it("rejects altered pinned source", rejectsAlteredPinnedSource);
+  it("rejects free-text Change Record evidence", rejectsFreeTextChangeRecordEvidence);
   it("rejects no-op Change Records", rejectsNoOpChangeRecord);
   it("rejects unconsumed Supporting Documents", rejectsUnconsumedSupportingSource);
   it("rejects missing pinned source", rejectsMissingPinnedSource);
@@ -578,8 +608,8 @@ function defineProjectionSuite(): void {
   it("rejects transformed Supporting Documents", rejectsTransformedSupportingSource);
   it("inlines pinned supporting source bytes", inlinesPinnedSupportingSource);
   it(
-    "applies a Temporary Upstream Fix to a pinned Supporting Document",
-    appliesTemporaryFixToSupportingSource,
+    "rejects a Temporary Upstream Fix to a pinned Supporting Document",
+    rejectsTemporaryFixToSupportingSource,
   );
   it("expires a Temporary Upstream Fix on pin change", rejectsExpiredTemporaryFix);
   it("rejects a non-ADR Temporary Upstream Fix path", rejectsTemporaryFixNonAdrPath);

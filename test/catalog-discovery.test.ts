@@ -50,6 +50,7 @@ async function createBundle(root: string, skill: FixtureSkill): Promise<void> {
           sources: [
             {
               path: "upstream.md",
+              upstreamPath: `skills/${skill.name}/SKILL.md`,
               sha256: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
             },
           ],
