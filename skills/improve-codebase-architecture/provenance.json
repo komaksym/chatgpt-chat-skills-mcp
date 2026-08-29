@@ -21,6 +21,11 @@
         "path": "upstream.md",
         "sha256": "d1ac25511a936ff4250a48dbcefda363837d6bb9321b3cba73df99fa37270a75",
         "upstreamPath": "skills/engineering/improve-codebase-architecture/SKILL.md"
+      },
+      {
+        "path": "upstream-html-report.md",
+        "sha256": "581e8bb5a521e46bbda8ca7e19b15948bed882187108092ebb90c62513b77528",
+        "upstreamPath": "skills/engineering/improve-codebase-architecture/HTML-REPORT.md"
       }
     ],
     "changeRecords": [
@@ -185,6 +190,21 @@
           "type": "replace-exact",
           "match": "- **Want to explore alternative interfaces for the deepened module?** Call the Skill tool with \"codebase-design\" and use its design-it-twice parallel sub-agent pattern.",
           "replacement": "- **Want to explore alternative interfaces for the deepened module?** Load `codebase-design` with `load_skill` and use its Design It Twice pattern. Follow that Dependency Skill's capability rule for independent children instead of pretending parallel isolation."
+        }
+      },
+      {
+        "allowedRuntimeChange": "inline-supporting-document",
+        "source": "upstream-html-report.md",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "The pinned upstream architecture skill explicitly requires HTML-REPORT.md. The Target Runtime has no Supporting Document loader beyond load_skill/list_skills, so the exact pinned document is appended verbatim to keep the Generated Runtime self-contained."
+        },
+        "transform": {
+          "type": "append-source",
+          "separator": "\n\n---\n\n"
         }
       }
     ]
