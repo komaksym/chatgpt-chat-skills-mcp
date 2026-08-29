@@ -188,6 +188,29 @@ describe("complete Mechanical Projection corpus audit", () => {
     expect(result.stderr).toContain("embeds Dependency Skill runtime child");
   });
 
+  it("rejects materially copied Dependency Skill text with a small adaptation", async () => {
+    const root = await temp();
+    const dependencyWords = Array.from(
+      { length: 80 },
+      (_, index) => "dependencyword" + index,
+    );
+    await bundle(root, "child", {
+      runtime: dependencyWords.join(" ") + "\n",
+    });
+    const copied = dependencyWords.slice(10, 60);
+    copied[20] = "locally-adapted-word";
+
+    await bundle(root, "parent", {
+      dependency: "child",
+      runtime: "Parent intro.\n\n" + copied.join(" ") + "\n",
+    });
+
+    const result = await run(root);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain("embeds Dependency Skill runtime child");
+  });
+
   it("rejects a duplicated Runtime Envelope", async () => {
     const root = await temp();
     await bundle(root, "alpha", {
