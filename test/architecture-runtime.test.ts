@@ -142,15 +142,24 @@ function defineArchitectureRuntimeSuite(): void {
     }
 
     expect(parent).toContain("live commit history through connected GitHub capabilities");
+    expect(parent).toContain(
+      "If commit-history read capability is unavailable, report that missing evidence and widen the scan without inventing a hotspot.",
+    );
     expect(parent).toContain("committed domain glossary (`CONTEXT.md`)");
     expect(parent).toContain("any ADRs in the area");
-    expect(parent).toContain("name the missing evidence and stop that affected analysis");
+    expect(parent).toContain(
+      "If any repository evidence required for the affected analysis cannot be read, name the missing evidence and stop that affected analysis rather than inventing repository facts.",
+    );
     expect(parent).not.toContain("`git log --oneline`");
   }
 
   async function preservesCandidateReportAndSelectionBoundary(): Promise<void> {
     const parent = await generateSkillRuntime("improve-codebase-architecture");
 
+    expect(parent).toContain(
+      "description: Scan a codebase for deepening opportunities, present them as a Markdown candidate report, then grill through whichever one you pick.",
+    );
+    expect(parent).not.toContain("visual HTML report");
     expect(parent).toContain("### 2. Present candidates as a Markdown report");
     expect(parent).toContain("Return the candidate report directly in Markdown");
     expect(parent).toContain("Use a diagram only where it materially clarifies");
