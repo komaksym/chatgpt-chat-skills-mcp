@@ -133,8 +133,8 @@ describe("complete corpus through the production MCP boundary", () => {
   it("keeps separately named Dependency Skills out of parent payloads", async () => {
     const connected = await connect();
     const bundles = await installed();
-    const byName = new Map(
-      bundles.map((bundle) => [bundle.metadata.name, bundle]),
+    const byName = new Map<string, InstalledBundle>(
+      bundles.map((bundle) => [bundle.metadata.name, bundle] as const),
     );
 
     for (const bundle of bundles) {
