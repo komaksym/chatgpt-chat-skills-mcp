@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Requires genuinely independent child-review contexts and reports the axes side by side; strict review stops when equivalent isolation or direct GitHub access is unavailable. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
+description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Requires genuinely independent child-review contexts and reports the axes side by side; strict review stops when equivalent isolation or direct GitHub access is unavailable. Child reviews are spawned with @chrome-mcp and both axes run in parallel. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
 ---
 
 Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
@@ -10,7 +10,7 @@ Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
 Both axes run in **genuinely independent review contexts** so they don't pollute each other's context, then this skill aggregates their findings.
 
-Strict review requires the independent child conversation(s) needed by the axes that will run, with direct connected GitHub access in every child. If that isolation or direct child GitHub access is unavailable, stop strict review and state the missing capability. The pinned upstream workflow has no non-isolated fallback branch, so do not substitute sequential Standards and Spec passes in this conversation or label them as isolated child reviews.
+Use `@chrome-mcp` as the child-review mechanism. Before sending either review prompt, create all required child conversations with `@chrome-mcp`. Strict review requires every child to have direct connected GitHub access, and when both axes run you must be able to dispatch both review prompts in parallel. If `@chrome-mcp` cannot create or separately address all required children, if direct child GitHub access is unavailable, or if parallel dispatch is unavailable, stop strict review before sending either review prompt and state the missing capability. The pinned upstream workflow has no non-isolated fallback branch, so do not substitute sequential Standards and Spec passes in this conversation or label them as isolated child reviews.
 
 Use connected GitHub directly as the issue-tracker and repository-evidence mechanism.
 
@@ -59,21 +59,23 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 ### 4. Run both reviews in independent child conversations
 
-Strict review can continue only when the child-review mechanism required by the axes that will run is live: every review gets its own fresh conversation, every child can use connected GitHub directly, and the parent can keep findings isolated until aggregation. When both axes run, the Standards and Spec children must be distinct. If any prerequisite is missing, stop strict review and state the missing capability. Do not use sequential Standards and Spec passes in this conversation, shared chat history, parent-pasted repository evidence, or one child's findings as substitutes for independent child reviews.
+Use `@chrome-mcp` to create a fresh ChatGPT child conversation for each axis that will run. Before sending either review prompt, create all required child conversations. When both axes run, the Standards and Spec children must be distinct and you must dispatch both review prompts in parallel. If `@chrome-mcp` cannot create all required child conversations, cannot address them separately, or cannot dispatch both review prompts in parallel, stop strict review before sending either review prompt and tell the user which capability is missing. Do not start one axis while trying to recover or create the other.
 
-Give each child only the repository coordinates, the same pinned base/head refs, and that axis's inputs below. Each child must independently resolve the pinned head SHA and fetch the diff, commit list, and its required repository evidence through connected GitHub. Do not inspect or share any child's findings until all child reviews that will run have completed; aggregate only after that. When both axes run and concurrent child execution is available, dispatch them in parallel.
+Every child must use connected GitHub directly, and the parent must keep findings isolated until aggregation. Give each child only the repository coordinates, the same pinned base/head refs, and that axis's inputs below. Each child must independently resolve the pinned head SHA and fetch the diff, commit list, and its required repository evidence through connected GitHub. Do not inspect or share any child's findings until all child reviews that will run have completed; aggregate only after that. Do not use sequential Standards and Spec passes in this conversation, shared chat history, parent-pasted repository evidence, or one child's findings as substitutes for independent child reviews.
 
 **Standards child-review prompt** should include:
 
 - The repository coordinates and pinned base/head refs, with instructions to independently obtain the committed diff and commit list through connected GitHub.
 - The list of standards-source paths you found in step 3. The child must fetch those repository files itself through connected GitHub. **Also include the smell baseline from step 3 pasted in full as review methodology**, because that baseline is axis methodology rather than repository evidence.
 - The brief: "Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words."
+- Output protocol: "Return exactly one single-line plain-text report, with no Markdown and no line breaks, in this format: AXIS=Standards; FINDINGS=<integer>; REPORT=<report>. Keep the whole line under 3,000 characters. Put every Standards finding, standard citation, smell label, and severity/judgement distinction inside REPORT. If there are no findings, use FINDINGS=0 and REPORT=no findings."
 
 **Spec child-review prompt** should include:
 
 - The repository coordinates and pinned base/head refs, with instructions to independently obtain the committed diff and commit list through connected GitHub.
 - The repository or GitHub-issue locator for the spec source identified in step 2. The child must fetch that evidence itself through connected GitHub; do not paste fetched spec contents from the parent.
 - The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
+- Output protocol: "Return exactly one single-line plain-text report, with no Markdown and no line breaks, in this format: AXIS=Spec; FINDINGS=<integer>; REPORT=<report>. Keep the whole line under 3,000 characters. Put every Spec finding and its quoted requirement inside REPORT. If there are no findings, use FINDINGS=0 and REPORT=no findings."
 
 If the spec is missing, skip the Spec child review and note this in the final report.
 

@@ -62,10 +62,11 @@ schema.
 ## Strict code review
 
 `code-review` is a Mechanical Projection of the pinned upstream two-axis workflow.
-Strict mode uses independent child conversations only when each child can access
-GitHub directly and findings stay isolated until aggregation. If that equivalent
-mechanism is unavailable, the strict workflow stops; it does not substitute
-sequential passes in the parent conversation or invent a weaker fallback branch.
+Strict mode uses `@chrome-mcp` to create independent child conversations, requires
+each child to access GitHub directly, and dispatches both running axes in parallel
+before aggregation. If `@chrome-mcp` cannot create/address the required children or
+parallel dispatch is unavailable, the strict workflow stops before either review
+starts; it does not substitute sequential passes or invent a weaker fallback branch.
 
 See `docs/code-review-strict-smoke.md` for the synthetic-canary capability smoke
 procedure. The implementation-time result is `NOT EXERCISED`.

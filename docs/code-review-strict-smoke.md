@@ -14,14 +14,13 @@ It is a capability smoke test, not a proof about hidden platform state.
 ## Two-child synthetic canary
 
 1. Create fresh child A for Standards and fresh child B for Spec.
-2. Give child A only `STANDARDS-CANARY-7A` and child B only `SPEC-CANARY-7B`.
+2. Give child A only `STANDARDS-CANARY-7A` and child B only `SPEC-CANARY-7B`. Never include the sibling canary literal in the other child's prompt, even in a sentence saying that the child should not see it.
 3. Give both children only repository coordinates, the same committed base/head refs,
    and their own axis methodology. Do not paste repository files, diffs, issue bodies,
    or findings from the parent.
 4. Require each child to independently use connected GitHub, resolve the repository
    and exact head SHA, and report one repository path or issue identifier it fetched.
-5. Require each child to return its own canary exactly and state whether it saw the
-   sibling canary.
+5. Require each child to return its own canary exactly and state only whether it saw any canary token other than its own. Do not name or quote the sibling canary in that child's prompt.
 6. Inspect both reports only after both finish. Confirm that each independently
    observed GitHub and neither reports the sibling canary.
 

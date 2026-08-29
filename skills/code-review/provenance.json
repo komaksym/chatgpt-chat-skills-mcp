@@ -12,8 +12,9 @@
   "attribution": "Copyright (c) 2026 Matt Pocock",
   "adaptations": [
     "Translate local Git and issue-tracker mechanics to connected GitHub against committed refs while preserving fixed-point, spec-source, and Standards-source ordering.",
-    "Translate parallel sub-agents only to genuinely independent ChatGPT child conversations when each child has direct connected GitHub access and findings remain isolated until aggregation.",
-    "Stop strict review when equivalent independent child contexts or direct child GitHub access are unavailable; do not invent a non-isolated fallback branch that the pinned upstream workflow does not define."
+    "Use @chrome-mcp to spawn genuinely independent ChatGPT child conversations and require parallel dispatch whenever both axes run; stop before either review starts if the mechanism cannot satisfy that contract.",
+    "Require each child review to return one deterministic single-line plain-text report so browser retrieval does not require follow-up recovery prompts.",
+    "Stop strict review when equivalent independent child contexts, direct child GitHub access, or required parallel dispatch are unavailable; do not invent a non-isolated or sequential fallback branch that the pinned upstream workflow does not define."
   ],
   "projection": {
     "entrypoint": "upstream.md",
@@ -27,21 +28,21 @@
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
-        "evidence": "The upstream frontmatter advertises parallel sub-agents. The Target Runtime Profile can claim that behavior only as independent child-review contexts with direct GitHub access, and must surface the strict stop instead of advertising unavailable sub-agents.",
+        "evidence": "The upstream frontmatter advertises parallel sub-agents. In the Target Runtime Profile, @chrome-mcp is the concrete mechanism for creating independent child conversations. The runtime may claim the upstream behavior only when both running axes can be dispatched in parallel with direct GitHub access; otherwise strict review must stop.",
         "transform": {
           "type": "replace-exact",
           "match": "description: \"Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \\\"review since X\\\".\"",
-          "replacement": "description: \"Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Requires genuinely independent child-review contexts and reports the axes side by side; strict review stops when equivalent isolation or direct GitHub access is unavailable. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \\\"review since X\\\".\""
+          "replacement": "description: \"Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Requires genuinely independent child-review contexts and reports the axes side by side; strict review stops when equivalent isolation or direct GitHub access is unavailable. Child reviews are spawned with @chrome-mcp and both axes run in parallel. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \\\"review since X\\\".\""
         }
       },
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
-        "evidence": "The upstream uses parallel sub-agents to prevent context pollution. In the Target Runtime Profile the only equivalent mechanism is fresh child conversations with direct GitHub access and isolated findings; when that capability is absent the strict workflow must stop because upstream defines no weaker branch.",
+        "evidence": "The upstream uses parallel sub-agents to prevent context pollution. In the Target Runtime Profile, @chrome-mcp is the concrete equivalent mechanism: create every required fresh child before sending either prompt, dispatch both axes in parallel, require direct connected GitHub in each child, and stop before any review begins if those guarantees are unavailable.",
         "transform": {
           "type": "replace-exact",
           "match": "Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.",
-          "replacement": "Both axes run in **genuinely independent review contexts** so they don't pollute each other's context, then this skill aggregates their findings.\n\nStrict review requires the independent child conversation(s) needed by the axes that will run, with direct connected GitHub access in every child. If that isolation or direct child GitHub access is unavailable, stop strict review and state the missing capability. The pinned upstream workflow has no non-isolated fallback branch, so do not substitute sequential Standards and Spec passes in this conversation or label them as isolated child reviews."
+          "replacement": "Both axes run in **genuinely independent review contexts** so they don't pollute each other's context, then this skill aggregates their findings.\n\nUse `@chrome-mcp` as the child-review mechanism. Before sending either review prompt, create all required child conversations with `@chrome-mcp`. Strict review requires every child to have direct connected GitHub access, and when both axes run you must be able to dispatch both review prompts in parallel. If `@chrome-mcp` cannot create or separately address all required children, if direct child GitHub access is unavailable, or if parallel dispatch is unavailable, stop strict review before sending either review prompt and state the missing capability. The pinned upstream workflow has no non-isolated fallback branch, so do not substitute sequential Standards and Spec passes in this conversation or label them as isolated child reviews."
         }
       },
       {
@@ -77,11 +78,11 @@
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
-        "evidence": "The upstream parallel-sub-agent step exists to isolate the two review contexts and compose only after both reports complete. The Target Runtime Profile may translate it only to fresh child conversations with direct GitHub access, isolated invocation inputs/findings, the same pinned refs, and aggregation after all running axes finish; otherwise strict review stops.",
+        "evidence": "The upstream step requires both sub-agents to be spawned in parallel and composed only after both reports complete. @chrome-mcp is the concrete Target Runtime Profile mechanism. Equivalent behavior requires creating all required child chats first, dispatching both running axes in parallel, preserving direct GitHub access and isolation, and stopping before either review prompt is sent if any prerequisite is unavailable.",
         "transform": {
           "type": "replace-exact",
           "match": "### 4. Spawn both sub-agents in parallel",
-          "replacement": "### 4. Run both reviews in independent child conversations\n\nStrict review can continue only when the child-review mechanism required by the axes that will run is live: every review gets its own fresh conversation, every child can use connected GitHub directly, and the parent can keep findings isolated until aggregation. When both axes run, the Standards and Spec children must be distinct. If any prerequisite is missing, stop strict review and state the missing capability. Do not use sequential Standards and Spec passes in this conversation, shared chat history, parent-pasted repository evidence, or one child's findings as substitutes for independent child reviews.\n\nGive each child only the repository coordinates, the same pinned base/head refs, and that axis's inputs below. Each child must independently resolve the pinned head SHA and fetch the diff, commit list, and its required repository evidence through connected GitHub. Do not inspect or share any child's findings until all child reviews that will run have completed; aggregate only after that. When both axes run and concurrent child execution is available, dispatch them in parallel."
+          "replacement": "### 4. Run both reviews in independent child conversations\n\nUse `@chrome-mcp` to create a fresh ChatGPT child conversation for each axis that will run. Before sending either review prompt, create all required child conversations. When both axes run, the Standards and Spec children must be distinct and you must dispatch both review prompts in parallel. If `@chrome-mcp` cannot create all required child conversations, cannot address them separately, or cannot dispatch both review prompts in parallel, stop strict review before sending either review prompt and tell the user which capability is missing. Do not start one axis while trying to recover or create the other.\n\nEvery child must use connected GitHub directly, and the parent must keep findings isolated until aggregation. Give each child only the repository coordinates, the same pinned base/head refs, and that axis's inputs below. Each child must independently resolve the pinned head SHA and fetch the diff, commit list, and its required repository evidence through connected GitHub. Do not inspect or share any child's findings until all child reviews that will run have completed; aggregate only after that. Do not use sequential Standards and Spec passes in this conversation, shared chat history, parent-pasted repository evidence, or one child's findings as substitutes for independent child reviews."
         }
       },
       {
@@ -152,6 +153,26 @@
           "type": "replace-exact",
           "match": "If the spec is missing, skip the Spec sub-agent and note this in the final report.",
           "replacement": "If the spec is missing, skip the Spec child review and note this in the final report."
+        }
+      },
+      {
+        "allowedRuntimeChange": "translate-invocation-or-tool",
+        "source": "upstream.md",
+        "evidence": "@chrome-mcp's semantic browser reader must retrieve a completed child report without recovery prompting. A deterministic one-line plain-text envelope changes only transport formatting, not Standards methodology or findings.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "- The brief: \"Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words.\"",
+          "replacement": "- The brief: \"Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words.\"\n- Output protocol: \"Return exactly one single-line plain-text report, with no Markdown and no line breaks, in this format: AXIS=Standards; FINDINGS=<integer>; REPORT=<report>. Keep the whole line under 3,000 characters. Put every Standards finding, standard citation, smell label, and severity/judgement distinction inside REPORT. If there are no findings, use FINDINGS=0 and REPORT=no findings.\""
+        }
+      },
+      {
+        "allowedRuntimeChange": "translate-invocation-or-tool",
+        "source": "upstream.md",
+        "evidence": "@chrome-mcp's semantic browser reader must retrieve a completed child report without recovery prompting. A deterministic one-line plain-text envelope changes only transport formatting, not Spec methodology or findings.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "- The brief: \"Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words.\"",
+          "replacement": "- The brief: \"Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words.\"\n- Output protocol: \"Return exactly one single-line plain-text report, with no Markdown and no line breaks, in this format: AXIS=Spec; FINDINGS=<integer>; REPORT=<report>. Keep the whole line under 3,000 characters. Put every Spec finding and its quoted requirement inside REPORT. If there are no findings, use FINDINGS=0 and REPORT=no findings.\""
         }
       }
     ]
