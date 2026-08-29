@@ -11,6 +11,11 @@
       "baseline": {
         "skill": null,
         "model": "",
+        "skillsMcp": {
+          "repository": "",
+          "releaseSha": "",
+          "evidence": ""
+        },
         "repository": {
           "url": "",
           "sourceRepository": "",
@@ -26,6 +31,11 @@
       "adapted": {
         "skill": "",
         "model": "",
+        "skillsMcp": {
+          "repository": "",
+          "releaseSha": "",
+          "evidence": ""
+        },
         "repository": {
           "url": "",
           "sourceRepository": "",
