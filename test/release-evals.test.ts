@@ -1,4 +1,8 @@
-import { readFile } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
@@ -48,6 +52,58 @@ interface Suite {
 
 async function suite(): Promise<Suite> {
   return JSON.parse(await readFile(new URL("cases.json", ROOT), "utf8")) as Suite;
+}
+
+
+function completedRun(data: Suite): Record<string, unknown> {
+  return {
+    mode: "manual-release",
+    runId: "test-run",
+    releaseSha: "a".repeat(40),
+    cases: data.cases.map((item, index) => {
+      const rubric = item.rubric.map((criterion) => ({
+        id: criterion.id,
+        judgment: "pass",
+        evidence: "Observed fixture evidence.",
+      }));
+      const repository = {
+        sourceRepository: item.repositoryContext.sourceRepository,
+        baseSha: item.repositoryContext.baseSha,
+      };
+
+      return {
+        caseId: item.id,
+        task: item.task,
+        prompt: item.prompt,
+        followUp: item.followUp ?? null,
+        baseline: {
+          skill: null,
+          model: item.model,
+          repository: { ...repository, url: `https://example.test/baseline-${index}` },
+          capabilities: item.capabilities,
+          output: "Observed baseline output.",
+          externalResults: [],
+          rubric,
+          pass: true,
+          rationale: "Baseline fixture completed.",
+        },
+        adapted: {
+          skill: item.workflow,
+          model: item.model,
+          repository: { ...repository, url: `https://example.test/adapted-${index}` },
+          capabilities: item.capabilities,
+          output: "Observed adapted output.",
+          externalResults: [],
+          rubric: rubric.map((entry) => ({ ...entry })),
+          pass: true,
+          rationale: "Adapted fixture completed.",
+        },
+        pass: true,
+        rationale: "Adapted condition meets the fixed rubric.",
+        comparison: "Recorded behavioral delta.",
+      };
+    }),
+  };
 }
 
 describe("manual faithful-workflow release evaluations", () => {
@@ -149,6 +205,37 @@ describe("manual faithful-workflow release evaluations", () => {
         },
       ],
     });
+  });
+
+
+  it("validates completed paired records through the CLI boundary", async () => {
+    const data = await suite();
+    const directory = await mkdtemp(join(tmpdir(), "release-evals-"));
+    const runPath = join(directory, "run.json");
+    const validatorPath = fileURLToPath(new URL("validate-run.mjs", ROOT));
+
+    try {
+      const run = completedRun(data);
+      await writeFile(runPath, JSON.stringify(run), "utf8");
+
+      const valid = spawnSync(process.execPath, [validatorPath, runPath], { encoding: "utf8" });
+      expect(valid.status).toBe(0);
+      expect(valid.stdout).toContain("Validated 7 paired manual release evaluations.");
+
+      const invalid = run as {
+        cases: Array<{ adapted: { capabilities: string[] } }>;
+      };
+      invalid.cases[0].adapted.capabilities = ["different capability"];
+      await writeFile(runPath, JSON.stringify(invalid), "utf8");
+
+      const rejected = spawnSync(process.execPath, [validatorPath, runPath], { encoding: "utf8" });
+      expect(rejected.status).toBe(1);
+      expect(rejected.stderr).toContain(
+        "capabilities must exactly match the fixed case capabilities",
+      );
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
   });
 
   it("documents a manual release step without stochastic model calls in CI", async () => {
