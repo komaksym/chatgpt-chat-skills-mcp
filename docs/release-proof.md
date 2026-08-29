@@ -4,6 +4,10 @@ Status: NOT EXERCISED
 
 This record is not a success claim. The repository-side deterministic gates can be verified in CI, but the complete release requires a real ChatGPT Web Developer Mode session connected through the machine-local Secure MCP Tunnel. Change the status to `PASS` only after every required observation below is captured; otherwise record `FAIL` or leave it `NOT EXERCISED`.
 
+## Implementation-time observation — 2026-08-29
+
+A browser request to `http://127.0.0.1:2092/healthz` reached a browser error page, so the machine-local Skills service was not running in this session. The tunnel-backed ChatGPT Web smoke therefore remains `NOT EXERCISED`; no remote-read/write, missing-capability, or strict child-conversation result is claimed here.
+
 ## Preconditions
 
 1. Build the exact release revision and start the loopback service.
