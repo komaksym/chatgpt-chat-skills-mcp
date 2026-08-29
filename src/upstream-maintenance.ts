@@ -716,7 +716,8 @@ export async function checkUpstreamUpdates(options: {
     const blockedSkills = new Set(blockers.map((item) => item.skill));
     const runtimeDeltas: RuntimeDelta[] = [];
 
-    for (const bundle of bundles) {
+    for (const plan of plans) {
+      const bundle = plan.bundle;
       if (blockedSkills.has(bundle.provenance.name)) continue;
 
       const runtimePath = join(
