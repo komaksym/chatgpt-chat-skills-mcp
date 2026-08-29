@@ -143,6 +143,8 @@ describe("manual faithful-workflow release evaluations", () => {
             pass: null,
             rationale: "",
           },
+          pass: null,
+          rationale: "",
           comparison: "",
         },
       ],
@@ -160,5 +162,6 @@ describe("manual faithful-workflow release evaluations", () => {
     expect(guide).toContain("node evals/release/validate-run.mjs");
     expect(guide).toContain("must not call a model");
     expect(validator).toContain("capabilities must exactly match the fixed case capabilities");
+    expect(validator).toContain("paired result cannot pass unless the adapted condition passes");
   });
 });
