@@ -210,7 +210,11 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "equivalent-mechanism",
           source: "upstream.md",
-          evidence: { targetRuntimeProfile: "Fixture replacement." },
+          evidence: {
+            targetRuntimeProfile: "chatgpt-web-mcp-v1",
+            constraints: ["chatgpt-web-through-mcp"],
+            incompatibility: "Fixture replacement.",
+          },
           transform: {
             type: "replace-exact",
             match: "aa",
@@ -237,7 +241,11 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "equivalent-mechanism",
           source: "upstream.md",
-          evidence: { targetRuntimeProfile: "First fixture replacement." },
+          evidence: {
+            targetRuntimeProfile: "chatgpt-web-mcp-v1",
+            constraints: ["chatgpt-web-through-mcp"],
+            incompatibility: "First fixture replacement.",
+          },
           transform: {
             type: "replace-exact",
             match: "A",
@@ -247,7 +255,11 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "equivalent-mechanism",
           source: "upstream.md",
-          evidence: { targetRuntimeProfile: "Second fixture replacement." },
+          evidence: {
+            targetRuntimeProfile: "chatgpt-web-mcp-v1",
+            constraints: ["chatgpt-web-through-mcp"],
+            incompatibility: "Second fixture replacement.",
+          },
           transform: {
             type: "replace-exact",
             match: "B",
@@ -274,7 +286,11 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "equivalent-mechanism",
           source: "upstream.md",
-          evidence: { targetRuntimeProfile: "First fixture replacement." },
+          evidence: {
+            targetRuntimeProfile: "chatgpt-web-mcp-v1",
+            constraints: ["chatgpt-web-through-mcp"],
+            incompatibility: "First fixture replacement.",
+          },
           transform: {
             type: "replace-exact",
             match: "abc",
@@ -284,7 +300,11 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "equivalent-mechanism",
           source: "upstream.md",
-          evidence: { targetRuntimeProfile: "Second fixture replacement." },
+          evidence: {
+            targetRuntimeProfile: "chatgpt-web-mcp-v1",
+            constraints: ["chatgpt-web-through-mcp"],
+            incompatibility: "Second fixture replacement.",
+          },
           transform: {
             type: "replace-exact",
             match: "bc",
@@ -317,7 +337,11 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "translate-invocation-or-tool",
           source: "supporting.md",
-          evidence: { targetRuntimeProfile: "Fixture supporting-document translation." },
+          evidence: {
+            targetRuntimeProfile: "chatgpt-web-mcp-v1",
+            constraints: ["chatgpt-web-through-mcp"],
+            incompatibility: "Fixture supporting-document translation.",
+          },
           transform: {
             type: "replace-exact",
             match: "OLD",
@@ -327,7 +351,11 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "inline-supporting-document",
           source: "supporting.md",
-          evidence: { targetRuntimeProfile: "The runtime must be self-contained." },
+          evidence: {
+            targetRuntimeProfile: "chatgpt-web-mcp-v1",
+            constraints: ["chatgpt-web-through-mcp"],
+            incompatibility: "The runtime must be self-contained.",
+          },
           transform: {
             type: "append-source",
             separator: "\n---\n\n",
@@ -359,7 +387,11 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "inline-supporting-document",
           source: "supporting.md",
-          evidence: { targetRuntimeProfile: "The runtime must be self-contained." },
+          evidence: {
+            targetRuntimeProfile: "chatgpt-web-mcp-v1",
+            constraints: ["chatgpt-web-through-mcp"],
+            incompatibility: "The runtime must be self-contained.",
+          },
           transform: {
             type: "append-source",
             separator: "\n---\n\n",
@@ -389,7 +421,11 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "inline-supporting-document",
           source: "supporting.md",
-          evidence: { targetRuntimeProfile: "The runtime must be self-contained." },
+          evidence: {
+            targetRuntimeProfile: "chatgpt-web-mcp-v1",
+            constraints: ["chatgpt-web-through-mcp"],
+            incompatibility: "The runtime must be self-contained.",
+          },
           transform: {
             type: "append-source",
             separator: "\n---\n\n",
@@ -573,7 +609,11 @@ function defineProjectionSuite(): void {
         {
           allowedRuntimeChange: "equivalent-mechanism",
           source: "upstream.md",
-          evidence: { targetRuntimeProfile: "Fixture no-op must not count as a runtime change." },
+          evidence: {
+            targetRuntimeProfile: "chatgpt-web-mcp-v1",
+            constraints: ["chatgpt-web-through-mcp"],
+            incompatibility: "Fixture no-op must not count as a runtime change.",
+          },
           transform: {
             type: "replace-exact",
             match: "UNCHANGED",

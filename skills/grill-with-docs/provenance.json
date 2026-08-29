@@ -27,7 +27,11 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile composes skills through the MCP load_skill tool rather than the upstream Skill tool. Both dependency loads remain immediate and in the same conversation."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "The Target Runtime Profile composes skills through the MCP load_skill tool rather than the upstream Skill tool. Both dependency loads remain immediate and in the same conversation."
         },
         "transform": {
           "type": "replace-exact",

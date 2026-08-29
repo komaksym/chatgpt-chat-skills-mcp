@@ -34,7 +34,12 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The exact pinned DEEPENING.md Supporting Document is appended to the loaded runtime. Retargeting the relative link to that inlined document preserves the upstream deepening methodology without requiring a local filesystem."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills",
+            "no-filesystem"
+          ],
+          "incompatibility": "The exact pinned DEEPENING.md Supporting Document is appended to the loaded runtime. Retargeting the relative link to that inlined document preserves the upstream deepening methodology without requiring a local filesystem."
         },
         "transform": {
           "type": "replace-exact",
@@ -46,7 +51,13 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The exact pinned DESIGN-IT-TWICE.md Supporting Document is appended below. The Target Runtime can use that parallel pattern only when independent children have direct connected GitHub access; otherwise pretending parallel independence would violate the upstream comparison method."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills",
+            "github-repository-and-issue-tracker",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The exact pinned DESIGN-IT-TWICE.md Supporting Document is appended below. The Target Runtime can use that parallel pattern only when independent children have direct connected GitHub access; otherwise pretending parallel independence would violate the upstream comparison method."
         },
         "transform": {
           "type": "replace-exact",
@@ -58,7 +69,11 @@
         "allowedRuntimeChange": "inline-supporting-document",
         "source": "upstream-deepening.md",
         "evidence": {
-          "targetRuntimeProfile": "DEEPENING.md is required upstream methodology. Append the exact pinned Supporting Document verbatim so the loaded runtime preserves dependency categories, seam discipline, and replace-don't-layer testing."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "DEEPENING.md is required upstream methodology. Append the exact pinned Supporting Document verbatim so the loaded runtime preserves dependency categories, seam discipline, and replace-don't-layer testing."
         },
         "transform": {
           "type": "append-source",
@@ -69,7 +84,11 @@
         "allowedRuntimeChange": "inline-supporting-document",
         "source": "upstream-design-it-twice.md",
         "evidence": {
-          "targetRuntimeProfile": "DESIGN-IT-TWICE.md is required upstream methodology. Append the exact pinned Supporting Document verbatim; the entrypoint's recorded Target Runtime guidance governs whether its parallel-child branch can execute."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "DESIGN-IT-TWICE.md is required upstream methodology. Append the exact pinned Supporting Document verbatim; the entrypoint's recorded Target Runtime guidance governs whether its parallel-child branch can execute."
         },
         "transform": {
           "type": "append-source",

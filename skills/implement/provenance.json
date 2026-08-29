@@ -27,7 +27,13 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile writes through connected GitHub APIs, whose file-write operations can target the default branch when no branch is supplied. Selecting a non-default feature branch before production mutations preserves the upstream implementation step without implicit default-branch mutation. Recording the pre-implementation head supplies the fixed point required by the separately loaded code-review dependency."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-connected-tool-assumption",
+            "no-write-access-assumption"
+          ],
+          "incompatibility": "The Target Runtime Profile writes through connected GitHub APIs, whose file-write operations can target the default branch when no branch is supplied. Selecting a non-default feature branch before production mutations preserves the upstream implementation step without implicit default-branch mutation. Recording the pre-implementation head supplies the fixed point required by the separately loaded code-review dependency."
         },
         "transform": {
           "type": "replace-exact",
@@ -39,7 +45,11 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile loads Dependency Skills through the MCP load_skill tool. This changes only the invocation mechanism at the exact upstream testing point."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "The Target Runtime Profile loads Dependency Skills through the MCP load_skill tool. This changes only the invocation mechanism at the exact upstream testing point."
         },
         "transform": {
           "type": "replace-exact",
@@ -51,7 +61,12 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile may use connected CI or another live runner rather than a local shell. Naming that Equivalent Mechanism and requiring its returned result preserves the upstream typecheck and test cadence without inventing additional verification steps."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "no-shell",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The Target Runtime Profile may use connected CI or another live runner rather than a local shell. Naming that Equivalent Mechanism and requiring its returned result preserves the upstream typecheck and test cadence without inventing additional verification steps."
         },
         "transform": {
           "type": "replace-exact",
@@ -63,7 +78,12 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile commits through connected GitHub rather than an assumed local git executable. Naming that Equivalent Mechanism and requiring the returned commit result preserves the upstream commit operation without adding publication or verification steps."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The Target Runtime Profile commits through connected GitHub rather than an assumed local git executable. Naming that Equivalent Mechanism and requiring the returned commit result preserves the upstream commit operation without adding publication or verification steps."
         },
         "transform": {
           "type": "replace-exact",

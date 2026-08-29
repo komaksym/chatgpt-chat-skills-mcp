@@ -24,7 +24,12 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile has connected remote capabilities but does not guarantee the upstream local filesystem or sub-agent harness. Facts remain the model's responsibility while unresolved fact lookup still blocks only dependent frontier questions."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "no-filesystem",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The Target Runtime Profile has connected remote capabilities but does not guarantee the upstream local filesystem or sub-agent harness. Facts remain the model's responsibility while unresolved fact lookup still blocks only dependent frontier questions."
         },
         "transform": {
           "type": "replace-exact",

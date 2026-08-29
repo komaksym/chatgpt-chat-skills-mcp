@@ -24,7 +24,11 @@
         "allowedRuntimeChange": "select-upstream-supported-branch",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile selects GitHub Issues from the upstream tracker choices and does not expose local-file or non-GitHub tracker methodology."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker"
+          ],
+          "incompatibility": "The Target Runtime Profile selects GitHub Issues from the upstream tracker choices and does not expose local-file or non-GitHub tracker methodology."
         },
         "transform": {
           "type": "replace-exact",
@@ -36,7 +40,11 @@
         "allowedRuntimeChange": "select-upstream-supported-branch",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "GitHub Issues is the configured tracker for this Target Runtime Profile, so tracker/setup indirection is unnecessary."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker"
+          ],
+          "incompatibility": "GitHub Issues is the configured tracker for this Target Runtime Profile, so tracker/setup indirection is unnecessary."
         },
         "transform": {
           "type": "replace-exact",
@@ -48,7 +56,12 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The upstream workflow requires user approval before publication. Remote GitHub mutations can occur in a single tool call, so the approval boundary is stated explicitly without changing the workflow order."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-write-access-assumption"
+          ],
+          "incompatibility": "The upstream workflow requires user approval before publication. Remote GitHub mutations can occur in a single tool call, so the approval boundary is stated explicitly without changing the workflow order."
         },
         "transform": {
           "type": "replace-exact",
@@ -60,7 +73,11 @@
         "allowedRuntimeChange": "select-upstream-supported-branch",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile publishes only to GitHub Issues, selecting the upstream real-tracker branch."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker"
+          ],
+          "incompatibility": "The Target Runtime Profile publishes only to GitHub Issues, selecting the upstream real-tracker branch."
         },
         "transform": {
           "type": "replace-exact",
@@ -72,7 +89,13 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile must preserve GitHub parent/sub-issue membership and blocking dependencies as distinct native relationships. When the source is an existing GitHub issue, each published child ticket must be attached to that source as a native sub-issue. Connected native tools or authenticated GitHub REST are equivalent mechanisms; Markdown is not a native relationship."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-connected-tool-assumption",
+            "no-write-access-assumption"
+          ],
+          "incompatibility": "The Target Runtime Profile must preserve GitHub parent/sub-issue membership and blocking dependencies as distinct native relationships. When the source is an existing GitHub issue, each published child ticket must be attached to that source as a native sub-issue. Connected native tools or authenticated GitHub REST are equivalent mechanisms; Markdown is not a native relationship."
         },
         "transform": {
           "type": "replace-exact",
@@ -84,7 +107,11 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "Issue #6 requires native parent/sub-issue membership. The upstream no-parent-modification rule is narrowed only enough to permit creation of that required native relationship; parent content, state, and closure remain untouched."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "no-write-access-assumption"
+          ],
+          "incompatibility": "Issue #6 requires native parent/sub-issue membership. The upstream no-parent-modification rule is narrowed only enough to permit creation of that required native relationship; parent content, state, and closure remain untouched."
         },
         "transform": {
           "type": "replace-exact",
@@ -96,7 +123,11 @@
         "allowedRuntimeChange": "select-upstream-supported-branch",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The local-file ticket template belongs only to the upstream local tracker branch, which is not selected by this Target Runtime Profile."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "chatgpt-web-through-mcp"
+          ],
+          "incompatibility": "The local-file ticket template belongs only to the upstream local tracker branch, which is not selected by this Target Runtime Profile."
         },
         "transform": {
           "type": "replace-exact",
@@ -108,7 +139,11 @@
         "allowedRuntimeChange": "select-upstream-supported-branch",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "Only the GitHub issue form remains after selecting the upstream GitHub tracker branch."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker"
+          ],
+          "incompatibility": "Only the GitHub issue form remains after selecting the upstream GitHub tracker branch."
         },
         "transform": {
           "type": "replace-exact",

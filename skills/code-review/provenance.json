@@ -24,7 +24,12 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The upstream frontmatter advertises parallel sub-agents. In the Target Runtime Profile, @chrome-mcp is the concrete mechanism for creating independent child conversations. The runtime may claim the upstream behavior only when both running axes can be dispatched in parallel with direct GitHub access; otherwise strict review must stop."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The upstream frontmatter advertises parallel sub-agents. In the Target Runtime Profile, @chrome-mcp is the concrete mechanism for creating independent child conversations. The runtime may claim the upstream behavior only when both running axes can be dispatched in parallel with direct GitHub access; otherwise strict review must stop."
         },
         "transform": {
           "type": "replace-exact",
@@ -36,7 +41,12 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The upstream uses parallel sub-agents to prevent context pollution. In the Target Runtime Profile, @chrome-mcp is the concrete equivalent mechanism: create every required fresh child before sending either prompt, dispatch both axes in parallel, require direct connected GitHub in each child, and stop before any review begins if those guarantees are unavailable."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The upstream uses parallel sub-agents to prevent context pollution. In the Target Runtime Profile, @chrome-mcp is the concrete equivalent mechanism: create every required fresh child before sending either prompt, dispatch both axes in parallel, require direct connected GitHub in each child, and stop before any review begins if those guarantees are unavailable."
         },
         "transform": {
           "type": "replace-exact",
@@ -48,7 +58,12 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile has connected GitHub rather than the upstream local issue-tracker document/setup command. This translation changes only how the same issue/repository evidence is accessed."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The Target Runtime Profile has connected GitHub rather than the upstream local issue-tracker document/setup command. This translation changes only how the same issue/repository evidence is accessed."
         },
         "transform": {
           "type": "replace-exact",
@@ -60,7 +75,13 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile is remote-first and cannot rely on local Git revspecs or commands. Connected GitHub can resolve committed refs, compare base/head with merge-base semantics, and expose the commit list while preserving the upstream fixed-point behavior and early failure."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-git-cli",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The Target Runtime Profile is remote-first and cannot rely on local Git revspecs or commands. Connected GitHub can resolve committed refs, compare base/head with merge-base semantics, and expose the commit list while preserving the upstream fixed-point behavior and early failure."
         },
         "transform": {
           "type": "replace-exact",
@@ -72,7 +93,13 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile reads issue and repository evidence through connected GitHub rather than a local issue-tracker workflow or filesystem traversal. The upstream source-selection order and missing-spec branch stay unchanged."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-filesystem",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The Target Runtime Profile reads issue and repository evidence through connected GitHub rather than a local issue-tracker workflow or filesystem traversal. The upstream source-selection order and missing-spec branch stay unchanged."
         },
         "transform": {
           "type": "replace-exact",
@@ -84,7 +111,12 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The upstream step requires both sub-agents to be spawned in parallel and composed only after both reports complete. @chrome-mcp is the concrete Target Runtime Profile mechanism. Equivalent behavior requires creating all required child chats first, dispatching both running axes in parallel, preserving direct GitHub access and isolation, and stopping before either review prompt is sent if any prerequisite is unavailable."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The upstream step requires both sub-agents to be spawned in parallel and composed only after both reports complete. @chrome-mcp is the concrete Target Runtime Profile mechanism. Equivalent behavior requires creating all required child chats first, dispatching both running axes in parallel, preserving direct GitHub access and isolation, and stopping before either review prompt is sent if any prerequisite is unavailable."
         },
         "transform": {
           "type": "replace-exact",
@@ -96,7 +128,11 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Standards reviewer is an independent child conversation rather than the upstream sub-agent. This terminology change names the equivalent mechanism without changing the axis."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The Standards reviewer is an independent child conversation rather than the upstream sub-agent. This terminology change names the equivalent mechanism without changing the axis."
         },
         "transform": {
           "type": "replace-exact",
@@ -108,7 +144,13 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The child cannot execute the upstream parent-local Git command. Passing repository coordinates plus pinned refs lets the child independently obtain the same diff and commit-list evidence through connected GitHub."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-git-cli",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The child cannot execute the upstream parent-local Git command. Passing repository coordinates plus pinned refs lets the child independently obtain the same diff and commit-list evidence through connected GitHub."
         },
         "transform": {
           "type": "replace-exact",
@@ -120,7 +162,11 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile requires direct child repository access and forbids parent-pasted repository evidence. Passing source locators preserves the upstream Standards evidence class, while the fixed smell baseline remains pasted because it is review methodology rather than repository evidence."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker"
+          ],
+          "incompatibility": "The Target Runtime Profile requires direct child repository access and forbids parent-pasted repository evidence. Passing source locators preserves the upstream Standards evidence class, while the fixed smell baseline remains pasted because it is review methodology rather than repository evidence."
         },
         "transform": {
           "type": "replace-exact",
@@ -132,7 +178,11 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Spec reviewer is an independent child conversation rather than the upstream sub-agent. This terminology change names the equivalent mechanism without changing the axis."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The Spec reviewer is an independent child conversation rather than the upstream sub-agent. This terminology change names the equivalent mechanism without changing the axis."
         },
         "transform": {
           "type": "replace-exact",
@@ -144,7 +194,13 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Spec child cannot execute the upstream parent-local Git command. Passing repository coordinates plus pinned refs lets it independently obtain the same diff and commit-list evidence through connected GitHub."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-git-cli",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The Spec child cannot execute the upstream parent-local Git command. Passing repository coordinates plus pinned refs lets it independently obtain the same diff and commit-list evidence through connected GitHub."
         },
         "transform": {
           "type": "replace-exact",
@@ -156,7 +212,11 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile requires direct child access to repository/issue evidence. Passing only the spec locator preserves the upstream Spec evidence source while preventing parent-mediated evidence from weakening isolation."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker"
+          ],
+          "incompatibility": "The Target Runtime Profile requires direct child access to repository/issue evidence. Passing only the spec locator preserves the upstream Spec evidence source while preventing parent-mediated evidence from weakening isolation."
         },
         "transform": {
           "type": "replace-exact",
@@ -168,7 +228,11 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The pinned upstream missing-spec branch is preserved exactly; only the reviewer mechanism name changes from sub-agent to child review."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The pinned upstream missing-spec branch is preserved exactly; only the reviewer mechanism name changes from sub-agent to child review."
         },
         "transform": {
           "type": "replace-exact",
@@ -180,7 +244,11 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "@chrome-mcp's semantic browser reader must retrieve a completed child report without recovery prompting. A deterministic one-line plain-text envelope changes only transport formatting, not Standards methodology or findings."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "@chrome-mcp's semantic browser reader must retrieve a completed child report without recovery prompting. A deterministic one-line plain-text envelope changes only transport formatting, not Standards methodology or findings."
         },
         "transform": {
           "type": "replace-exact",
@@ -192,7 +260,11 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "@chrome-mcp's semantic browser reader must retrieve a completed child report without recovery prompting. A deterministic one-line plain-text envelope changes only transport formatting, not Spec methodology or findings."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "@chrome-mcp's semantic browser reader must retrieve a completed child report without recovery prompting. A deterministic one-line plain-text envelope changes only transport formatting, not Spec methodology or findings."
         },
         "transform": {
           "type": "replace-exact",

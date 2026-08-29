@@ -28,7 +28,11 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "Issue #9 selects the direct Markdown candidate report for the Target Runtime. Updating the upstream frontmatter description keeps the model-visible summary consistent with that selected output mechanism."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "chatgpt-web-through-mcp"
+          ],
+          "incompatibility": "Issue #9 selects the direct Markdown candidate report for the Target Runtime. Updating the upstream frontmatter description keeps the model-visible summary consistent with that selected output mechanism."
         },
         "transform": {
           "type": "replace-exact",
@@ -40,7 +44,11 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "Issue #9's Target Runtime is analysis-only. Making the upstream candidate-analysis boundary explicit prevents an architecture scan from silently becoming an implementation task while preserving the upstream purpose."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "chatgpt-web-through-mcp"
+          ],
+          "incompatibility": "Issue #9's Target Runtime is analysis-only. Making the upstream candidate-analysis boundary explicit prevents an architecture scan from silently becoming an implementation task while preserving the upstream purpose."
         },
         "transform": {
           "type": "replace-exact",
@@ -52,7 +60,11 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "Dependency Skills are loaded through the MCP load_skill tool. codebase-design remains a separate Dependency Skill and is requested at the same upstream point before architecture analysis."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "Dependency Skills are loaded through the MCP load_skill tool. codebase-design remains a separate Dependency Skill and is requested at the same upstream point before architecture analysis."
         },
         "transform": {
           "type": "replace-exact",
@@ -64,7 +76,12 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime inspects repository history through connected GitHub capabilities rather than an assumed local git executable. The same hotspot-selection rule is preserved, and missing history is reported instead of fabricated."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The Target Runtime inspects repository history through connected GitHub capabilities rather than an assumed local git executable. The same hotspot-selection rule is preserved, and missing history is reported instead of fabricated."
         },
         "transform": {
           "type": "replace-exact",
@@ -76,7 +93,12 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "Repository and history inspection must use live connected GitHub reads in the Target Runtime. Reading the canonical glossary and ADRs through that capability preserves upstream evidence requirements; unavailable reads stop the affected analysis."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "Repository and history inspection must use live connected GitHub reads in the Target Runtime. Reading the canonical glossary and ADRs through that capability preserves upstream evidence requirements; unavailable reads stop the affected analysis."
         },
         "transform": {
           "type": "replace-exact",
@@ -88,7 +110,12 @@
         "allowedRuntimeChange": "select-upstream-supported-branch",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The upstream exploration delegates repository walking to a sub-agent. In the Target Runtime that branch is valid only when a child can independently inspect the repository through direct GitHub access; otherwise continuing the same organic scan in the current conversation preserves the exploration without pretending isolation."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The upstream exploration delegates repository walking to a sub-agent. In the Target Runtime that branch is valid only when a child can independently inspect the repository through direct GitHub access; otherwise continuing the same organic scan in the current conversation preserves the exploration without pretending isolation."
         },
         "transform": {
           "type": "replace-exact",
@@ -100,7 +127,11 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime cannot rely on an OS temp directory, browser opener, Tailwind CDN, or Mermaid CDN. A direct Markdown candidate report preserves the upstream report fields, recommendation ordering, vocabulary, ADR handling, and candidate-selection boundary; diagrams remain available only where they materially clarify structure."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "chatgpt-web-through-mcp"
+          ],
+          "incompatibility": "The Target Runtime cannot rely on an OS temp directory, browser opener, Tailwind CDN, or Mermaid CDN. A direct Markdown candidate report preserves the upstream report fields, recommendation ordering, vocabulary, ADR handling, and candidate-selection boundary; diagrams remain available only where they materially clarify structure."
         },
         "transform": {
           "type": "replace-exact",
@@ -112,7 +143,11 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "grilling remains a separate Dependency Skill and is requested only after the upstream user-selection boundary. The Target Runtime invokes it with load_skill."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "grilling remains a separate Dependency Skill and is requested only after the upstream user-selection boundary. The Target Runtime invokes it with load_skill."
         },
         "transform": {
           "type": "replace-exact",
@@ -124,7 +159,11 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "domain-modeling remains a separate Dependency Skill and is requested only inside the upstream post-selection grilling loop as decisions crystallize."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "chatgpt-web-through-mcp"
+          ],
+          "incompatibility": "domain-modeling remains a separate Dependency Skill and is requested only inside the upstream post-selection grilling loop as decisions crystallize."
         },
         "transform": {
           "type": "replace-exact",
@@ -136,7 +175,11 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The later codebase-design consultation remains a separate Dependency Skill invocation. Its own Mechanical Projection governs whether independent parallel child design is available."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "chatgpt-web-through-mcp"
+          ],
+          "incompatibility": "The later codebase-design consultation remains a separate Dependency Skill invocation. Its own Mechanical Projection governs whether independent parallel child design is available."
         },
         "transform": {
           "type": "replace-exact",

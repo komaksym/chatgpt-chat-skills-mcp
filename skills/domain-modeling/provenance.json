@@ -34,7 +34,11 @@
         "allowedRuntimeChange": "inline-supporting-document",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile loads one runtime payload and cannot resolve local relative Supporting Document links, so the CONTEXT format reference must target the inlined copy."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "The Target Runtime Profile loads one runtime payload and cannot resolve local relative Supporting Document links, so the CONTEXT format reference must target the inlined copy."
         },
         "transform": {
           "type": "replace-exact",
@@ -46,7 +50,11 @@
         "allowedRuntimeChange": "inline-supporting-document",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile loads one runtime payload and cannot resolve local relative Supporting Document links, so the ADR format reference must target the inlined copy."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "The Target Runtime Profile loads one runtime payload and cannot resolve local relative Supporting Document links, so the ADR format reference must target the inlined copy."
         },
         "transform": {
           "type": "replace-exact",
@@ -58,7 +66,11 @@
         "allowedRuntimeChange": "inline-supporting-document",
         "source": "CONTEXT-FORMAT.md",
         "evidence": {
-          "targetRuntimeProfile": "The complete pinned CONTEXT format must be available inside the single loaded domain-modeling runtime because local relative Supporting Documents are not separately loadable."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "The complete pinned CONTEXT format must be available inside the single loaded domain-modeling runtime because local relative Supporting Documents are not separately loadable."
         },
         "transform": {
           "type": "append-source",
@@ -69,7 +81,11 @@
         "allowedRuntimeChange": "inline-supporting-document",
         "source": "ADR-FORMAT.md",
         "evidence": {
-          "targetRuntimeProfile": "The complete pinned ADR format must be available inside the single loaded domain-modeling runtime because local relative Supporting Documents are not separately loadable."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "The complete pinned ADR format must be available inside the single loaded domain-modeling runtime because local relative Supporting Documents are not separately loadable."
         },
         "transform": {
           "type": "append-source",

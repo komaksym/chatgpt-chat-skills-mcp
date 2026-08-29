@@ -36,7 +36,13 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile may not have a local checkout. Reading committed repository context and ADRs through connected repository capabilities preserves the upstream evidence requirement."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-local-checkout",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The Target Runtime Profile may not have a local checkout. Reading committed repository context and ADRs through connected repository capabilities preserves the upstream evidence requirement."
         },
         "transform": {
           "type": "replace-exact",
@@ -48,7 +54,11 @@
         "allowedRuntimeChange": "inline-supporting-document",
         "source": "upstream-tests.md",
         "evidence": {
-          "targetRuntimeProfile": "The upstream TDD entrypoint requires tests.md as methodology. The Target Runtime must be self-contained when loaded, so append the exact pinned supporting document without rewriting it."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "The upstream TDD entrypoint requires tests.md as methodology. The Target Runtime must be self-contained when loaded, so append the exact pinned supporting document without rewriting it."
         },
         "transform": {
           "type": "append-source",
@@ -59,7 +69,11 @@
         "allowedRuntimeChange": "inline-supporting-document",
         "source": "upstream-mocking.md",
         "evidence": {
-          "targetRuntimeProfile": "The upstream TDD entrypoint requires mocking.md as methodology. The Target Runtime must be self-contained when loaded, so append the exact pinned supporting document without rewriting it."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "The upstream TDD entrypoint requires mocking.md as methodology. The Target Runtime must be self-contained when loaded, so append the exact pinned supporting document without rewriting it."
         },
         "transform": {
           "type": "append-source",
@@ -70,7 +84,11 @@
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The Target Runtime Profile invokes optional methodology skills with load_skill rather than the upstream Skill tool. If codebase-design is not installed/live when that branch is required, the equivalent operation is unavailable and the workflow must stop that interface-shape decision."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "The Target Runtime Profile invokes optional methodology skills with load_skill rather than the upstream Skill tool. If codebase-design is not installed/live when that branch is required, the equivalent operation is unavailable and the workflow must stop that interface-shape decision."
         },
         "transform": {
           "type": "replace-exact",
@@ -82,7 +100,11 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The upstream RED/GREEN rule requires actual failing and passing executions. In a remote runtime those states may only be claimed when the corresponding runner result is observed."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "chatgpt-web-through-mcp"
+          ],
+          "incompatibility": "The upstream RED/GREEN rule requires actual failing and passing executions. In a remote runtime those states may only be claimed when the corresponding runner result is observed."
         },
         "transform": {
           "type": "replace-exact",
@@ -94,7 +116,11 @@
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "The exact pinned supporting documents are appended into the Generated Runtime, so the entrypoint link sentence is translated to describe the equivalent self-contained delivery mechanism without changing the referenced methodology."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "The exact pinned supporting documents are appended into the Generated Runtime, so the entrypoint link sentence is translated to describe the equivalent self-contained delivery mechanism without changing the referenced methodology."
         },
         "transform": {
           "type": "replace-exact",

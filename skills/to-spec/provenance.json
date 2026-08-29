@@ -24,7 +24,11 @@
         "allowedRuntimeChange": "select-upstream-supported-branch",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "GitHub Issues is the configured tracker for this Target Runtime Profile, so setup/tracker indirection is unnecessary."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker"
+          ],
+          "incompatibility": "GitHub Issues is the configured tracker for this Target Runtime Profile, so setup/tracker indirection is unnecessary."
         },
         "transform": {
           "type": "replace-exact",
@@ -36,7 +40,11 @@
         "allowedRuntimeChange": "select-upstream-supported-branch",
         "source": "upstream.md",
         "evidence": {
-          "targetRuntimeProfile": "Publishing through the active repository's GitHub Issues capability is the selected upstream-supported tracker branch; the upstream ready-for-agent label requirement is preserved."
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker"
+          ],
+          "incompatibility": "Publishing through the active repository's GitHub Issues capability is the selected upstream-supported tracker branch; the upstream ready-for-agent label requirement is preserved."
         },
         "transform": {
           "type": "replace-exact",
