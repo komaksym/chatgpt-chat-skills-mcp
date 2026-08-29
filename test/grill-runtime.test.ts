@@ -32,15 +32,6 @@ function runtimeBody(loaded: string, name: string): string {
   return loaded.slice(start + marker.length).trimEnd();
 }
 
-/** Removes upstream YAML frontmatter while preserving the skill body verbatim. */
-function stripFrontmatter(source: string): string {
-  const body = source.replace(/^---\n[\s\S]*?\n---\n\n/, "");
-  if (body === source) {
-    throw new Error("Expected upstream frontmatter");
-  }
-  return body;
-}
-
 /** Computes the SHA-256 digest of a vendored UTF-8 artifact. */
 async function digest(path: URL): Promise<string> {
   const source = await readFile(path, "utf8");
@@ -92,24 +83,36 @@ function defineGrillRuntimeSuite(): void {
     const parent = await loadText(connected, "grill-with-docs");
     const grilling = await loadText(connected, "grilling");
     const domain = await loadText(connected, "domain-modeling");
-
-    expect(runtimeBody(parent, "grill-with-docs")).toBe(
+    const upstreamParent = await readFile(
+      new URL("grill-with-docs/upstream.md", SKILLS_ROOT),
+      "utf8",
+    );
+    const expectedParent = upstreamParent.replace(
+      'Call the Skill tool twice, for "grilling" and "domain-modeling".',
       'Immediately call `load_skill("grilling")` and `load_skill("domain-modeling")` in this conversation.',
     );
+
+    expect(runtimeBody(parent, "grill-with-docs")).toBe(expectedParent.trimEnd());
     expect(parent).not.toContain("Map this as a **design tree**");
     expect(parent).not.toContain("# Domain Modeling");
     expect(runtimeBody(grilling, "grilling")).toContain(
       "Map this as a **design tree**",
     );
     expect(runtimeBody(domain, "domain-modeling")).toContain("# Domain Modeling");
+    for (const loaded of [parent, grilling, domain]) {
+      expect(loaded).not.toContain("6654f6b60cd9d5be8b54c6fafe44346dabeb3b76");
+      expect(loaded).not.toContain("Copyright (c) 2026 Matt Pocock");
+      expect(loaded).not.toContain("changeRecords");
+    }
   }
 
   /** Proves grilling differs from upstream only at unavailable fact lookup mechanics. */
   async function preservesGrillingMethodology(): Promise<void> {
     const connected = await connect();
     const loaded = await loadText(connected, "grilling");
-    const upstream = stripFrontmatter(
-      await readFile(new URL("grilling/upstream.md", SKILLS_ROOT), "utf8"),
+    const upstream = await readFile(
+      new URL("grilling/upstream.md", SKILLS_ROOT),
+      "utf8",
     );
     const upstreamFactLookup =
       "Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment (filesystem, tools, etc.), dispatch a sub-agent to find it; don't ask the user for anything you could look up yourself. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the sub-agent to report; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait.";
@@ -134,8 +137,9 @@ function defineGrillRuntimeSuite(): void {
   async function preservesSelfContainedDomainModeling(): Promise<void> {
     const connected = await connect();
     const loaded = await loadText(connected, "domain-modeling");
-    const upstream = stripFrontmatter(
-      await readFile(new URL("domain-modeling/upstream.md", SKILLS_ROOT), "utf8"),
+    const upstream = await readFile(
+      new URL("domain-modeling/upstream.md", SKILLS_ROOT),
+      "utf8",
     );
     const contextFormat = await readFile(
       new URL("domain-modeling/CONTEXT-FORMAT.md", SKILLS_ROOT),
