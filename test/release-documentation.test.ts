@@ -1,0 +1,62 @@
+import { readFile } from "node:fs/promises";
+import { describe, expect, it } from "vitest";
+
+const ROOT = new URL("../", import.meta.url);
+const read = (path: string) => readFile(new URL(path, ROOT), "utf8");
+
+describe("issue 15 release documentation", () => {
+  it("documents the complete operator lifecycle", async () => {
+    const operator = await read("docs/operator.md");
+    expect(operator).toContain("Node.js 20");
+    expect(operator).toContain("TypeScript 5.9");
+    expect(operator).toContain("http://127.0.0.1:2092/mcp");
+    expect(operator).toContain("/healthz");
+    for (const command of ["mcp-skills", "mcps skills", "mcps all", "mcps status", "mcps stop skills", "mcps restart skills", "mcps logs skills"]) {
+      expect(operator).toContain(command);
+    }
+    expect(operator).toContain("Secure MCP Tunnel");
+  });
+
+  it("documents the user-facing loading and dependency model", async () => {
+    const user = await read("docs/user.md");
+    expect(user).toContain("load_skill");
+    expect(user).toContain("list_skills");
+    for (const hidden of ["codebase-design", "domain-modeling", "grilling", "tdd"]) {
+      expect(user).toContain(hidden);
+    }
+    expect(user).toContain("upstream-defined timing");
+    expect(user).toContain("Live Capability");
+    expect(user).toMatch(/stop|partial completion/i);
+  });
+
+  it("documents maintenance without duplicating the canonical contract", async () => {
+    const maintainer = await read("docs/maintainer.md");
+    for (const term of ["Upstream Skill Bundle", "Mechanical Projection", "Change Record", "Supporting Document", "Runtime Envelope", "Temporary Upstream Fix", "npm run corpus:check"]) {
+      expect(maintainer).toContain(term);
+    }
+    expect(maintainer).toContain("issue #1");
+  });
+
+  it("documents the architecture decisions at the product boundary", async () => {
+    const architecture = await read("docs/architecture.md");
+    for (const term of ["load_skill", "list_skills", "catalog-independent", "exact canonical name", "committed Generated Runtime", "GitHub-only", "loopback", "no runtime provenance service"]) {
+      expect(architecture).toContain(term);
+    }
+  });
+
+  it("keeps release proof truthful until the real ChatGPT Web path is observed", async () => {
+    const proof = await read("docs/release-proof.md");
+    expect(proof).toContain("Status: NOT EXERCISED");
+    expect(proof).toContain("exactly seven public skills");
+    for (const skill of ["code-review", "grill-with-docs", "handoff", "implement", "improve-codebase-architecture", "to-spec", "to-tickets"]) {
+      expect(proof).toContain(skill);
+    }
+    expect(proof).toContain("native GitHub relationship or label");
+    expect(proof).toContain("required Live Capability");
+    expect(proof).toContain("two genuinely independent child conversations");
+    expect(proof).toContain("npm run corpus:check");
+    expect(proof).toContain("evals/release/README.md");
+    expect(proof).toContain("#12");
+    expect(proof).not.toContain("exactly eight public skills");
+  });
+});
