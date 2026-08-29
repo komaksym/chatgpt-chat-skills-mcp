@@ -208,7 +208,10 @@ function defineCodeReviewRuntimeSuite(): void {
     expect(smoke).toContain("Two-child synthetic canary");
     expect(smoke).toContain("NOT EXERCISED");
     expect(smoke).toContain(
-      "Generic browser or tab automation is not equivalent.",
+      "`@chrome-mcp` is the supported child-review",
+    );
+    expect(smoke).toContain(
+      "Arbitrary browser tabs, two tabs showing the same conversation, or two sequential prompts",
     );
     expect(smoke).toContain(
       "Never include the sibling canary literal in the other child's prompt",
