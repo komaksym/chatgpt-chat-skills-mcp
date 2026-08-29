@@ -11,9 +11,15 @@ const execFileAsync = promisify(execFile);
 const ROOT = dirname(fileURLToPath(new URL("../package.json", import.meta.url)));
 const AUDIT = join(ROOT, "scripts", "audit-corpus.mjs");
 
-async function run(root: string) {
+async function run(root: string, baselineRoot?: string) {
   try {
-    const result = await execFileAsync(process.execPath, [AUDIT, root], { cwd: ROOT });
+    const result = await execFileAsync(process.execPath, [AUDIT, root], {
+      cwd: ROOT,
+      env: {
+        ...process.env,
+        ...(baselineRoot ? { CORPUS_BASELINE_ROOT: baselineRoot } : {}),
+      },
+    });
     return { code: 0, stdout: result.stdout, stderr: result.stderr };
   } catch (error) {
     const failed = error as { code?: number; stdout?: string; stderr?: string };
@@ -114,6 +120,20 @@ describe("complete Mechanical Projection corpus audit", () => {
     const result = await run(root);
     expect(result.code).toBe(0);
     expect(result.stdout).toContain("runtime alpha:");
+  });
+
+  it("reports runtime size changes against a baseline without a hard cap", async () => {
+    const baselineRoot = await temp();
+    const root = await temp();
+    await bundle(baselineRoot, "alpha", { runtime: "old\n" });
+    await bundle(root, "alpha", { runtime: "expanded\n" });
+
+    const result = await run(root, baselineRoot);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain(
+      "runtime alpha: 9 bytes (~3 tokens), +5 bytes vs baseline",
+    );
   });
 
   it("rejects the retired free-text provenance form", async () => {
