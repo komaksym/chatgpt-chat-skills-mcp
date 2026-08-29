@@ -8,6 +8,11 @@ import { afterEach, describe, expect, it } from "vitest";
 import { generateSkillRuntime } from "../src/projection.js";
 
 const HANDOFF_ROOT = new URL("../skills/handoff/", import.meta.url);
+const GRILLING_BUNDLE_NAMES = [
+  "grill-with-docs",
+  "grilling",
+  "domain-modeling",
+] as const;
 const PIN_A = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 const PIN_B = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
 
@@ -151,6 +156,22 @@ function defineProjectionSuite(): void {
     expect(first).toBe(expected);
     expect(second).toBe(first);
     expect(committed).toBe(first);
+  }
+
+  /** Proves every grilling bundle is an exact committed Mechanical Projection. */
+  async function generatesGrillingBundleDeterministically(): Promise<void> {
+    for (const name of GRILLING_BUNDLE_NAMES) {
+      const first = await generateSkillRuntime(name);
+      const second = await generateSkillRuntime(name);
+      const committed = await readFile(
+        new URL(`../skills/${name}/runtime.md`, import.meta.url),
+        "utf8",
+      );
+
+      expect(first).toBe(committed);
+      expect(second).toBe(first);
+      expect(first).toContain(`name: ${name}`);
+    }
   }
 
   /** Proves a changed pinned source blocks generation before any projection is emitted. */
@@ -452,6 +473,10 @@ function defineProjectionSuite(): void {
   it(
     "generates handoff deterministically from its pinned bundle",
     generatesHandoffDeterministically,
+  );
+  it(
+    "generates every grilling bundle deterministically from its pinned bundle",
+    generatesGrillingBundleDeterministically,
   );
   it("rejects altered pinned source", rejectsAlteredPinnedSource);
   it("rejects missing pinned source", rejectsMissingPinnedSource);
