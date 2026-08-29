@@ -19,14 +19,26 @@
     "sources": [
       {
         "path": "upstream.md",
-        "sha256": "d1ac25511a936ff4250a48dbcefda363837d6bb9321b3cba73df99fa37270a75"
+        "sha256": "d1ac25511a936ff4250a48dbcefda363837d6bb9321b3cba73df99fa37270a75",
+        "upstreamPath": "skills/engineering/improve-codebase-architecture/SKILL.md"
+      },
+      {
+        "path": "upstream-html-report.md",
+        "sha256": "581e8bb5a521e46bbda8ca7e19b15948bed882187108092ebb90c62513b77528",
+        "upstreamPath": "skills/engineering/improve-codebase-architecture/HTML-REPORT.md"
       }
     ],
     "changeRecords": [
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
-        "evidence": "Issue #9 selects the direct Markdown candidate report for the Target Runtime. Updating the upstream frontmatter description keeps the model-visible summary consistent with that selected output mechanism.",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "chatgpt-web-through-mcp"
+          ],
+          "incompatibility": "Issue #9 selects the direct Markdown candidate report for the Target Runtime. Updating the upstream frontmatter description keeps the model-visible summary consistent with that selected output mechanism."
+        },
         "transform": {
           "type": "replace-exact",
           "match": "description: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.",
@@ -36,7 +48,13 @@
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
-        "evidence": "Issue #9's Target Runtime is analysis-only. Making the upstream candidate-analysis boundary explicit prevents an architecture scan from silently becoming an implementation task while preserving the upstream purpose.",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "chatgpt-web-through-mcp"
+          ],
+          "incompatibility": "Issue #9's Target Runtime is analysis-only. Making the upstream candidate-analysis boundary explicit prevents an architecture scan from silently becoming an implementation task while preserving the upstream purpose."
+        },
         "transform": {
           "type": "replace-exact",
           "match": "Surface architectural friction and propose **deepening opportunities**: refactors that turn shallow modules into deep ones. The aim is testability and AI-navigability.",
@@ -46,7 +64,13 @@
       {
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
-        "evidence": "Dependency Skills are loaded through the MCP load_skill tool. codebase-design remains a separate Dependency Skill and is requested at the same upstream point before architecture analysis.",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "Dependency Skills are loaded through the MCP load_skill tool. codebase-design remains a separate Dependency Skill and is requested at the same upstream point before architecture analysis."
+        },
         "transform": {
           "type": "replace-exact",
           "match": "- Call the Skill tool with \"codebase-design\" for the architecture vocabulary (**module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**) and its principles (the deletion test, \"the interface is the test surface\", \"one adapter = hypothetical seam, two = real\"). Use these terms exactly in every suggestion, and don't drift into \"component,\" \"service,\" \"API,\" or \"boundary.\"",
@@ -56,7 +80,14 @@
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
-        "evidence": "The Target Runtime inspects repository history through connected GitHub capabilities rather than an assumed local git executable. The same hotspot-selection rule is preserved, and missing history is reported instead of fabricated.",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The Target Runtime inspects repository history through connected GitHub capabilities rather than an assumed local git executable. The same hotspot-selection rule is preserved, and missing history is reported instead of fabricated."
+        },
         "transform": {
           "type": "replace-exact",
           "match": "- Otherwise, walk back a good stretch of the commit history (`git log --oneline`) to find the codebase's hot spots, the files and areas that keep coming up, and let those paths pull your attention first. If the changes are scattered with no clear hot spot, widen the net.",
@@ -66,7 +97,14 @@
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
-        "evidence": "Repository and history inspection must use live connected GitHub reads in the Target Runtime. Reading the canonical glossary and ADRs through that capability preserves upstream evidence requirements; unavailable reads stop the affected analysis.",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "Repository and history inspection must use live connected GitHub reads in the Target Runtime. Reading the canonical glossary and ADRs through that capability preserves upstream evidence requirements; unavailable reads stop the affected analysis."
+        },
         "transform": {
           "type": "replace-exact",
           "match": "Read the project's domain glossary (`CONTEXT.md`) and any ADRs in the area you're touching first.",
@@ -76,7 +114,14 @@
       {
         "allowedRuntimeChange": "select-upstream-supported-branch",
         "source": "upstream.md",
-        "evidence": "The upstream exploration delegates repository walking to a sub-agent. In the Target Runtime that branch is valid only when a child can independently inspect the repository through direct GitHub access; otherwise continuing the same organic scan in the current conversation preserves the exploration without pretending isolation.",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker",
+            "no-connected-tool-assumption"
+          ],
+          "incompatibility": "The upstream exploration delegates repository walking to a sub-agent. In the Target Runtime that branch is valid only when a child can independently inspect the repository through direct GitHub access; otherwise continuing the same organic scan in the current conversation preserves the exploration without pretending isolation."
+        },
         "transform": {
           "type": "replace-exact",
           "match": "Then spawn a sub-agent to walk the codebase. Don't follow rigid heuristics; explore organically and note where you experience friction:",
@@ -86,7 +131,13 @@
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
-        "evidence": "The Target Runtime cannot rely on an OS temp directory, browser opener, Tailwind CDN, or Mermaid CDN. A direct Markdown candidate report preserves the upstream report fields, recommendation ordering, vocabulary, ADR handling, and candidate-selection boundary; diagrams remain available only where they materially clarify structure.",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "chatgpt-web-through-mcp"
+          ],
+          "incompatibility": "The Target Runtime cannot rely on an OS temp directory, browser opener, Tailwind CDN, or Mermaid CDN. A direct Markdown candidate report preserves the upstream report fields, recommendation ordering, vocabulary, ADR handling, and candidate-selection boundary; diagrams remain available only where they materially clarify structure."
+        },
         "transform": {
           "type": "replace-exact",
           "match": "### 2. Present candidates as an HTML report\n\nWrite a self-contained HTML file to the OS temp directory so nothing lands in the repo. Resolve the temp dir from `$TMPDIR`, falling back to `/tmp` (or `%TEMP%` on Windows), and write to `<tmpdir>/architecture-review-<timestamp>.html` so each run gets a fresh file. Open it for the user (`xdg-open <path>` on Linux, `open <path>` on macOS, `start <path>` on Windows) and tell them the absolute path.\n\nThe report uses **Tailwind via CDN** for layout and styling, and **Mermaid via CDN** for diagrams where a graph/flow/sequence reliably communicates the structure. Mix Mermaid with hand-crafted CSS/SVG visuals: use Mermaid when relationships are graph-shaped (call graphs, dependencies, sequences), and hand-built divs/SVG when you want something more editorial (mass diagrams, cross-sections, collapse animations). Each candidate gets a **before/after visualisation**. Be visual.\n\nFor each candidate, render a card with:\n\n- **Files**: which files/modules are involved\n- **Problem**: why the current architecture is causing friction\n- **Solution**: plain English description of what would change\n- **Benefits**: explained in terms of locality and leverage, and how tests would improve\n- **Before / After diagram**: side-by-side, custom-drawn, illustrating the shallowness and the deepening\n- **Recommendation strength**: one of `Strong`, `Worth exploring`, `Speculative`, rendered as a badge\n\nEnd the report with a **Top recommendation** section: which candidate you'd tackle first and why.\n\n**Use CONTEXT.md vocabulary for the domain, and the `/codebase-design` vocabulary for the architecture.** If `CONTEXT.md` defines \"Order,\" talk about \"the Order intake module,\" not \"the FooBarHandler,\" and not \"the Order service.\"\n\n**ADR conflicts**: if a candidate contradicts an existing ADR, only surface it when the friction is real enough to warrant revisiting the ADR. Mark it clearly in the card (e.g. a warning callout: _\"contradicts ADR-0007, but worth reopening because…\"_). Don't list every theoretical refactor an ADR forbids.\n\nSee [HTML-REPORT.md](HTML-REPORT.md) for the full HTML scaffold, diagram patterns, and styling guidance.\n\nDo NOT propose interfaces yet. After the file is written, ask the user: \"Which of these would you like to explore?\"",
@@ -96,7 +147,13 @@
       {
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
-        "evidence": "grilling remains a separate Dependency Skill and is requested only after the upstream user-selection boundary. The Target Runtime invokes it with load_skill.",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "grilling remains a separate Dependency Skill and is requested only after the upstream user-selection boundary. The Target Runtime invokes it with load_skill."
+        },
         "transform": {
           "type": "replace-exact",
           "match": "Once the user picks a candidate, call the Skill tool with \"grilling\" to walk the decision tree with them: constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.",
@@ -106,7 +163,13 @@
       {
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
-        "evidence": "domain-modeling remains a separate Dependency Skill and is requested only inside the upstream post-selection grilling loop as decisions crystallize.",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "chatgpt-web-through-mcp"
+          ],
+          "incompatibility": "domain-modeling remains a separate Dependency Skill and is requested only inside the upstream post-selection grilling loop as decisions crystallize."
+        },
         "transform": {
           "type": "replace-exact",
           "match": "Side effects happen inline as decisions crystallize; call the Skill tool with \"domain-modeling\" to keep the domain model current as you go:",
@@ -116,11 +179,32 @@
       {
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
-        "evidence": "The later codebase-design consultation remains a separate Dependency Skill invocation. Its own Mechanical Projection governs whether independent parallel child design is available.",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "chatgpt-web-through-mcp"
+          ],
+          "incompatibility": "The later codebase-design consultation remains a separate Dependency Skill invocation. Its own Mechanical Projection governs whether independent parallel child design is available."
+        },
         "transform": {
           "type": "replace-exact",
           "match": "- **Want to explore alternative interfaces for the deepened module?** Call the Skill tool with \"codebase-design\" and use its design-it-twice parallel sub-agent pattern.",
           "replacement": "- **Want to explore alternative interfaces for the deepened module?** Load `codebase-design` with `load_skill` and use its Design It Twice pattern. Follow that Dependency Skill's capability rule for independent children instead of pretending parallel isolation."
+        }
+      },
+      {
+        "allowedRuntimeChange": "inline-supporting-document",
+        "source": "upstream-html-report.md",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "The pinned upstream architecture skill explicitly requires HTML-REPORT.md. The Target Runtime has no Supporting Document loader beyond load_skill/list_skills, so the exact pinned document is appended verbatim to keep the Generated Runtime self-contained."
+        },
+        "transform": {
+          "type": "append-source",
+          "separator": "\n\n---\n\n"
         }
       }
     ]

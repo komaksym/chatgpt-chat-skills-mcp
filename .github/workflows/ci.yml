@@ -35,6 +35,9 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Test upstream source pins
+        run: npx vitest run test/upstream-source.test.ts
+
       - name: Test projection contract
         run: npx vitest run test/projection.test.ts
 

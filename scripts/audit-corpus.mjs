@@ -8,6 +8,9 @@ const CANONICAL = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const COMMIT = /^[a-f0-9]{40}$/;
 const LOCAL_MARKDOWN_LINK = /\]\((?!https?:\/\/|mailto:|#)([^)\s]+\.md(?:#[^)\s]*)?)\)/g;
 const LARGE_BLOCK_BYTES = 256;
+const DEPENDENCY_SHINGLE_WORDS = 8;
+const MIN_SHARED_DEPENDENCY_SHINGLES = 12;
+const MIN_DEPENDENCY_SHINGLE_COVERAGE = 0.2;
 
 async function required(root, name, file, errors) {
   try {
@@ -102,6 +105,50 @@ function hasLargeRepeatedBlock(runtime) {
   return false;
 }
 
+function normalizedRuntimeWords(runtime) {
+  return runtime.toLowerCase().match(/[a-z0-9]+(?:[-_][a-z0-9]+)*/g) ?? [];
+}
+
+function runtimeShingles(words, width) {
+  const shingles = new Set();
+  for (let index = 0; index + width <= words.length; index += 1) {
+    shingles.add(words.slice(index, index + width).join(" "));
+  }
+  return shingles;
+}
+
+function hasMaterialDependencyEmbedding(runtime, dependencyRuntime) {
+  const exact = dependencyRuntime.trim();
+  if (!exact) return false;
+  if (runtime.includes(exact)) return true;
+
+  const dependencyWords = normalizedRuntimeWords(dependencyRuntime);
+  if (
+    dependencyWords.length <
+    DEPENDENCY_SHINGLE_WORDS + MIN_SHARED_DEPENDENCY_SHINGLES - 1
+  ) {
+    return false;
+  }
+
+  const dependencyShingles = runtimeShingles(
+    dependencyWords,
+    DEPENDENCY_SHINGLE_WORDS,
+  );
+  const runtimeShinglesSet = runtimeShingles(
+    normalizedRuntimeWords(runtime),
+    DEPENDENCY_SHINGLE_WORDS,
+  );
+  let shared = 0;
+  for (const shingle of dependencyShingles) {
+    if (runtimeShinglesSet.has(shingle)) shared += 1;
+  }
+
+  return (
+    shared >= MIN_SHARED_DEPENDENCY_SHINGLES &&
+    shared / dependencyShingles.size >= MIN_DEPENDENCY_SHINGLE_COVERAGE
+  );
+}
+
 async function runtimeSizes(root) {
   let entries;
   try {
@@ -176,7 +223,7 @@ export async function auditCorpus(root) {
         errors.push(skill.name + ": unresolved dependency " + dependency);
         continue;
       }
-      if (child.runtime.trim() && skill.runtime.includes(child.runtime.trim())) {
+      if (hasMaterialDependencyEmbedding(skill.runtime, child.runtime)) {
         errors.push(skill.name + ": embeds Dependency Skill runtime " + dependency);
       }
     }

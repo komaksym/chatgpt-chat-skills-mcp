@@ -15,14 +15,21 @@
     "sources": [
       {
         "path": "upstream.md",
-        "sha256": "43ad9cf318e5e7d3d1fa360253a37021796dc87a0c2e595ad262661a10f85088"
+        "sha256": "43ad9cf318e5e7d3d1fa360253a37021796dc87a0c2e595ad262661a10f85088",
+        "upstreamPath": "skills/engineering/to-spec/SKILL.md"
       }
     ],
     "changeRecords": [
       {
         "allowedRuntimeChange": "select-upstream-supported-branch",
         "source": "upstream.md",
-        "evidence": "GitHub Issues is the configured tracker for this Target Runtime Profile, so setup/tracker indirection is unnecessary.",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker"
+          ],
+          "incompatibility": "GitHub Issues is the configured tracker for this Target Runtime Profile, so setup/tracker indirection is unnecessary."
+        },
         "transform": {
           "type": "replace-exact",
           "match": "The issue tracker and triage label vocabulary should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`.",
@@ -32,7 +39,13 @@
       {
         "allowedRuntimeChange": "select-upstream-supported-branch",
         "source": "upstream.md",
-        "evidence": "Publishing through the active repository's GitHub Issues capability is the selected upstream-supported tracker branch; the upstream ready-for-agent label requirement is preserved.",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "github-repository-and-issue-tracker"
+          ],
+          "incompatibility": "Publishing through the active repository's GitHub Issues capability is the selected upstream-supported tracker branch; the upstream ready-for-agent label requirement is preserved."
+        },
         "transform": {
           "type": "replace-exact",
           "match": "3. Write the spec using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.",

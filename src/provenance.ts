@@ -32,6 +32,27 @@ const appendSourceSchema = z.strictObject({
   separator: z.string(),
 });
 
+export const TARGET_RUNTIME_PROFILE_ID = "chatgpt-web-mcp-v1" as const;
+
+const targetRuntimeConstraintSchema = z.enum([
+  "chatgpt-web-through-mcp",
+  "only-load-skill-and-list-skills",
+  "github-repository-and-issue-tracker",
+  "no-local-checkout",
+  "no-shell",
+  "no-filesystem",
+  "no-git-cli",
+  "no-background-process",
+  "no-connected-tool-assumption",
+  "no-write-access-assumption",
+]);
+
+const targetRuntimeEvidenceSchema = z.strictObject({
+  targetRuntimeProfile: z.literal(TARGET_RUNTIME_PROFILE_ID),
+  constraints: z.array(targetRuntimeConstraintSchema).min(1),
+  incompatibility: z.string().min(1),
+});
+
 const changeRecordSchema = z.strictObject({
   allowedRuntimeChange: z.enum([
     "inline-supporting-document",
@@ -40,12 +61,13 @@ const changeRecordSchema = z.strictObject({
     "select-upstream-supported-branch",
   ]),
   source: artifactPathSchema,
-  evidence: z.string().min(1),
+  evidence: targetRuntimeEvidenceSchema,
   transform: z.discriminatedUnion("type", [replaceExactSchema, appendSourceSchema]),
 });
 
 const sourceArtifactSchema = z.strictObject({
   path: artifactPathSchema,
+  upstreamPath: artifactPathSchema,
   sha256: z.string().regex(SHA256),
 });
 

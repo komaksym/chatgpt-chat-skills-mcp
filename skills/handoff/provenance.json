@@ -15,14 +15,22 @@
     "sources": [
       {
         "path": "upstream.md",
-        "sha256": "7c62de979fdc7ac32fb5ddb2146156c917f80ee070d30fadc9d40343c4b6ed25"
+        "sha256": "7c62de979fdc7ac32fb5ddb2146156c917f80ee070d30fadc9d40343c4b6ed25",
+        "upstreamPath": "skills/productivity/handoff/SKILL.md"
       }
     ],
     "changeRecords": [
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
-        "evidence": "The Target Runtime Profile is remote-first and does not assume a local checkout, OS filesystem, or temporary directory. Returning the handoff directly in chat preserves a transferable handoff without requiring persistence.",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "no-local-checkout",
+            "no-filesystem"
+          ],
+          "incompatibility": "The Target Runtime Profile is remote-first and does not assume a local checkout, OS filesystem, or temporary directory. Returning the handoff directly in chat preserves a transferable handoff without requiring persistence."
+        },
         "transform": {
           "type": "replace-exact",
           "match": "Save to the temporary directory of the user's OS - not the current workspace.",
@@ -32,7 +40,13 @@
       {
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
-        "evidence": "The Target Runtime Profile invokes skills through the MCP load_skill tool and does not expose the upstream Skill tool.",
+        "evidence": {
+          "targetRuntimeProfile": "chatgpt-web-mcp-v1",
+          "constraints": [
+            "only-load-skill-and-list-skills"
+          ],
+          "incompatibility": "The Target Runtime Profile invokes skills through the MCP load_skill tool and does not expose the upstream Skill tool."
+        },
         "transform": {
           "type": "replace-exact",
           "match": "call the Skill tool for",

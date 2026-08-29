@@ -219,6 +219,7 @@ describe("complete corpus through the production MCP boundary", () => {
               sources: [
                 {
                   path: "upstream.md",
+                  upstreamPath: "skills/" + name + "/SKILL.md",
                   sha256: "b".repeat(64),
                 },
               ],

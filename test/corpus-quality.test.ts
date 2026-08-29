@@ -74,9 +74,9 @@ async function bundle(
     provenance.projection = {
       entrypoint: "upstream.md",
       sources: [
-        { path: "upstream.md", sha256: "b".repeat(64) },
+        { path: "upstream.md", upstreamPath: "skills/" + name + "/SKILL.md", sha256: "b".repeat(64) },
         ...(options.supporting
-          ? [{ path: "supporting.md", sha256: "c".repeat(64) }]
+          ? [{ path: "supporting.md", upstreamPath: "skills/" + name + "/supporting.md", sha256: "c".repeat(64) }]
           : []),
       ],
       changeRecords: options.supporting
@@ -184,6 +184,29 @@ describe("complete Mechanical Projection corpus audit", () => {
       runtime: "Parent intro.\n\nCHILD UNIQUE RUNTIME\n",
     });
     const result = await run(root);
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain("embeds Dependency Skill runtime child");
+  });
+
+  it("rejects materially copied Dependency Skill text with a small adaptation", async () => {
+    const root = await temp();
+    const dependencyWords = Array.from(
+      { length: 80 },
+      (_, index) => "dependencyword" + index,
+    );
+    await bundle(root, "child", {
+      runtime: dependencyWords.join(" ") + "\n",
+    });
+    const copied = dependencyWords.slice(10, 60);
+    copied[20] = "locally-adapted-word";
+
+    await bundle(root, "parent", {
+      dependency: "child",
+      runtime: "Parent intro.\n\n" + copied.join(" ") + "\n",
+    });
+
+    const result = await run(root);
+
     expect(result.code).toBe(1);
     expect(result.stderr).toContain("embeds Dependency Skill runtime child");
   });
