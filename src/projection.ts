@@ -159,6 +159,10 @@ export async function generateSkillRuntime(
   }
 
   const projectedSources = new Map(sources);
+  const claimedRanges = new Map<
+    string,
+    Array<{ end: number; recordIndex: number; start: number }>
+  >();
   for (const [index, record] of projection.changeRecords.entries()) {
     const source = sources.get(record.source);
     if (source === undefined) {
@@ -179,7 +183,20 @@ export async function generateSkillRuntime(
     }
 
     const label = `Change Record ${index + 1} for ${name}`;
-    findExactMatch(source, record.transform.match, label);
+    const start = findExactMatch(source, record.transform.match, label);
+    const end = start + record.transform.match.length;
+    const sourceClaims = claimedRanges.get(record.source) ?? [];
+    const overlapping = sourceClaims.find(
+      (claim) => start < claim.end && end > claim.start,
+    );
+    if (overlapping) {
+      throw new Error(
+        `${label} overlaps Change Record ${overlapping.recordIndex + 1} on ${record.source}.`,
+      );
+    }
+    sourceClaims.push({ start, end, recordIndex: index });
+    claimedRanges.set(record.source, sourceClaims);
+
     const projectedSource = projectedSources.get(record.source);
     if (projectedSource === undefined) {
       throw new Error(
