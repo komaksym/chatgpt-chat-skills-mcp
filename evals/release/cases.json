@@ -171,7 +171,7 @@
       "id": "to-tickets-native-relationships",
       "workflow": "to-tickets",
       "model": "GPT-5.6 Sol",
-      "task": "Turn a fixed parent specification into approved tracer-bullet GitHub tickets with native hierarchy and blocking relationships.",
+      "task": "Turn a fixed parent specification into implementation tickets.",
       "repositoryContext": {
         "sourceRepository": "komaksym/chatgpt-chat-skills-mcp",
         "baseSha": "de37f7c16bb2ec229f13d3edbde8cdcb3dcfe246",
@@ -180,7 +180,7 @@
         "fixture": {
           "parentIssue": {
             "number": 1,
-            "title": "EVAL: includeHidden catalog option",
+            "title": "EVAL: health endpoint version",
             "body": "Expose the package version from `/healthz` while preserving `status: \"ok\"`. Reuse the existing loopback HTTP behavioral seam. Do not change the MCP tool surface."
           }
         }
@@ -193,7 +193,7 @@
         "GitHub issue labels including ready-for-agent",
         "MCP load_skill/list_skills"
       ],
-      "prompt": "Turn parent issue #1 into GitHub tracer-bullet tickets.",
+      "prompt": "Turn parent issue #1 into implementation tickets.",
       "followUp": "Approved; publish it.",
       "rubric": [
         {
@@ -382,7 +382,7 @@
       "id": "code-review-stop-without-isolation",
       "workflow": "code-review",
       "model": "GPT-5.6 Sol",
-      "task": "Perform strict two-axis review only if the required independent review contexts are actually available.",
+      "task": "Review a fixed repository diff.",
       "repositoryContext": {
         "sourceRepository": "komaksym/chatgpt-chat-skills-mcp",
         "baseSha": "de37f7c16bb2ec229f13d3edbde8cdcb3dcfe246",
@@ -432,7 +432,7 @@
       "id": "architecture-selection-boundary",
       "workflow": "improve-codebase-architecture",
       "model": "GPT-5.6 Sol",
-      "task": "Find architecture-deepening candidates from repository evidence and stop at the upstream user-selection boundary.",
+      "task": "Assess the repository for architecture improvement opportunities.",
       "repositoryContext": {
         "sourceRepository": "komaksym/chatgpt-chat-skills-mcp",
         "baseSha": "de37f7c16bb2ec229f13d3edbde8cdcb3dcfe246",
@@ -444,7 +444,7 @@
         "MCP load_skill/list_skills",
         "no independent child exploration with direct GitHub access"
       ],
-      "prompt": "Inspect the repository for the strongest architecture-deepening opportunities.",
+      "prompt": "Inspect the repository for the strongest architecture improvement opportunities.",
       "rubric": [
         {
           "id": "design-dependency-timing",
@@ -512,7 +512,7 @@
       "id": "handoff-continuation-contract",
       "workflow": "handoff",
       "model": "GPT-5.6 Sol",
-      "task": "Create a compact transferable continuation brief that points to durable artifacts, suggests next skills, and redacts sensitive material.",
+      "task": "Create a continuation handoff for the next session.",
       "repositoryContext": {
         "sourceRepository": "komaksym/chatgpt-chat-skills-mcp",
         "baseSha": "de37f7c16bb2ec229f13d3edbde8cdcb3dcfe246",
