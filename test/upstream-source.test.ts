@@ -37,7 +37,10 @@ async function run(skillsRoot: string) {
   }
 }
 
-async function fixture(roots: string[]): Promise<{
+async function fixture(
+  roots: string[],
+  options: { omittedSupportingDocument?: boolean } = {},
+): Promise<{
   bundleRoot: string;
   provenancePath: string;
   skillsRoot: string;
@@ -52,7 +55,17 @@ async function fixture(roots: string[]): Promise<{
   await git(upstreamRoot, "config", "user.name", "Fixture");
   const upstreamPath = join(upstreamRoot, "skills", "example", "SKILL.md");
   await mkdir(dirname(upstreamPath), { recursive: true });
-  await writeFile(upstreamPath, "PINNED UPSTREAM\n", "utf8");
+  const entrypoint = options.omittedSupportingDocument
+    ? "PINNED UPSTREAM\n\nRead [guide](guide.md).\n"
+    : "PINNED UPSTREAM\n";
+  await writeFile(upstreamPath, entrypoint, "utf8");
+  if (options.omittedSupportingDocument) {
+    await writeFile(
+      join(upstreamRoot, "skills", "example", "guide.md"),
+      "REQUIRED SUPPORTING DOCUMENT\n",
+      "utf8",
+    );
+  }
   await git(upstreamRoot, "add", ".");
   await git(upstreamRoot, "commit", "-m", "pin fixture");
   const commit = await git(upstreamRoot, "rev-parse", "HEAD");
@@ -61,7 +74,7 @@ async function fixture(roots: string[]): Promise<{
   const sourcePath = join(bundleRoot, "upstream.md");
   const provenancePath = join(bundleRoot, "provenance.json");
   await mkdir(bundleRoot, { recursive: true });
-  await writeFile(sourcePath, "PINNED UPSTREAM\n", "utf8");
+  await writeFile(sourcePath, entrypoint, "utf8");
   await writeFile(
     provenancePath,
     JSON.stringify(
@@ -83,7 +96,7 @@ async function fixture(roots: string[]): Promise<{
             {
               path: "upstream.md",
               upstreamPath: "skills/example/SKILL.md",
-              sha256: sha256("PINNED UPSTREAM\n"),
+              sha256: sha256(entrypoint),
             },
           ],
           changeRecords: [],
@@ -114,6 +127,19 @@ describe("pinned upstream source verification", () => {
 
     expect(result.code).toBe(0);
     expect(result.stdout).toContain("verified alpha/upstream.md");
+  });
+
+  it("rejects an omitted Supporting Document required by the pinned entrypoint", async () => {
+    const { skillsRoot } = await fixture(roots, {
+      omittedSupportingDocument: true,
+    });
+
+    const result = await run(skillsRoot);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain(
+      "alpha: required Supporting Document is not declared: skills/example/guide.md.",
+    );
   });
 
   it("rejects tampered source even when its local digest is updated to match", async () => {
