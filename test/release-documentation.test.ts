@@ -2,9 +2,11 @@ import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
 const ROOT = new URL("../", import.meta.url);
+/** Reads a repository document relative to the project root. */
 const read = (path: string) => readFile(new URL(path, ROOT), "utf8");
 
 describe("issue 15 release documentation", () => {
+  /** Verifies that operators have the complete local lifecycle documented. */
   it("documents the complete operator lifecycle", async () => {
     const operator = await read("docs/operator.md");
     expect(operator).toContain("Node.js 20");
@@ -17,6 +19,7 @@ describe("issue 15 release documentation", () => {
     expect(operator).toContain("Secure MCP Tunnel");
   });
 
+  /** Verifies that users have the public and dependency loading model documented. */
   it("documents the user-facing loading and dependency model", async () => {
     const user = await read("docs/user.md");
     expect(user).toContain("load_skill");
@@ -29,6 +32,7 @@ describe("issue 15 release documentation", () => {
     expect(user).toMatch(/stop|partial completion/i);
   });
 
+  /** Verifies that maintenance guidance points to the canonical contract. */
   it("documents maintenance without duplicating the canonical contract", async () => {
     const maintainer = await read("docs/maintainer.md");
     for (const term of ["Upstream Skill Bundle", "Mechanical Projection", "Change Record", "Supporting Document", "Runtime Envelope", "Temporary Upstream Fix", "npm run corpus:check"]) {
@@ -37,6 +41,7 @@ describe("issue 15 release documentation", () => {
     expect(maintainer).toContain("issue #1");
   });
 
+  /** Verifies that architecture guidance preserves the product boundary. */
   it("documents the architecture decisions at the product boundary", async () => {
     const architecture = await read("docs/architecture.md");
     for (const term of ["load_skill", "list_skills", "catalog-independent", "exact canonical name", "committed Generated Runtime", "GitHub-only", "loopback", "no runtime provenance service"]) {
@@ -44,6 +49,7 @@ describe("issue 15 release documentation", () => {
     }
   });
 
+  /** Verifies that the tunnel guide matches the launcher lifecycle. */
   it("keeps the Secure MCP Tunnel guide aligned with the launcher lifecycle", async () => {
     const tunnel = await read("docs/SECURE_MCP_TUNNEL.md");
     expect(tunnel).toContain("chatgpt-chat-skills-mcp");
@@ -53,6 +59,7 @@ describe("issue 15 release documentation", () => {
     expect(tunnel).not.toContain("tunnel-client runtimes connect");
   });
 
+  /** Verifies that release proof stays unexercised until live evidence exists. */
   it("keeps release proof truthful until the real ChatGPT Web path is observed", async () => {
     const proof = await read("docs/release-proof.md");
     expect(proof).toContain("Status: NOT EXERCISED");
