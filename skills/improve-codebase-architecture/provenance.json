@@ -14,23 +14,12 @@
   },
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
-  "adaptations": [
-    "Read repository source, canonical domain vocabulary, ADRs, and commit history through live connected GitHub capabilities and stop affected analysis when required evidence is unavailable.",
-    "Load codebase-design before analysis and keep grilling and domain-modeling separate until their exact post-selection upstream points.",
-    "Use independent child exploration only when the child can inspect GitHub directly without parent-supplied evidence; otherwise continue the upstream exploration in the current conversation.",
-    "Select the direct Markdown candidate-report mechanism for the Target Runtime, preserving the upstream candidate fields, recommendation, vocabulary, ADR rules, and user-selection boundary while using diagrams only when materially useful.",
-    "Keep candidate analysis non-mutating with respect to production code and wait for explicit candidate selection before later design phases."
-  ],
   "projection": {
     "entrypoint": "upstream.md",
     "sources": [
       {
         "path": "upstream.md",
         "sha256": "d1ac25511a936ff4250a48dbcefda363837d6bb9321b3cba73df99fa37270a75"
-      },
-      {
-        "path": "upstream-html-report.md",
-        "sha256": "581e8bb5a521e46bbda8ca7e19b15948bed882187108092ebb90c62513b77528"
       }
     ],
     "changeRecords": [

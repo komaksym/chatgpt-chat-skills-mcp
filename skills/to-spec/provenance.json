@@ -10,10 +10,6 @@
   },
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
-  "adaptations": [
-    "Select GitHub Issues in the active repository from the upstream tracker abstraction.",
-    "Preserve the upstream synthesis, highest-seam confirmation, specification template, and ready-for-agent publication behavior."
-  ],
   "projection": {
     "entrypoint": "upstream.md",
     "sources": [

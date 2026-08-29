@@ -13,9 +13,6 @@
   },
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
-  "adaptations": [
-    "Replace upstream Skill-tool composition with immediate same-conversation load_skill calls for grilling and domain-modeling."
-  ],
   "projection": {
     "entrypoint": "upstream.md",
     "sources": [

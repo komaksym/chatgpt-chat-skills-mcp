@@ -186,20 +186,26 @@ function defineArchitectureRuntimeSuite(): void {
     expect(parent).toContain(
       "Otherwise continue the same codebase walk in this conversation",
     );
-    expect(design).toContain("# Deepening");
-    expect(design).toContain("# Design It Twice");
+    const deepening = await readFile(
+      new URL("../skills/codebase-design/upstream-deepening.md", import.meta.url),
+      "utf8",
+    );
+    const designItTwice = await readFile(
+      new URL(
+        "../skills/codebase-design/upstream-design-it-twice.md",
+        import.meta.url,
+      ),
+      "utf8",
+    );
+
+    expect(design).toContain(deepening);
+    expect(design).toContain(designItTwice);
     expect(design).toContain(
       "only when each child can access the repository directly through connected GitHub capabilities",
     );
     expect(design).toContain(
       "stop this alternative-interface branch rather than simulating parallel independence",
     );
-    expect(design).toContain(
-      "Include both the Codebase Design entrypoint vocabulary above and CONTEXT.md vocabulary",
-    );
-    expect(design).not.toContain("](DEEPENING.md)");
-    expect(design).not.toContain("](DESIGN-IT-TWICE.md)");
-    expect(design).not.toContain("](SKILL.md)");
   }
 
   it(
@@ -219,7 +225,7 @@ function defineArchitectureRuntimeSuite(): void {
     preservesCandidateReportAndSelectionBoundary,
   );
   it(
-    "keeps child exploration truthful and supporting docs self-contained",
+    "keeps child exploration truthful and supporting docs verbatim",
     keepsChildExplorationTruthfulAndSupportingDocsSelfContained,
   );
 }

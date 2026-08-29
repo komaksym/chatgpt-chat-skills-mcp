@@ -10,12 +10,6 @@
   },
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
-  "adaptations": [
-    "Translate local Git and issue-tracker mechanics to connected GitHub against committed refs while preserving fixed-point, spec-source, and Standards-source ordering.",
-    "Use @chrome-mcp to spawn genuinely independent ChatGPT child conversations and require parallel dispatch whenever both axes run; stop before either review starts if the mechanism cannot satisfy that contract.",
-    "Require each child review to return one deterministic single-line plain-text report so browser retrieval does not require follow-up recovery prompts.",
-    "Stop strict review when equivalent independent child contexts, direct child GitHub access, or required parallel dispatch are unavailable; do not invent a non-isolated or sequential fallback branch that the pinned upstream workflow does not define."
-  ],
   "projection": {
     "entrypoint": "upstream.md",
     "sources": [

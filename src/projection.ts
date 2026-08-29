@@ -109,6 +109,9 @@ function replaceExactlyOnce(
   replacement: string,
   label: string,
 ): string {
+  if (match === replacement) {
+    throw new Error(`${label} does not change its affected upstream material.`);
+  }
   const first = findExactMatch(runtime, match, label);
   return `${runtime.slice(0, first)}${replacement}${runtime.slice(first + match.length)}`;
 }
@@ -121,8 +124,19 @@ export async function generateSkillRuntime(
   const { repositoryRoot, skillsRoot } = resolveRoots(options);
   const provenance = await readProvenance(name, skillsRoot);
   const projection = provenance.projection;
-  if (!projection) {
-    throw new Error(`Skill ${name} has no Mechanical Projection metadata.`);
+
+  const appendCounts = new Map<string, number>();
+  for (const record of projection.changeRecords) {
+    if (record.transform.type !== "append-source") continue;
+    appendCounts.set(record.source, (appendCounts.get(record.source) ?? 0) + 1);
+  }
+  for (const source of projection.sources) {
+    if (source.path === projection.entrypoint) continue;
+    if ((appendCounts.get(source.path) ?? 0) !== 1) {
+      throw new Error(
+        `Supporting Document ${source.path} for ${name} must be inlined exactly once.`,
+      );
+    }
   }
 
   const bundleRoot = join(skillsRoot, name);
@@ -145,11 +159,23 @@ export async function generateSkillRuntime(
   }
 
   const projectedSources = new Map(sources);
+  const claimedRanges = new Map<
+    string,
+    Array<{ end: number; recordIndex: number; start: number }>
+  >();
   for (const [index, record] of projection.changeRecords.entries()) {
     const source = sources.get(record.source);
     if (source === undefined) {
       throw new Error(
         `Change Record ${index + 1} for ${name} references an unpinned source: ${record.source}.`,
+      );
+    }
+    if (
+      record.source !== projection.entrypoint &&
+      record.transform.type !== "append-source"
+    ) {
+      throw new Error(
+        `Supporting Document ${record.source} for ${name} must be inlined verbatim.`,
       );
     }
     if (record.transform.type === "append-source") {
@@ -165,7 +191,20 @@ export async function generateSkillRuntime(
     }
 
     const label = `Change Record ${index + 1} for ${name}`;
-    findExactMatch(source, record.transform.match, label);
+    const start = findExactMatch(source, record.transform.match, label);
+    const end = start + record.transform.match.length;
+    const sourceClaims = claimedRanges.get(record.source) ?? [];
+    const overlapping = sourceClaims.find(
+      (claim) => start < claim.end && end > claim.start,
+    );
+    if (overlapping) {
+      throw new Error(
+        `${label} overlaps Change Record ${overlapping.recordIndex + 1} on ${record.source}.`,
+      );
+    }
+    sourceClaims.push({ start, end, recordIndex: index });
+    claimedRanges.set(record.source, sourceClaims);
+
     const projectedSource = projectedSources.get(record.source);
     if (projectedSource === undefined) {
       throw new Error(
@@ -305,7 +344,7 @@ export async function listProjectedSkills(
   )) {
     if (!entry.isDirectory()) continue;
     const provenance = await readProvenance(entry.name, skillsRoot);
-    if (provenance.projection) names.push(provenance.name);
+    names.push(provenance.name);
   }
   return names;
 }

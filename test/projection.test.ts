@@ -103,7 +103,6 @@ async function createProjectionFixture(
         },
         license: "MIT",
         attribution: "Fixture author",
-        adaptations: [],
         projection,
       },
       null,
@@ -139,7 +138,7 @@ function defineProjectionSuite(): void {
 
   afterEach(cleanup);
 
-  /** Proves handoff is the exact pinned upstream skill plus two recorded adaptations. */
+  /** Proves handoff is the exact pinned upstream skill plus two recorded Change Records. */
   async function generatesHandoffDeterministically(): Promise<void> {
     const upstream = await readFile(new URL("upstream.md", HANDOFF_ROOT), "utf8");
     const committed = await readFile(new URL("runtime.md", HANDOFF_ROOT), "utf8");
@@ -263,8 +262,45 @@ function defineProjectionSuite(): void {
     );
   }
 
-  /** Proves recorded replacements can target pinned Supporting Documents. */
-  async function transformsPinnedSupportingSource(): Promise<void> {
+  /** Proves separate Change Records cannot claim overlapping original source bytes. */
+  async function rejectsOverlappingChangeRecords(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      expectedSource: "abc\n",
+      changeRecords: [
+        {
+          allowedRuntimeChange: "equivalent-mechanism",
+          source: "upstream.md",
+          evidence: "First fixture replacement.",
+          transform: {
+            type: "replace-exact",
+            match: "abc",
+            replacement: "xbc",
+          },
+        },
+        {
+          allowedRuntimeChange: "equivalent-mechanism",
+          source: "upstream.md",
+          evidence: "Second fixture replacement.",
+          transform: {
+            type: "replace-exact",
+            match: "bc",
+            replacement: "yz",
+          },
+        },
+      ],
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow(
+      "Change Record 2 for fixture-skill overlaps Change Record 1 on upstream.md.",
+    );
+  }
+
+  /** Proves ordinary Change Records cannot mutate pinned Supporting Documents. */
+  async function rejectsTransformedSupportingSource(): Promise<void> {
     const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
     roots.push(repositoryRoot);
     const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
@@ -300,7 +336,9 @@ function defineProjectionSuite(): void {
 
     await expect(
       generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
-    ).resolves.toBe("ENTRYPOINT\n\n---\n\nSUPPORT NEW\n");
+    ).rejects.toThrow(
+      "Supporting Document supporting.md for fixture-skill must be inlined verbatim.",
+    );
   }
 
   /** Proves supporting documents enter the runtime from their exact pinned bytes. */
@@ -470,6 +508,55 @@ function defineProjectionSuite(): void {
     );
   }
 
+
+  /** Proves a Change Record must produce an observable runtime difference. */
+  async function rejectsNoOpChangeRecord(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      expectedSource: "UNCHANGED\n",
+      changeRecords: [
+        {
+          allowedRuntimeChange: "equivalent-mechanism",
+          source: "upstream.md",
+          evidence: "Fixture no-op must not count as a runtime change.",
+          transform: {
+            type: "replace-exact",
+            match: "UNCHANGED",
+            replacement: "UNCHANGED",
+          },
+        },
+      ],
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow(
+      "Change Record 1 for fixture-skill does not change its affected upstream material.",
+    );
+  }
+
+  /** Proves every pinned Supporting Document must enter the generated runtime exactly once. */
+  async function rejectsUnconsumedSupportingSource(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      expectedSource: "ENTRYPOINT\n",
+      supportingSources: [
+        {
+          path: "supporting.md",
+          content: "PINNED SUPPORTING DOCUMENT\n",
+        },
+      ],
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow(
+      "Supporting Document supporting.md for fixture-skill must be inlined exactly once.",
+    );
+  }
+
   it(
     "generates handoff deterministically from its pinned bundle",
     generatesHandoffDeterministically,
@@ -479,13 +566,16 @@ function defineProjectionSuite(): void {
     generatesGrillingBundleDeterministically,
   );
   it("rejects altered pinned source", rejectsAlteredPinnedSource);
+  it("rejects no-op Change Records", rejectsNoOpChangeRecord);
+  it("rejects unconsumed Supporting Documents", rejectsUnconsumedSupportingSource);
   it("rejects missing pinned source", rejectsMissingPinnedSource);
   it("rejects overlapping Change Record matches", rejectsOverlappingChangeRecordMatch);
   it(
     "rejects Change Record matches introduced by earlier records",
     rejectsChangeRecordMatchIntroducedByEarlierRecord,
   );
-  it("transforms pinned supporting source bytes", transformsPinnedSupportingSource);
+  it("rejects overlapping Change Records", rejectsOverlappingChangeRecords);
+  it("rejects transformed Supporting Documents", rejectsTransformedSupportingSource);
   it("inlines pinned supporting source bytes", inlinesPinnedSupportingSource);
   it(
     "applies a Temporary Upstream Fix to a pinned Supporting Document",

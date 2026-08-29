@@ -10,10 +10,6 @@
   },
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
-  "adaptations": [
-    "Inline the pinned upstream CONTEXT-FORMAT.md and ADR-FORMAT.md contents so one runtime load is self-contained.",
-    "Replace only the two relative supporting-file references with references to the inlined sections; remote execution behavior comes from the shared contract."
-  ],
   "projection": {
     "entrypoint": "upstream.md",
     "sources": [

@@ -14,7 +14,8 @@
     "pretest": "npm run build",
     "start": "node dist/main.js",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "corpus:check": "npm run generate:check && node scripts/audit-corpus.mjs skills"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.30.0",

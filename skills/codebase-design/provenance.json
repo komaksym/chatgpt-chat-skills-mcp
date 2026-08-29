@@ -10,11 +10,6 @@
   },
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
-  "adaptations": [
-    "Inline the exact pinned Deepening and Design It Twice Supporting Documents so the loaded runtime preserves the complete upstream design methodology without local relative-file assumptions.",
-    "Retarget only local supporting-document references needed for a self-contained runtime.",
-    "Use the upstream parallel Design It Twice branch only when independent child contexts have direct connected GitHub access; otherwise stop that branch rather than pretending isolation."
-  ],
   "projection": {
     "entrypoint": "upstream.md",
     "sources": [
@@ -49,92 +44,22 @@
         "transform": {
           "type": "replace-exact",
           "match": "- **Exploring alternative interfaces**, see [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md): spin up parallel sub-agents to design the interface several radically different ways, then compare on depth, locality, and seam placement.",
-          "replacement": "- **Exploring alternative interfaces**, see the exact pinned **Design It Twice** Supporting Document appended below: use parallel independent child explorations only when each child has direct connected GitHub access and remains isolated until comparison; otherwise stop that alternative-interface branch rather than pretending parallel independence."
-        }
-      },
-      {
-        "allowedRuntimeChange": "equivalent-mechanism",
-        "source": "upstream-deepening.md",
-        "evidence": "The Supporting Document is appended into the same Generated Runtime as its SKILL.md entrypoint, so the local relative SKILL.md link is retargeted to the entrypoint above without changing the referenced vocabulary.",
-        "transform": {
-          "type": "replace-exact",
-          "match": "How to deepen a cluster of shallow modules safely, given its dependencies. Assumes the vocabulary in [SKILL.md](SKILL.md): **module**, **interface**, **seam**, **adapter**.",
-          "replacement": "How to deepen a cluster of shallow modules safely, given its dependencies. Assumes the vocabulary in the Codebase Design entrypoint above: **module**, **interface**, **seam**, **adapter**."
+          "replacement": "- **Exploring alternative interfaces**, see the exact pinned **Design It Twice** Supporting Document appended below: use parallel independent child explorations only when each child can access the repository directly through connected GitHub capabilities and their findings remain isolated until comparison; otherwise stop this alternative-interface branch rather than simulating parallel independence."
         }
       },
       {
         "allowedRuntimeChange": "inline-supporting-document",
         "source": "upstream-deepening.md",
-        "evidence": "DEEPENING.md is required upstream methodology. Append the exact pinned document, after only its recorded self-containment link translation, so the loaded runtime preserves dependency categories, seam discipline, and replace-don't-layer testing.",
+        "evidence": "DEEPENING.md is required upstream methodology. Append the exact pinned Supporting Document verbatim so the loaded runtime preserves dependency categories, seam discipline, and replace-don't-layer testing.",
         "transform": {
           "type": "append-source",
           "separator": "\n\n---\n\n"
         }
       },
       {
-        "allowedRuntimeChange": "equivalent-mechanism",
-        "source": "upstream-design-it-twice.md",
-        "evidence": "The Supporting Document is appended into the same Generated Runtime as its SKILL.md entrypoint, so the local relative SKILL.md link is retargeted to the entrypoint above.",
-        "transform": {
-          "type": "replace-exact",
-          "match": "Uses the vocabulary in [SKILL.md](SKILL.md): **module**, **interface**, **seam**, **adapter**, **leverage**.",
-          "replacement": "Uses the vocabulary in the Codebase Design entrypoint above: **module**, **interface**, **seam**, **adapter**, **leverage**."
-        }
-      },
-      {
-        "allowedRuntimeChange": "equivalent-mechanism",
-        "source": "upstream-design-it-twice.md",
-        "evidence": "The exact pinned DEEPENING.md document is already appended into this runtime, so this relative reference is retargeted to that inlined methodology.",
-        "transform": {
-          "type": "replace-exact",
-          "match": "- The dependencies it would rely on, and which category they fall into (see [DEEPENING.md](DEEPENING.md))",
-          "replacement": "- The dependencies it would rely on, and which category they fall into (see the inlined **Deepening** Supporting Document above)"
-        }
-      },
-      {
-        "allowedRuntimeChange": "equivalent-mechanism",
-        "source": "upstream-design-it-twice.md",
-        "evidence": "The Target Runtime may not expose independently isolated child conversations with direct repository access. Preserve the upstream parallel-design method only when that equivalent capability is live; otherwise stop the branch rather than simulating independence.",
-        "transform": {
-          "type": "replace-exact",
-          "match": "Spawn 3+ sub-agents in parallel. Each must produce a **radically different** interface for the deepened module.",
-          "replacement": "Spawn 3+ independent child explorations in parallel only when each child can access the repository directly through connected GitHub capabilities and their findings remain isolated until comparison. Each must produce a **radically different** interface for the deepened module. If that independent child mechanism or direct repository access is unavailable, stop this alternative-interface branch rather than simulating parallel independence in one context."
-        }
-      },
-      {
-        "allowedRuntimeChange": "equivalent-mechanism",
-        "source": "upstream-design-it-twice.md",
-        "evidence": "The exact pinned Deepening Supporting Document is inlined into the Generated Runtime, so this technical-brief reference is retargeted to the same methodology.",
-        "transform": {
-          "type": "replace-exact",
-          "match": "Prompt each sub-agent with a separate technical brief (file paths, coupling details, dependency category from [DEEPENING.md](DEEPENING.md), what sits behind the seam).",
-          "replacement": "Prompt each sub-agent with a separate technical brief (file paths, coupling details, dependency category from the inlined **Deepening** Supporting Document above, what sits behind the seam)."
-        }
-      },
-      {
-        "allowedRuntimeChange": "equivalent-mechanism",
-        "source": "upstream-design-it-twice.md",
-        "evidence": "The exact pinned Deepening Supporting Document is inlined into the Generated Runtime, so this output-contract reference is retargeted to the same methodology.",
-        "transform": {
-          "type": "replace-exact",
-          "match": "4. Dependency strategy and adapters (see [DEEPENING.md](DEEPENING.md))",
-          "replacement": "4. Dependency strategy and adapters (see the inlined **Deepening** Supporting Document above)"
-        }
-      },
-      {
-        "allowedRuntimeChange": "equivalent-mechanism",
-        "source": "upstream-design-it-twice.md",
-        "evidence": "The Design It Twice Supporting Document is inlined into the same Generated Runtime as the Codebase Design entrypoint, so this remaining local SKILL.md vocabulary reference is retargeted to the entrypoint above without changing the required vocabulary.",
-        "transform": {
-          "type": "replace-exact",
-          "match": "Include both [SKILL.md](SKILL.md) vocabulary and CONTEXT.md vocabulary in the brief so each sub-agent names things consistently with the architecture language and the project's domain language.",
-          "replacement": "Include both the Codebase Design entrypoint vocabulary above and CONTEXT.md vocabulary in the brief so each sub-agent names things consistently with the architecture language and the project's domain language."
-        }
-      },
-      {
         "allowedRuntimeChange": "inline-supporting-document",
         "source": "upstream-design-it-twice.md",
-        "evidence": "DESIGN-IT-TWICE.md is required upstream methodology. Append the pinned document after only the recorded self-containment and capability translations.",
+        "evidence": "DESIGN-IT-TWICE.md is required upstream methodology. Append the exact pinned Supporting Document verbatim; the entrypoint's recorded Target Runtime guidance governs whether its parallel-child branch can execute.",
         "transform": {
           "type": "append-source",
           "separator": "\n\n---\n\n"
