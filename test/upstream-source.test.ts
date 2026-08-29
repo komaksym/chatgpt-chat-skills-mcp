@@ -21,10 +21,11 @@ async function git(cwd: string, ...args: string[]): Promise<string> {
   return result.stdout.trim();
 }
 
-async function run(skillsRoot: string) {
+async function run(skillsRoot: string, env: NodeJS.ProcessEnv = {}) {
   try {
     const result = await execFileAsync(process.execPath, [VERIFY, skillsRoot], {
       cwd: ROOT,
+      env: { ...process.env, ...env },
     });
     return { code: 0, stdout: result.stdout, stderr: result.stderr };
   } catch (error) {
@@ -45,6 +46,7 @@ async function fixture(
   provenancePath: string;
   skillsRoot: string;
   sourcePath: string;
+  upstreamRoot: string;
 }> {
   const upstreamRoot = await mkdtemp(join(tmpdir(), "upstream-source-"));
   const skillsRoot = await mkdtemp(join(tmpdir(), "upstream-skills-"));
@@ -108,7 +110,7 @@ async function fixture(
     "utf8",
   );
 
-  return { bundleRoot, provenancePath, skillsRoot, sourcePath };
+  return { bundleRoot, provenancePath, skillsRoot, sourcePath, upstreamRoot };
 }
 
 describe("pinned upstream source verification", () => {
@@ -124,6 +126,29 @@ describe("pinned upstream source verification", () => {
     const { skillsRoot } = await fixture(roots);
 
     const result = await run(skillsRoot);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain("verified alpha/upstream.md");
+  });
+
+  it("accepts a pinned HTTPS upstream outside github.com", async () => {
+    const { provenancePath, skillsRoot, upstreamRoot } = await fixture(roots);
+    const repository = "https://git.example.test/skills";
+    const provenance = JSON.parse(
+      await (await import("node:fs/promises")).readFile(provenancePath, "utf8"),
+    ) as { upstream: { repository: string } };
+    provenance.upstream.repository = repository;
+    await writeFile(
+      provenancePath,
+      JSON.stringify(provenance, null, 2) + "\n",
+      "utf8",
+    );
+
+    const result = await run(skillsRoot, {
+      GIT_CONFIG_COUNT: "1",
+      GIT_CONFIG_KEY_0: `url.${pathToFileURL(upstreamRoot).href}.insteadOf`,
+      GIT_CONFIG_VALUE_0: repository,
+    });
 
     expect(result.code).toBe(0);
     expect(result.stdout).toContain("verified alpha/upstream.md");
