@@ -21,6 +21,7 @@ const PUBLIC = [
 interface RubricCriterion {
   id: string;
   passWhen: string;
+  requiresExternalEvidence?: boolean;
   source: {
     upstream: { commit: string; path: string; section: string };
     contract: { issue: number; userStory: number };
@@ -162,6 +163,49 @@ describe("manual faithful-workflow release evaluations", () => {
     );
   });
 
+  it("keeps workflow answers and forbidden product changes out of user prompts", async () => {
+    const data = await suite();
+    const byWorkflow = new Map(data.cases.map((item) => [item.workflow, item]));
+
+    expect(byWorkflow.get("grill-with-docs")?.prompt).not.toMatch(
+      /inspect repository evidence|distinguish facts from decisions|canonical domain language/i,
+    );
+    expect(byWorkflow.get("to-spec")?.prompt).not.toMatch(/includeHidden|ask and wait|requires confirmation/i);
+    expect(byWorkflow.get("to-tickets")?.prompt).not.toMatch(/show the complete proposed breakdown|wait;|do not create/i);
+    expect(byWorkflow.get("implement")?.prompt).not.toMatch(
+      /sourceRef|provenance upstream commit|non-default feature branch/i,
+    );
+    expect(byWorkflow.get("code-review")?.prompt).not.toMatch(/sequential passes|pretend a child/i);
+    expect(byWorkflow.get("improve-codebase-architecture")?.prompt).not.toMatch(
+      /canonical architecture vocabulary|stop after asking/i,
+    );
+    expect(byWorkflow.get("handoff")?.prompt).not.toMatch(
+      /Suggested next workflows|do not carry sensitive material/i,
+    );
+  });
+
+  it("marks criteria that require observed external state", async () => {
+    const data = await suite();
+    const required = data.cases.flatMap((item) =>
+      item.rubric
+        .filter((criterion) => criterion.requiresExternalEvidence)
+        .map((criterion) => item.workflow + ":" + criterion.id),
+    );
+
+    expect(required).toEqual(
+      expect.arrayContaining([
+        "to-spec:ready-for-agent",
+        "to-spec:observed-publication",
+        "to-tickets:native-relationships",
+        "to-tickets:ready-for-agent",
+        "to-tickets:upstream-ticket-shape",
+        "implement:observed-red-green",
+        "implement:verification-cadence",
+        "implement:commit-review-current-branch",
+      ]),
+    );
+  });
+
   it("records comparable outputs, external results, judgments, pass/fail, and rationale", async () => {
     const template = JSON.parse(
       await readFile(new URL("run-template.json", ROOT), "utf8"),
@@ -180,6 +224,7 @@ describe("manual faithful-workflow release evaluations", () => {
           baseline: {
             skill: null,
             model: "",
+            skillsMcp: { repository: "", releaseSha: "", evidence: "" },
             repository: { url: "", sourceRepository: "", baseSha: "" },
             capabilities: [],
             output: "",
@@ -191,6 +236,7 @@ describe("manual faithful-workflow release evaluations", () => {
           adapted: {
             skill: "",
             model: "",
+            skillsMcp: { repository: "", releaseSha: "", evidence: "" },
             repository: { url: "", sourceRepository: "", baseSha: "" },
             capabilities: [],
             output: "",
@@ -207,6 +253,57 @@ describe("manual faithful-workflow release evaluations", () => {
     });
   });
 
+
+  it("rejects passing externally observed criteria without external results", async () => {
+    const data = await suite();
+    const directory = await mkdtemp(join(tmpdir(), "release-evals-"));
+    const runPath = join(directory, "run.json");
+    const validatorPath = fileURLToPath(new URL("validate-run.mjs", ROOT));
+
+    try {
+      const run = completedRun(data) as {
+        cases: Array<{
+          caseId: string;
+          adapted: { externalResults: unknown[] };
+        }>;
+      };
+      const toSpec = run.cases.find((item) => item.caseId === "to-spec-seam-label-example");
+      if (!toSpec) throw new Error("expected to-spec evaluation case");
+      toSpec.adapted.externalResults = [];
+      await writeFile(runPath, JSON.stringify(run), "utf8");
+
+      const rejected = spawnSync(process.execPath, [validatorPath, runPath], { encoding: "utf8" });
+      expect(rejected.status).toBe(1);
+      expect(rejected.stderr).toContain("external result");
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects a variant whose recorded Skills MCP revision differs from the release", async () => {
+    const data = await suite();
+    const directory = await mkdtemp(join(tmpdir(), "release-evals-"));
+    const runPath = join(directory, "run.json");
+    const validatorPath = fileURLToPath(new URL("validate-run.mjs", ROOT));
+
+    try {
+      const run = completedRun(data) as {
+        cases: Array<{
+          adapted: { skillsMcp: { releaseSha: string } };
+        }>;
+      };
+      const firstCase = run.cases[0];
+      if (!firstCase) throw new Error("expected at least one evaluation case");
+      firstCase.adapted.skillsMcp.releaseSha = "b".repeat(40);
+      await writeFile(runPath, JSON.stringify(run), "utf8");
+
+      const rejected = spawnSync(process.execPath, [validatorPath, runPath], { encoding: "utf8" });
+      expect(rejected.status).toBe(1);
+      expect(rejected.stderr).toContain("Skills MCP release SHA");
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
 
   it("validates completed paired records through the CLI boundary", async () => {
     const data = await suite();
@@ -251,6 +348,8 @@ describe("manual faithful-workflow release evaluations", () => {
     expect(guide).toContain("failed or unavailable Live Capability");
     expect(guide).toContain("node evals/release/validate-run.mjs");
     expect(guide).toContain("must not call a model");
+    expect(guide).toContain("built from the recorded releaseSha");
+    expect(guide).toContain("observed Skills MCP revision");
     expect(validator).toContain("capabilities must exactly match the fixed case capabilities");
     expect(validator).toContain("paired result cannot pass unless the adapted condition passes");
   });
