@@ -262,6 +262,43 @@ function defineProjectionSuite(): void {
     );
   }
 
+  /** Proves separate Change Records cannot claim overlapping original source bytes. */
+  async function rejectsOverlappingChangeRecords(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      expectedSource: "abc\n",
+      changeRecords: [
+        {
+          allowedRuntimeChange: "equivalent-mechanism",
+          source: "upstream.md",
+          evidence: "First fixture replacement.",
+          transform: {
+            type: "replace-exact",
+            match: "abc",
+            replacement: "xbc",
+          },
+        },
+        {
+          allowedRuntimeChange: "equivalent-mechanism",
+          source: "upstream.md",
+          evidence: "Second fixture replacement.",
+          transform: {
+            type: "replace-exact",
+            match: "bc",
+            replacement: "yz",
+          },
+        },
+      ],
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow(
+      "Change Record 2 for fixture-skill overlaps Change Record 1 on upstream.md.",
+    );
+  }
+
   /** Proves recorded replacements can target pinned Supporting Documents. */
   async function transformsPinnedSupportingSource(): Promise<void> {
     const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
@@ -535,6 +572,7 @@ function defineProjectionSuite(): void {
     "rejects Change Record matches introduced by earlier records",
     rejectsChangeRecordMatchIntroducedByEarlierRecord,
   );
+  it("rejects overlapping Change Records", rejectsOverlappingChangeRecords);
   it("transforms pinned supporting source bytes", transformsPinnedSupportingSource);
   it("inlines pinned supporting source bytes", inlinesPinnedSupportingSource);
   it(
