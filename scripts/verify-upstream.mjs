@@ -3,7 +3,7 @@ import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
 import { readdir, readFile, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, posix } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import { promisify } from "node:util";
 import process from "node:process";
@@ -111,11 +111,21 @@ async function readRequests(skillsRoot) {
       );
     }
 
-    const key = `${repository}\n${commit}`;
-    const group = groups.get(key) ?? {
+    let byCommit = groups.get(repository);
+    if (!byCommit) {
+      byCommit = new Map();
+      groups.set(repository, byCommit);
+    }
+    const group = byCommit.get(commit) ?? {
       repository,
       commit,
+      bundles: [],
       sources: [],
+    };
+    const bundle = {
+      name,
+      entrypointUpstreamPath: location,
+      declaredUpstreamPaths: new Set(),
     };
 
     for (const source of projection.sources) {
@@ -143,11 +153,61 @@ async function readRequests(skillsRoot) {
         upstreamPath: source.upstreamPath,
         local,
       });
+      bundle.declaredUpstreamPaths.add(source.upstreamPath);
     }
-    groups.set(key, group);
+    group.bundles.push(bundle);
+    byCommit.set(commit, group);
   }
 
-  return [...groups.values()];
+  return [...groups.values()].flatMap((byCommit) => [...byCommit.values()]);
+}
+
+function markdownSupportingDocumentTargets(source) {
+  const links = source.matchAll(
+    /\]\((?!https?:\/\/|mailto:|#)([^)\s]+\.md(?:#[^)\s]*)?)\)/g,
+  );
+  return [...links].map((match) => match[1].split("#", 1)[0].replace(/^\.\//, ""));
+}
+
+function isWithinDirectory(path, directory) {
+  return path.startsWith(directory + "/");
+}
+
+async function verifyBundleCompleteness(group, checkout, upstreamSources) {
+  for (const bundle of group.bundles) {
+    const bundleDirectory = posix.dirname(bundle.entrypointUpstreamPath);
+    for (const upstreamPath of bundle.declaredUpstreamPaths) {
+      const source = upstreamSources.get(upstreamPath);
+      if (!source) continue;
+      for (const target of markdownSupportingDocumentTargets(source.toString("utf8"))) {
+        if (target.startsWith("/") || target.includes("\\")) continue;
+        const resolved = posix.normalize(
+          posix.join(posix.dirname(upstreamPath), target),
+        );
+        if (
+          !isWithinDirectory(resolved, bundleDirectory) ||
+          bundle.declaredUpstreamPaths.has(resolved)
+        ) {
+          continue;
+        }
+
+        try {
+          await git([
+            "-C",
+            checkout,
+            "cat-file",
+            "-e",
+            `FETCH_HEAD:${resolved}`,
+          ]);
+        } catch {
+          continue;
+        }
+        throw new Error(
+          `${bundle.name}: required Supporting Document is not declared: ${resolved}.`,
+        );
+      }
+    }
+  }
 }
 
 async function verifyGroup(group) {
@@ -182,6 +242,8 @@ async function verifyGroup(group) {
       );
     }
 
+    const upstreamSources = new Map();
+
     for (const source of group.sources) {
       let upstream;
       try {
@@ -207,8 +269,11 @@ async function verifyGroup(group) {
           `${source.name}/${source.path} does not match pinned upstream ${group.repository}@${group.commit}:${source.upstreamPath}.`,
         );
       }
+      upstreamSources.set(source.upstreamPath, upstream);
       process.stdout.write(`verified ${source.name}/${source.path}\n`);
     }
+
+    await verifyBundleCompleteness(group, checkout, upstreamSources);
   } finally {
     await rm(checkout, { recursive: true, force: true });
   }
