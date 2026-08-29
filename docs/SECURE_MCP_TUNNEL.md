@@ -5,7 +5,7 @@ Tunnel owns the outbound authenticated connection; this repository does not add 
 public listener, TLS termination, OAuth layer, or bearer-token protocol to the MCP
 server.
 
-## Start the built service
+## Start the built service directly
 
 ```sh
 npm ci
@@ -26,34 +26,38 @@ the local process is ready.
 The service exits on `SIGINT` or `SIGTERM` and fails instead of replacing a
 process that already owns the configured port.
 
-## Configure the machine-local tunnel runtime
+## Configure the machine-local tunnel profile
 
-Use the installed OpenAI `tunnel-client` runtime and keep credentials outside
-the repository. Credential arguments should refer to machine-local environment or
-file-backed secrets rather than literal keys committed to Git.
-
-A representative runtime flow is:
+The current launcher convention uses one dedicated machine-local profile named
+`chatgpt-chat-skills-mcp`. Create it with the installed tunnel client and the
+loopback MCP URL:
 
 ```sh
-tunnel-client runtimes create \
-  --alias chatgpt-chat-skills \
-  --admin-key env:OPENAI_ADMIN_KEY \
-  --organization-id <organization-id>
-
-tunnel-client runtimes connect \
-  --alias chatgpt-chat-skills \
-  --admin-key env:OPENAI_ADMIN_KEY \
-  --organization-id <organization-id> \
-  --runtime-api-key env:CONTROL_PLANE_API_KEY \
+tunnel-client init \
+  --profile chatgpt-chat-skills-mcp \
+  --tunnel-id '<tunnel-id>' \
   --mcp-server-url http://127.0.0.1:2092/mcp
-
-tunnel-client runtimes status chatgpt-chat-skills --json
 ```
 
-If the installed client exposes different command help, follow that installed
-version rather than copying stale flags blindly. Do not claim the tunnel is ready
-unless its observed status reports the runtime process, local health, and remote
-readiness as healthy.
+Keep tunnel configuration and credentials outside the repository. If the installed
+client exposes different command help, follow that installed version rather than
+copying stale flags blindly.
+
+Once the profile exists, use the launcher for the managed server-and-tunnel
+lifecycle:
+
+```sh
+mcp-skills
+mcps status
+mcps logs skills
+mcps restart skills
+mcps stop skills
+```
+
+`mcp-skills` starts the built loopback server, waits for the exact health response,
+then starts the dedicated tunnel. `mcps status` reports Skills as running only when
+both managed processes still match their expected identities. The launcher does not
+print profile contents or credential values.
 
 Tunnel profiles, state, logs, and credential references belong in machine-local
 config/state locations. This repository ignores `.env`, `.env.*`,
@@ -64,29 +68,27 @@ config/state locations. This repository ignores `.env`, `.env.*`,
 A healthy local process is necessary but does not prove that ChatGPT reached it.
 When Developer Mode and Secure MCP Tunnel are available:
 
-1. Start the built service and observe `/healthz` succeeding.
-2. Create/connect the machine-local tunnel to the same loopback `/mcp` URL.
-3. Observe the tunnel runtime as healthy and ready.
-4. In ChatGPT Developer Mode, create or select the app backed by that tunnel.
-5. Ask ChatGPT to discover the MCP tools and confirm the observed tool names are
+1. Run `mcp-skills` and observe `mcps status` reporting both the Skills server
+   and tunnel as running.
+2. Observe `/healthz` succeeding on the configured loopback port.
+3. In ChatGPT Developer Mode, create or select the app backed by the
+   `chatgpt-chat-skills-mcp` tunnel profile.
+4. Ask ChatGPT to discover the MCP tools and confirm the observed tool names are
    exactly `load_skill` and `list_skills`.
-6. Invoke `list_skills` and record the returned public catalog.
-7. Invoke `load_skill` for one returned canonical name and record that a real
-   MCP response was observed through ChatGPT.
-8. Re-check tunnel status after the request.
+5. Invoke `list_skills` and record the returned public catalog.
+6. Invoke `load_skill` for one returned canonical name and record that a real MCP
+   response was observed through ChatGPT.
+7. Re-check `mcps status` after the request.
 
-Record the actual returned status/tool results when this procedure is executed.
-Do not turn this checklist into a success claim when the tunnel or ChatGPT
-Developer Mode capability was unavailable.
+Record the actual returned status and tool results when this procedure is executed.
+Do not turn this checklist into a success claim when the tunnel or ChatGPT Developer
+Mode capability was unavailable.
 
 ## Troubleshooting
 
-Stop the managed runtime without deleting its remote configuration:
+Use `mcps status` first, then `mcps logs skills` for the managed server and tunnel
+logs. Use `mcps restart skills` to replace the complete Skills lifecycle or
+`mcps stop skills` to stop both managed processes.
 
-```sh
-tunnel-client runtimes stop chatgpt-chat-skills
-```
-
-Inspect runtime state with the installed client's status/diagnostic commands. If
-the service reports `EADDRINUSE`, stop the process using the configured port or
+If the service reports `EADDRINUSE`, stop the process using the configured port or
 choose a different loopback port consistently for both the service and tunnel.
