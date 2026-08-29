@@ -135,6 +135,18 @@ describe("complete Mechanical Projection corpus audit", () => {
     expect(result.stderr).toContain("unresolved Supporting Document reference");
   });
 
+  it("rejects undeclared local Supporting Document references", async () => {
+    const root = await temp();
+    await bundle(root, "alpha", {
+      runtime: "Read [guide](missing.md).\n",
+    });
+    const result = await run(root);
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain(
+      "unresolved Supporting Document reference: missing.md",
+    );
+  });
+
   it("rejects embedded Dependency Skill runtimes", async () => {
     const root = await temp();
     await bundle(root, "child", { runtime: "CHILD UNIQUE RUNTIME\n" });
