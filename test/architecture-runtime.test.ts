@@ -185,6 +185,9 @@ function defineArchitectureRuntimeSuite(): void {
     expect(design).toContain(
       "stop this alternative-interface branch rather than simulating parallel independence",
     );
+    expect(design).toContain(
+      "Include both the Codebase Design entrypoint vocabulary above and CONTEXT.md vocabulary",
+    );
     expect(design).not.toContain("](DEEPENING.md)");
     expect(design).not.toContain("](DESIGN-IT-TWICE.md)");
     expect(design).not.toContain("](SKILL.md)");
