@@ -10,12 +10,6 @@
   },
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
-  "adaptations": [
-    "Select the upstream GitHub real-tracker branch and remove the unselected local-file and non-GitHub tracker paths.",
-    "Make the upstream approval-before-publication boundary explicit for remote GitHub mutation.",
-    "Preserve parent/sub-issue membership and blocking dependencies as distinct native GitHub relationships, attaching every created ticket to the existing source issue as a native sub-issue when applicable.",
-    "Stop the affected mutation when no live mechanism can create a required native relationship; Markdown relationship text is descriptive only."
-  ],
   "projection": {
     "entrypoint": "upstream.md",
     "sources": [
