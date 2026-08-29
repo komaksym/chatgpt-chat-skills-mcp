@@ -1,0 +1,98 @@
+{
+  "name": "tdd",
+  "visibility": "hidden",
+  "description": "Drive implementation through behavior-first RED/GREEN cycles at pre-agreed public seams.",
+  "dependencies": [
+    "codebase-design"
+  ],
+  "upstream": {
+    "repository": "https://github.com/mattpocock/skills",
+    "location": "skills/engineering/tdd/SKILL.md",
+    "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76"
+  },
+  "license": "MIT",
+  "attribution": "Copyright (c) 2026 Matt Pocock",
+  "adaptations": [
+    "Read repository context and ADR evidence through connected repository capabilities when no local checkout is assumed.",
+    "Inline the exact pinned tests.md and mocking.md supporting documents so the loaded runtime remains self-contained.",
+    "Translate the conditional codebase-design Skill invocation to load_skill and stop that branch when the dependency is unavailable rather than substituting methodology.",
+    "Require observed execution before claiming RED or GREEN while preserving the upstream one-slice, minimum-implementation, no-refactoring loop."
+  ],
+  "projection": {
+    "entrypoint": "upstream.md",
+    "sources": [
+      {
+        "path": "upstream.md",
+        "sha256": "cb01f66bebfaa25fa1f88e6b7e769cd9fd9f35b1120b8563749820738814c927"
+      },
+      {
+        "path": "upstream-tests.md",
+        "sha256": "859f9e592c188fda4fc7277dd180e4ce9c7a2e13f6efe1f6f29eccc9d28c106a"
+      },
+      {
+        "path": "upstream-mocking.md",
+        "sha256": "3ceb807fdf4a47d6a93d4d9a891e5ba6d362a6247bd08adc451feebfc17361ef"
+      }
+    ],
+    "changeRecords": [
+      {
+        "allowedRuntimeChange": "equivalent-mechanism",
+        "source": "upstream.md",
+        "evidence": "The Target Runtime Profile may not have a local checkout. Reading committed repository context and ADRs through connected repository capabilities preserves the upstream evidence requirement.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "When exploring the codebase, read `CONTEXT.md` (if it exists) so test names and interface vocabulary match the project's domain language, and respect ADRs in the area you're touching.",
+          "replacement": "When exploring the codebase, read committed `CONTEXT.md` (if it exists) and relevant ADRs through connected repository capabilities so test names and interface vocabulary match the project's domain language. If required repository evidence cannot be read, stop the affected design/testing decision rather than pretending it was inspected."
+        }
+      },
+      {
+        "allowedRuntimeChange": "inline-supporting-document",
+        "source": "upstream-tests.md",
+        "evidence": "The upstream TDD entrypoint requires tests.md as methodology. The Target Runtime must be self-contained when loaded, so append the exact pinned supporting document without rewriting it.",
+        "transform": {
+          "type": "append-source",
+          "separator": "\n\n---\n\n"
+        }
+      },
+      {
+        "allowedRuntimeChange": "inline-supporting-document",
+        "source": "upstream-mocking.md",
+        "evidence": "The upstream TDD entrypoint requires mocking.md as methodology. The Target Runtime must be self-contained when loaded, so append the exact pinned supporting document without rewriting it.",
+        "transform": {
+          "type": "append-source",
+          "separator": "\n\n---\n\n"
+        }
+      },
+      {
+        "allowedRuntimeChange": "translate-invocation-or-tool",
+        "source": "upstream.md",
+        "evidence": "The Target Runtime Profile invokes optional methodology skills with load_skill rather than the upstream Skill tool. If codebase-design is not installed/live when that branch is required, the equivalent operation is unavailable and the workflow must stop that interface-shape decision.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "When the shape of that interface is itself in question (how deep the module is, where the seam belongs, what the interface should expose), call the Skill tool with \"codebase-design\" for the vocabulary. It is the shared source of the module, interface, depth, seam, adapter, leverage and locality terms, and it is a reference to consult, not a session to run.",
+          "replacement": "When the shape of that interface is itself in question (how deep the module is, where the seam belongs, what the interface should expose), load `codebase-design` with `load_skill` for the vocabulary. It is the shared source of the module, interface, depth, seam, adapter, leverage and locality terms, and it is a reference to consult, not a session to run. If that skill cannot be loaded when this branch is required, stop the interface-shape decision and report the missing capability rather than substituting local methodology."
+        }
+      },
+      {
+        "allowedRuntimeChange": "equivalent-mechanism",
+        "source": "upstream.md",
+        "evidence": "The upstream RED/GREEN rule requires actual failing and passing executions. In a remote runtime those states may only be claimed when the corresponding runner result is observed.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "- **Red before green.** Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features.",
+          "replacement": "- **Red before green.** Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features. Claim RED or GREEN only after observing the corresponding execution result; if no runner is live, stop the affected execution step and report that state as not observed."
+        }
+      },
+      {
+        "allowedRuntimeChange": "equivalent-mechanism",
+        "source": "upstream.md",
+        "evidence": "The exact pinned supporting documents are appended into the Generated Runtime, so the entrypoint link sentence is translated to describe the equivalent self-contained delivery mechanism without changing the referenced methodology.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking guidelines.",
+          "replacement": "See the exact pinned `tests.md` examples and `mocking.md` guidelines appended below; they remain part of this TDD methodology."
+        }
+      }
+    ]
+  }
+}

@@ -75,6 +75,11 @@ function defineServiceSuite(): void {
             "Create a compact continuation brief for another conversation.",
         },
         {
+          name: "implement",
+          description:
+            "Implement one settled GitHub ticket through TDD, observed verification, and committed code review.",
+        },
+        {
           name: "improve-codebase-architecture",
           description:
             "Find deepening opportunities in a remote repository and present candidate architecture improvements.",
