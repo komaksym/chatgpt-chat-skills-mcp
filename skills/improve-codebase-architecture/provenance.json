@@ -37,6 +37,16 @@
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
+        "evidence": "Issue #9 selects the direct Markdown candidate report for the Target Runtime. Updating the upstream frontmatter description keeps the model-visible summary consistent with that selected output mechanism.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "description: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.",
+          "replacement": "description: Scan a codebase for deepening opportunities, present them as a Markdown candidate report, then grill through whichever one you pick."
+        }
+      },
+      {
+        "allowedRuntimeChange": "equivalent-mechanism",
+        "source": "upstream.md",
         "evidence": "Issue #9's Target Runtime is analysis-only. Making the upstream candidate-analysis boundary explicit prevents an architecture scan from silently becoming an implementation task while preserving the upstream purpose.",
         "transform": {
           "type": "replace-exact",
