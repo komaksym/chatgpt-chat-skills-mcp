@@ -44,16 +44,17 @@ function checkedRepository(value) {
     return fileURLToPath(url);
   }
 
-  const parts = url.pathname.split("/").filter(Boolean);
   if (
     url.protocol !== "https:" ||
-    url.hostname !== "github.com" ||
-    parts.length !== 2 ||
+    url.username ||
+    url.password ||
+    !url.hostname ||
+    url.pathname === "/" ||
     url.search ||
     url.hash
   ) {
     throw new Error(
-      "Pinned upstream repository must be an exact https://github.com/<owner>/<repo> URL.",
+      "Pinned upstream repository must be an HTTPS repository URL without credentials, query, or fragment.",
     );
   }
   return value;
