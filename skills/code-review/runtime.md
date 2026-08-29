@@ -12,7 +12,7 @@ Both axes run in **genuinely independent review contexts** so they don't pollute
 
 Strict review requires the independent child conversation(s) needed by the axes that will run, with direct connected GitHub access in every child. If that isolation or direct child GitHub access is unavailable, stop strict review and state the missing capability. The pinned upstream workflow has no non-isolated fallback branch, so do not substitute sequential Standards and Spec passes in this conversation or label them as isolated child reviews.
 
-Use connected GitHub directly as the issue-tracker and repository-evidence mechanism. Do not require `docs/agents/issue-tracker.md` or `/setup-matt-pocock-skills`.
+Use connected GitHub directly as the issue-tracker and repository-evidence mechanism.
 
 ## Process
 
