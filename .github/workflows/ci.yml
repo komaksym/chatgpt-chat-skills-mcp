@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -47,6 +49,17 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Prepare corpus size baseline
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -n "$BASE_SHA" ] && git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
+            rm -rf "$RUNNER_TEMP/corpus-base"
+            mkdir -p "$RUNNER_TEMP/corpus-base"
+            git archive "$BASE_SHA" skills | tar -x -C "$RUNNER_TEMP/corpus-base"
+            echo "CORPUS_BASELINE_ROOT=$RUNNER_TEMP/corpus-base/skills" >> "$GITHUB_ENV"
+          fi
 
       - name: Verify complete generated corpus
         run: npm run corpus:check
