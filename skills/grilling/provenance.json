@@ -12,5 +12,26 @@
   "attribution": "Copyright (c) 2026 Matt Pocock",
   "adaptations": [
     "Replace upstream sub-agent and local-environment fact lookup with available connected capabilities."
-  ]
+  ],
+  "projection": {
+    "entrypoint": "upstream.md",
+    "sources": [
+      {
+        "path": "upstream.md",
+        "sha256": "10ff989e7498b23b5acb49d5048f11dcd906757d2f79c5cdf8a00001381296f2"
+      }
+    ],
+    "changeRecords": [
+      {
+        "allowedRuntimeChange": "equivalent-mechanism",
+        "source": "upstream.md",
+        "evidence": "The Target Runtime Profile has connected remote capabilities but does not guarantee the upstream local filesystem or sub-agent harness. Facts remain the model's responsibility while unresolved fact lookup still blocks only dependent frontier questions.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment (filesystem, tools, etc.), dispatch a sub-agent to find it; don't ask the user for anything you could look up yourself. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the sub-agent to report; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait.",
+          "replacement": "Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment, use available connected capabilities to find it; don't ask the user for anything you could look up yourself. An unverified fact is an unsettled prerequisite, so only the questions downstream of it wait; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait."
+        }
+      }
+    ]
+  }
 }
