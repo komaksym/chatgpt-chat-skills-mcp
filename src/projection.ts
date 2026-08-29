@@ -190,6 +190,26 @@ export async function generateSkillRuntime(
         `Temporary Upstream Fix for ${name} expired when the upstream pin changed.`,
       );
     }
+    for (const dependencyPin of fix.dependencyPins ?? []) {
+      if (!provenance.dependencies.includes(dependencyPin.name)) {
+        throw new Error(
+          `Temporary Upstream Fix for ${name} guards undeclared dependency ${dependencyPin.name}.`,
+        );
+      }
+      let dependency: SkillProvenance;
+      try {
+        dependency = await readProvenance(dependencyPin.name, skillsRoot);
+      } catch {
+        throw new Error(
+          `Temporary Upstream Fix for ${name} cannot verify dependency ${dependencyPin.name} upstream pin.`,
+        );
+      }
+      if (dependency.upstream.commit !== dependencyPin.upstreamCommit) {
+        throw new Error(
+          `Temporary Upstream Fix for ${name} expired when dependency ${dependencyPin.name} upstream pin changed.`,
+        );
+      }
+    }
     const source = sources.get(fix.source);
     if (source === undefined) {
       throw new Error(

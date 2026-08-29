@@ -39,6 +39,8 @@ Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
 - `grill-with-docs` — Stress-test a plan through evidence-led decisions and
   durable domain language.
 - `handoff` — Create a compact continuation brief for another conversation.
+- `implement` — Implement one settled GitHub ticket through TDD, observed
+  verification, committed review, and a pull request.
 - `improve-codebase-architecture` — Find deepening opportunities in a remote
   repository and present candidate architecture improvements.
 - `setup-matt-pocock-skills` — Establish minimal GitHub-first domain
@@ -53,6 +55,11 @@ exact canonical name, and are never concatenated into the parent runtime.
 The architecture workflow loads it before analysis, keeps it separate from the
 parent runtime, and requests `grilling` and `domain-modeling` only after the user
 selects a candidate.
+
+`tdd` is a hidden Dependency Skill of `implement`. `implement` requests `tdd`
+only at the upstream testing point and requests the separate public `code-review`
+dependency only after the Temporary Upstream Fix has established a committed
+implementation head. Neither dependency runtime is embedded into `implement`.
 
 The MCP surface contains exactly `load_skill` and `list_skills`. Call
 `load_skill` with the exact canonical name `handoff`; its input is deliberately a

@@ -49,8 +49,14 @@ const sourceArtifactSchema = z.strictObject({
   sha256: z.string().regex(SHA256),
 });
 
+const dependencyPinSchema = z.strictObject({
+  name: z.string().regex(CANONICAL_NAME),
+  upstreamCommit: z.string().regex(COMMIT_SHA),
+});
+
 const temporaryUpstreamFixSchema = z.strictObject({
   upstreamCommit: z.string().regex(COMMIT_SHA),
+  dependencyPins: z.array(dependencyPinSchema).optional(),
   source: artifactPathSchema,
   adr: adrArtifactPathSchema,
   test: focusedTestArtifactPathSchema,
