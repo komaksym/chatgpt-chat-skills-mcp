@@ -1,0 +1,44 @@
+{
+  "mode": "manual-release",
+  "runId": "",
+  "releaseSha": "",
+  "cases": [
+    {
+      "caseId": "",
+      "task": "",
+      "prompt": "",
+      "followUp": null,
+      "baseline": {
+        "skill": null,
+        "model": "",
+        "repository": {
+          "url": "",
+          "sourceRepository": "",
+          "baseSha": ""
+        },
+        "capabilities": [],
+        "output": "",
+        "externalResults": [],
+        "rubric": [],
+        "pass": null,
+        "rationale": ""
+      },
+      "adapted": {
+        "skill": "",
+        "model": "",
+        "repository": {
+          "url": "",
+          "sourceRepository": "",
+          "baseSha": ""
+        },
+        "capabilities": [],
+        "output": "",
+        "externalResults": [],
+        "rubric": [],
+        "pass": null,
+        "rationale": ""
+      },
+      "comparison": ""
+    }
+  ]
+}
