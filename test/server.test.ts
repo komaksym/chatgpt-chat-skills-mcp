@@ -34,6 +34,11 @@ function defineServiceSuite(): void {
   /** Proves discovery and loading through the production HTTP boundary. */
   async function listsAndLoadsHandoff(): Promise<void> {
     service = await startService({ port: 0 });
+    expect(service.url.hostname).toBe("127.0.0.1");
+    const health = await fetch(new URL("/healthz", service.url));
+    expect(health.status).toBe(200);
+    expect(await health.json()).toEqual({ status: "ok" });
+
     client = new Client({ name: "black-box-test", version: "1.0.0" });
     const transport = new StreamableHTTPClientTransport(
       new URL("/mcp", service.url),

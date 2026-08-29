@@ -132,6 +132,11 @@ function rejectUnsupportedMethod(_req: Request, res: Response): void {
   });
 }
 
+/** Reports that the loopback process is ready to accept MCP requests. */
+function reportHealth(_req: Request, res: Response): void {
+  res.status(200).json({ status: "ok" });
+}
+
 /** Closes the underlying HTTP listener after active connections complete. */
 async function closeServer(server: Server): Promise<void> {
   const closed = once(server, "close");
@@ -145,6 +150,7 @@ export async function startService(
 ): Promise<RunningService> {
   const catalog = await discoverCatalog(options.skillsRoot);
   const app = createMcpExpressApp({ host: "127.0.0.1" });
+  app.get("/healthz", reportHealth);
   app.post("/mcp", createMcpRequestHandler(catalog));
   app.get("/mcp", rejectUnsupportedMethod);
   app.delete("/mcp", rejectUnsupportedMethod);
