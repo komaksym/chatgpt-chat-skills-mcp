@@ -82,8 +82,7 @@ export const provenanceSchema = z.strictObject({
   }),
   license: z.string().min(1),
   attribution: z.string().min(1),
-  adaptations: z.array(z.string().min(1)),
-  projection: projectionSchema.optional(),
+  projection: projectionSchema,
 });
 
 export type SkillProvenance = z.infer<typeof provenanceSchema>;

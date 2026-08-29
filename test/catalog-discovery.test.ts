@@ -45,7 +45,16 @@ async function createBundle(root: string, skill: FixtureSkill): Promise<void> {
         },
         license: "MIT",
         attribution: "Fixture author",
-        adaptations: ["Fixture adaptation"],
+        projection: {
+          entrypoint: "upstream.md",
+          sources: [
+            {
+              path: "upstream.md",
+              sha256: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            },
+          ],
+          changeRecords: [],
+        },
       },
       null,
       2,

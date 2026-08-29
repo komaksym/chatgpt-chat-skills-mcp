@@ -103,7 +103,6 @@ async function createProjectionFixture(
         },
         license: "MIT",
         attribution: "Fixture author",
-        adaptations: [],
         projection,
       },
       null,

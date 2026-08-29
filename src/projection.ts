@@ -109,6 +109,9 @@ function replaceExactlyOnce(
   replacement: string,
   label: string,
 ): string {
+  if (match === replacement) {
+    throw new Error(`${label} does not change its affected upstream material.`);
+  }
   const first = findExactMatch(runtime, match, label);
   return `${runtime.slice(0, first)}${replacement}${runtime.slice(first + match.length)}`;
 }
@@ -121,8 +124,19 @@ export async function generateSkillRuntime(
   const { repositoryRoot, skillsRoot } = resolveRoots(options);
   const provenance = await readProvenance(name, skillsRoot);
   const projection = provenance.projection;
-  if (!projection) {
-    throw new Error(`Skill ${name} has no Mechanical Projection metadata.`);
+
+  const appendCounts = new Map<string, number>();
+  for (const record of projection.changeRecords) {
+    if (record.transform.type !== "append-source") continue;
+    appendCounts.set(record.source, (appendCounts.get(record.source) ?? 0) + 1);
+  }
+  for (const source of projection.sources) {
+    if (source.path === projection.entrypoint) continue;
+    if ((appendCounts.get(source.path) ?? 0) !== 1) {
+      throw new Error(
+        `Supporting Document ${source.path} for ${name} must be inlined exactly once.`,
+      );
+    }
   }
 
   const bundleRoot = join(skillsRoot, name);
@@ -305,7 +319,7 @@ export async function listProjectedSkills(
   )) {
     if (!entry.isDirectory()) continue;
     const provenance = await readProvenance(entry.name, skillsRoot);
-    if (provenance.projection) names.push(provenance.name);
+    names.push(provenance.name);
   }
   return names;
 }
