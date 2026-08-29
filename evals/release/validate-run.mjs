@@ -49,6 +49,14 @@ function definitions(suite) {
     if (!Array.isArray(definition.rubric) || definition.rubric.length === 0) {
       fail(definition.id + ".rubric must be a non-empty array.");
     }
+    for (const criterion of definition.rubric) {
+      if (
+        criterion.requiresExternalEvidence !== undefined &&
+        typeof criterion.requiresExternalEvidence !== "boolean"
+      ) {
+        fail(definition.id + "." + criterion.id + ".requiresExternalEvidence must be boolean.");
+      }
+    }
   }
   for (const [workflow, count] of counts) {
     if (count > 2) fail(workflow + " has more than two representative cases.");
@@ -56,10 +64,20 @@ function definitions(suite) {
   return new Map(suite.cases.map((item) => [item.id, item]));
 }
 
-function variant(value, definition, expectedSkill, label) {
+function variant(value, definition, expectedSkill, releaseSha, label) {
   const item = object(value, label);
   if (item.skill !== expectedSkill) fail(label + ".skill does not match the fixed condition.");
   if (item.model !== definition.model) fail(label + ".model does not match the fixed case model.");
+
+  const skillsMcp = object(item.skillsMcp, label + ".skillsMcp");
+  if (skillsMcp.repository !== "komaksym/chatgpt-chat-skills-mcp") {
+    fail(label + ".skillsMcp.repository must identify the evaluated Skills MCP repository.");
+  }
+  if (skillsMcp.releaseSha !== releaseSha) {
+    fail(label + ".Skills MCP release SHA must match run.releaseSha.");
+  }
+  text(skillsMcp.evidence, label + ".skillsMcp.evidence");
+
   if (!same(item.capabilities, definition.capabilities)) {
     fail(label + ".capabilities must exactly match the fixed case capabilities.");
   }
@@ -82,12 +100,24 @@ function variant(value, definition, expectedSkill, label) {
   if (!Array.isArray(item.rubric) || item.rubric.length !== definition.rubric.length) {
     fail(label + ".rubric must contain every fixed criterion.");
   }
+  let passedExternalCriterion = null;
   for (let index = 0; index < definition.rubric.length; index += 1) {
     const expected = definition.rubric[index];
     const actual = object(item.rubric[index], label + ".rubric[" + index + "]");
     if (actual.id !== expected.id) fail(label + ".rubric ids/order must match the fixed rubric.");
     if (!JUDGMENTS.has(actual.judgment)) fail(label + "." + actual.id + ".judgment is invalid.");
     text(actual.evidence, label + "." + actual.id + ".evidence");
+    if (expected.requiresExternalEvidence && actual.judgment === "pass") {
+      passedExternalCriterion ??= actual.id;
+    }
+  }
+  if (passedExternalCriterion && item.externalResults.length === 0) {
+    fail(
+      label +
+        " must record an external result when externally observed criterion " +
+        passedExternalCriterion +
+        " passes.",
+    );
   }
 
   if (typeof item.pass !== "boolean") fail(label + ".pass must be boolean.");
@@ -132,11 +162,18 @@ async function main() {
       fail(caseId + " task/prompt/followUp must match the fixed case exactly.");
     }
 
-    const baseline = variant(result.baseline, definition, null, caseId + ".baseline");
+    const baseline = variant(
+      result.baseline,
+      definition,
+      null,
+      run.releaseSha,
+      caseId + ".baseline",
+    );
     const adapted = variant(
       result.adapted,
       definition,
       definition.workflow,
+      run.releaseSha,
       caseId + ".adapted",
     );
     if (definition.repositoryContext.writes && baseline.repository.url === adapted.repository.url) {
