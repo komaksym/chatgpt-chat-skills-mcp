@@ -34,6 +34,8 @@ Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
 
 ## Current public skills
 
+- `code-review` — Review a committed GitHub diff on separate Standards and Spec axes
+  using strict independent child contexts when that capability is live.
 - `grill-with-docs` — Stress-test a plan through evidence-led decisions and
   durable domain language.
 - `handoff` — Create a compact continuation brief for another conversation.
@@ -56,6 +58,18 @@ The MCP surface contains exactly `load_skill` and `list_skills`. Call
 `load_skill` with the exact canonical name `handoff`; its input is deliberately a
 plain string so the installed catalog does not occupy every conversation's tool
 schema.
+
+## Strict code review
+
+`code-review` is a Mechanical Projection of the pinned upstream two-axis workflow.
+Strict mode uses `@chrome-mcp` to create independent child conversations, requires
+each child to access GitHub directly, and dispatches both running axes in parallel
+before aggregation. If `@chrome-mcp` cannot create/address the required children or
+parallel dispatch is unavailable, the strict workflow stops before either review
+starts; it does not substitute sequential passes or invent a weaker fallback branch.
+
+See `docs/code-review-strict-smoke.md` for the synthetic-canary capability smoke
+procedure. The implementation-time result is `NOT EXERCISED`.
 
 ## Skill bundles
 

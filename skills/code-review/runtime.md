@@ -1,0 +1,95 @@
+---
+name: code-review
+description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Requires genuinely independent child-review contexts and reports the axes side by side; strict review stops when equivalent isolation or direct GitHub access is unavailable. Child reviews are spawned with @chrome-mcp and both axes run in parallel. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
+---
+
+Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
+
+- **Standards**: does the code conform to this repo's documented coding standards?
+- **Spec**: does the code faithfully implement the originating issue / spec?
+
+Both axes run in **genuinely independent review contexts** so they don't pollute each other's context, then this skill aggregates their findings.
+
+Use `@chrome-mcp` as the child-review mechanism. Before sending either review prompt, create all required child conversations with `@chrome-mcp`. Strict review can continue only when every child can use connected GitHub directly, and when both axes run you must be able to dispatch both review prompts in parallel. If `@chrome-mcp` cannot create or separately address all required children, if direct child GitHub access is unavailable, or if parallel dispatch is unavailable, stop strict review before sending either review prompt and state the missing capability. The pinned upstream workflow has no non-isolated fallback branch, so do not substitute sequential Standards and Spec passes in this conversation or label them as isolated child reviews.
+
+Use connected GitHub directly as the issue-tracker and repository-evidence mechanism.
+
+## Process
+
+### 1. Pin the fixed point
+
+Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, etc.). If they didn't specify one, ask for it.
+
+Resolve the fixed point and the committed review head through connected GitHub. Compare the fixed point as base against the committed review head with merge-base semantics, note the commit list, and pin the exact head SHA that every child review must use.
+
+Before going further, confirm both refs resolve and the committed comparison is non-empty. A bad ref or empty diff should fail here, not inside the independent child reviews.
+
+### 2. Identify the spec source
+
+Look for the originating spec, in this order:
+
+1. GitHub issue references in the commit messages (`#123`, `Closes #45`, etc.), fetched directly through connected GitHub.
+2. A repository path the user passed as an argument, read from the reviewed committed ref through connected GitHub.
+3. A committed spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature, discovered and read through connected GitHub.
+4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** child review will skip and report "no spec available".
+
+### 3. Identify the standards sources
+
+Anything in the repo that documents how code should be written, such as `CODING_STANDARDS.md` or `CONTRIBUTING.md`.
+
+On top of whatever the repo documents, the Standards axis always carries the **smell baseline** below: a fixed set of Fowler code smells (_Refactoring_, ch.3) that applies even when a repo documents nothing. Two rules bind it:
+
+- **The repo overrides.** A documented repo standard always wins; where it endorses something the baseline would flag, suppress the smell.
+- **Always a judgement call.** Each smell is a labelled heuristic ("possible Feature Envy"), never a hard violation. Like any standard here, skip anything tooling already enforces.
+
+Each smell reads *what it is* → *how to fix*; match it against the diff:
+
+- **Mysterious Name**: a function, variable, or type whose name doesn't reveal what it does or holds. → rename it; if no honest name comes, the design's murky.
+- **Duplicated Code**: the same logic shape appears in more than one hunk or file in the change. → extract the shared shape, call it from both.
+- **Feature Envy**: a method that reaches into another object's data more than its own. → move the method onto the data it envies.
+- **Data Clumps**: the same few fields or params keep travelling together (a type wanting to be born). → bundle them into one type, pass that.
+- **Primitive Obsession**: a primitive or string standing in for a domain concept that deserves its own type. → give the concept its own small type.
+- **Repeated Switches**: the same `switch`/`if`-cascade on the same type recurs across the change. → replace with polymorphism, or one map both sites share.
+- **Shotgun Surgery**: one logical change forces scattered edits across many files in the diff. → gather what changes together into one module.
+- **Divergent Change**: one file or module is edited for several unrelated reasons. → split so each module changes for one reason.
+- **Speculative Generality**: abstraction, parameters, or hooks added for needs the spec doesn't have. → delete it; inline back until a real need shows.
+- **Message Chains**: long `a.b().c().d()` navigation the caller shouldn't depend on. → hide the walk behind one method on the first object.
+- **Middle Man**: a class or function that mostly just delegates onward. → cut it, call the real target direct.
+- **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
+
+### 4. Run both reviews in independent child conversations
+
+Use `@chrome-mcp` to create a fresh ChatGPT child conversation for each axis that will run. Before sending either review prompt, create all required child conversations. When both axes run, the Standards and Spec children must be distinct and you must dispatch both review prompts in parallel. If `@chrome-mcp` cannot create all required child conversations, cannot address them separately, or cannot dispatch both review prompts in parallel, stop strict review before sending either review prompt and tell the user which capability is missing. Do not start one axis while trying to recover or create the other.
+
+Every child must use connected GitHub directly, and the parent must keep findings isolated until aggregation. Give each child only the repository coordinates, the same pinned base/head refs, and that axis's inputs below. Each child must independently resolve the pinned head SHA and fetch the diff, commit list, and its required repository evidence through connected GitHub. Do not inspect or share any child's findings until all child reviews that will run have completed; aggregate only after that. Do not use sequential Standards and Spec passes in this conversation, shared chat history, parent-pasted repository evidence, or one child's findings as substitutes for independent child reviews.
+
+**Standards child-review prompt** should include:
+
+- The repository coordinates and pinned base/head refs, with instructions to independently obtain the committed diff and commit list through connected GitHub.
+- The list of standards-source paths you found in step 3. The child must fetch those repository files itself through connected GitHub. **Also include the smell baseline from step 3 pasted in full as review methodology**, because that baseline is axis methodology rather than repository evidence.
+- The brief: "Report, per file/hunk where relevant, (a) every place the diff violates a documented standard: cite the standard (file + the rule); and (b) any baseline smell you spot: name it and quote the hunk. Distinguish hard violations from judgement calls: documented-standard breaches can be hard, but baseline smells are always judgement calls, and a documented repo standard overrides the baseline. Skip anything tooling enforces. Under 400 words."
+- Output protocol: "Return exactly one single-line plain-text report, with no Markdown and no line breaks, in this format: AXIS=Standards; FINDINGS=<integer>; REPORT=<report>. Keep the whole line under 3,000 characters. Put every Standards finding, standard citation, smell label, and severity/judgement distinction inside REPORT. If there are no findings, use FINDINGS=0 and REPORT=no findings."
+
+**Spec child-review prompt** should include:
+
+- The repository coordinates and pinned base/head refs, with instructions to independently obtain the committed diff and commit list through connected GitHub.
+- The repository or GitHub-issue locator for the spec source identified in step 2. The child must fetch that evidence itself through connected GitHub; do not paste fetched spec contents from the parent.
+- The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
+- Output protocol: "Return exactly one single-line plain-text report, with no Markdown and no line breaks, in this format: AXIS=Spec; FINDINGS=<integer>; REPORT=<report>. Keep the whole line under 3,000 characters. Put every Spec finding and its quoted requirement inside REPORT. If there are no findings, use FINDINGS=0 and REPORT=no findings."
+
+If the spec is missing, skip the Spec child review and note this in the final report.
+
+### 5. Aggregate
+
+Present the two reports under `## Standards` and `## Spec` headings, verbatim or lightly cleaned. Do **not** merge or rerank findings, because the two axes are deliberately separate (see _Why two axes_).
+
+End with a one-line summary: total findings per axis, and the worst issue _within each axis_ (if any). Don't pick a single winner across axes: that's the reranking the separation exists to prevent.
+
+## Why two axes
+
+A change can pass one axis and fail the other:
+
+- Code that follows every standard but implements the wrong thing → **Standards pass, Spec fail.**
+- Code that does exactly what the issue asked but breaks the project's conventions → **Spec pass, Standards fail.**
+
+Reporting them separately stops one axis from masking the other.
