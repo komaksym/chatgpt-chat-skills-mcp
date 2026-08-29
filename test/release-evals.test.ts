@@ -174,25 +174,34 @@ describe("manual faithful-workflow release evaluations", () => {
     );
   });
 
-  it("keeps workflow answers and forbidden product changes out of user prompts", async () => {
+  it("keeps workflow answers and forbidden product changes out of evaluation inputs", async () => {
     const data = await suite();
-    const byWorkflow = new Map(data.cases.map((item) => [item.workflow, item]));
+    const byWorkflow = new Map(
+      data.cases.map((item) => [item.workflow, item.task + "\n" + item.prompt]),
+    );
 
-    expect(byWorkflow.get("grill-with-docs")?.prompt).not.toMatch(
+    expect(byWorkflow.get("grill-with-docs")).not.toMatch(
       /inspect repository evidence|distinguish facts from decisions|canonical domain language/i,
     );
-    expect(byWorkflow.get("to-spec")?.prompt).not.toMatch(/includeHidden|ask and wait|requires confirmation/i);
-    expect(byWorkflow.get("to-tickets")?.prompt).not.toMatch(/show the complete proposed breakdown|wait;|do not create/i);
-    expect(byWorkflow.get("implement")?.prompt).not.toMatch(
+    expect(byWorkflow.get("to-spec")).not.toMatch(/includeHidden|ask and wait|requires confirmation/i);
+    expect(byWorkflow.get("to-tickets")).not.toMatch(
+      /tracer-bullet|native hierarchy|blocking relationships|show the complete proposed breakdown|wait;|do not create/i,
+    );
+    expect(byWorkflow.get("implement")).not.toMatch(
       /sourceRef|provenance upstream commit|non-default feature branch/i,
     );
-    expect(byWorkflow.get("code-review")?.prompt).not.toMatch(/sequential passes|pretend a child/i);
-    expect(byWorkflow.get("improve-codebase-architecture")?.prompt).not.toMatch(
-      /canonical architecture vocabulary|stop after asking/i,
+    expect(byWorkflow.get("code-review")).not.toMatch(
+      /two-axis|independent review contexts|sequential passes|pretend a child/i,
     );
-    expect(byWorkflow.get("handoff")?.prompt).not.toMatch(
-      /Suggested next workflows|do not carry sensitive material/i,
+    expect(byWorkflow.get("improve-codebase-architecture")).not.toMatch(
+      /stop at the upstream user-selection boundary|canonical architecture vocabulary|stop after asking/i,
     );
+    expect(byWorkflow.get("handoff")).not.toMatch(
+      /suggests next skills|redacts sensitive material|Suggested next workflows|do not carry sensitive material/i,
+    );
+
+    const toTickets = data.cases.find((item) => item.workflow === "to-tickets");
+    expect(JSON.stringify(toTickets?.repositoryContext)).not.toContain("includeHidden");
   });
 
   it("marks criteria that require observed external state", async () => {
