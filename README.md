@@ -43,6 +43,10 @@ Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
   repository and present candidate architecture improvements.
 - `setup-matt-pocock-skills` — Establish minimal GitHub-first domain
   documentation from repository evidence.
+- `to-spec` — Synthesize settled work into a GitHub specification without
+  restarting discovery.
+- `to-tickets` — Turn settled work into approved GitHub tracer-bullet tickets
+  with explicit native relationships.
 
 `grilling` and `domain-modeling` are hidden dependencies. Loading
 `grill-with-docs` instructs ChatGPT to load both immediately in the same
@@ -55,7 +59,7 @@ parent runtime, and requests `grilling` and `domain-modeling` only after the use
 selects a candidate.
 
 The MCP surface contains exactly `load_skill` and `list_skills`. Call
-`load_skill` with the exact canonical name `handoff`; its input is deliberately a
+`load_skill` with an exact canonical skill name; its input is deliberately a
 plain string so the installed catalog does not occupy every conversation's tool
 schema.
 

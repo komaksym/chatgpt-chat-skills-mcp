@@ -19,15 +19,15 @@ interface ExactChange {
 const SPEC_CHANGES: ExactChange[] = [
   {
     match:
-      "The issue tracker and triage label vocabulary should have been provided to you. If not, tell the user to run \`/setup-matt-pocock-skills\`.",
+      "The issue tracker and triage label vocabulary should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`.",
     replacement:
       "Use GitHub Issues in the active repository as the configured project issue tracker.",
   },
   {
     match:
-      "3. Write the spec using the template below, then publish it to the project issue tracker. Apply the \`ready-for-agent\` triage label - no need for additional triage.",
+      "3. Write the spec using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.",
     replacement:
-      "3. Write the spec using the template below, then publish it as a GitHub issue in the active repository. Apply the \`ready-for-agent\` triage label - no need for additional triage.",
+      "3. Write the spec using the template below, then publish it as a GitHub issue in the active repository. Apply the `ready-for-agent` triage label - no need for additional triage.",
   },
 ];
 
@@ -40,7 +40,7 @@ const TICKET_CHANGES: ExactChange[] = [
   },
   {
     match:
-      "The issue tracker and triage label vocabulary should have been provided to you. If not, tell the user to run \`/setup-matt-pocock-skills\`.",
+      "The issue tracker and triage label vocabulary should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`.",
     replacement:
       "Use GitHub Issues in the active repository as the configured project issue tracker.",
   },
@@ -51,15 +51,15 @@ const TICKET_CHANGES: ExactChange[] = [
   },
   {
     match:
-      "Publish the approved tickets. **How** depends on the tracker \`/setup-matt-pocock-skills\` configured; the tickets are the same either way, only the shape of the blocking edges changes:",
+      "Publish the approved tickets. **How** depends on the tracker `/setup-matt-pocock-skills` configured; the tickets are the same either way, only the shape of the blocking edges changes:",
     replacement:
       "Publish the approved tickets to GitHub Issues in the active repository. The ticket content is unchanged; this Target Runtime Profile selects the upstream real-tracker GitHub path:",
   },
   {
     match:
-      "- **Local files** → write one file per ticket under \`.scratch/<feature-slug>/issues/<NN>-<slug>.md\`, numbered from \`01\` in dependency order (blockers first). Each file's \"Blocked by\" lists the numbers/titles it depends on. Use the per-ticket file template below: one ticket per file, never a single combined file.\n- **A real issue tracker (GitHub, Linear, …)** → publish one issue per ticket in dependency order (blockers first) so each ticket's blocking edges can reference real identifiers. Use the platform's native blocking / sub-issue relationship where it has one; otherwise set each ticket's \"Blocked by\" to the blocking issues. Apply the \`ready-for-agent\` triage label unless instructed otherwise; the tickets are agent-grabbable by construction.",
+      "- **Local files** → write one file per ticket under `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01` in dependency order (blockers first). Each file's \"Blocked by\" lists the numbers/titles it depends on. Use the per-ticket file template below: one ticket per file, never a single combined file.\n- **A real issue tracker (GitHub, Linear, …)** → publish one issue per ticket in dependency order (blockers first) so each ticket's blocking edges can reference real identifiers. Use the platform's native blocking / sub-issue relationship where it has one; otherwise set each ticket's \"Blocked by\" to the blocking issues. Apply the `ready-for-agent` triage label unless instructed otherwise; the tickets are agent-grabbable by construction.",
     replacement:
-      "- **GitHub Issues** → publish one issue per ticket in dependency order (blockers first) so each ticket's blocking edges can reference real identifiers. Parent/sub-issue membership represents scope; blocking relationships represent start-order dependency. Create them separately as native GitHub relationships whenever both are required. Use a connected native GitHub relationship capability first; otherwise use another live authenticated GitHub mechanism, such as GitHub REST, that creates that exact native relationship. Markdown \`## Parent\` or \`## Blocked by\` text is descriptive only and never substitutes for a required native relationship. If no live mechanism can create a required relationship, stop the affected mutation and report exactly what remains incomplete. Apply the \`ready-for-agent\` triage label unless instructed otherwise; the tickets are agent-grabbable by construction.",
+      "- **GitHub Issues** → publish one issue per ticket in dependency order (blockers first) so each ticket's blocking edges can reference real identifiers. Parent/sub-issue membership represents scope; blocking relationships represent start-order dependency. Create them separately as native GitHub relationships whenever both are required. Use a connected native GitHub relationship capability first; otherwise use another live authenticated GitHub mechanism, such as GitHub REST, that creates that exact native relationship. Markdown `## Parent` or `## Blocked by` text is descriptive only and never substitutes for a required native relationship. If no live mechanism can create a required relationship, stop the affected mutation and report exactly what remains incomplete. Apply the `ready-for-agent` triage label unless instructed otherwise; the tickets are agent-grabbable by construction.",
   },
   {
     match:
