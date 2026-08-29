@@ -167,6 +167,15 @@ describe("complete Mechanical Projection corpus audit", () => {
     );
   });
 
+  it("allows target-repository domain document references", async () => {
+    const root = await temp();
+    await bundle(root, "alpha", {
+      runtime: "Read [context](./src/ordering/CONTEXT.md).\n",
+    });
+    const result = await run(root);
+    expect(result.code).toBe(0);
+  });
+
   it("rejects embedded Dependency Skill runtimes", async () => {
     const root = await temp();
     await bundle(root, "child", { runtime: "CHILD UNIQUE RUNTIME\n" });
