@@ -13,12 +13,6 @@
   },
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
-  "adaptations": [
-    "Use connected GitHub feature branches and commits as Equivalent Mechanisms while protecting the default branch from implicit mutation.",
-    "Load tdd only at the upstream testing point and keep both tdd and code-review as separate Dependency Skills rather than embedding their runtimes.",
-    "Treat typecheck, test, and commit outcomes as observed only after their live results are returned; report unavailable verification or mutation capability instead of inventing a result.",
-    "Quarantine the pinned review-before-commit contradiction as the Temporary Upstream Fix documented in docs/adr/implement-review-order.md."
-  ],
   "projection": {
     "entrypoint": "upstream.md",
     "sources": [
