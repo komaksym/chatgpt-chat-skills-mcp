@@ -31,6 +31,11 @@ npm start
 ```
 
 Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
+The readiness endpoint is `/healthz`; a successful response is `{\"status\":\"ok\"}`.
+The process binds only to `127.0.0.1`, never a wildcard/public interface by default.
+
+For machine-local OpenAI Secure MCP Tunnel setup and the real ChatGPT smoke
+procedure, see [Secure MCP Tunnel](docs/SECURE_MCP_TUNNEL.md).
 
 ## Current public skills
 

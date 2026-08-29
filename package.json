@@ -11,6 +11,7 @@
     "generate": "npm run build && node dist/generate.js",
     "generate:check": "npm run build && node dist/generate.js --check",
     "lint": "eslint .",
+    "pretest": "npm run build",
     "start": "node dist/main.js",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
