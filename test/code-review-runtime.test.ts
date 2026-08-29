@@ -124,6 +124,19 @@ function defineCodeReviewRuntimeSuite(): void {
     expect(runtime).not.toContain("NON-ISOLATED REVIEW");
   }
 
+  async function requiresChromeMcpParallelDispatchAndStrictStop(): Promise<void> {
+    const runtime = await generateSkillRuntime("code-review");
+    expect(runtime).toContain("@chrome-mcp");
+    expect(runtime).toContain(
+      "Before sending either review prompt, create all required child conversations",
+    );
+    expect(runtime).toContain("dispatch both review prompts in parallel");
+    expect(runtime).toContain("stop strict review before sending either review prompt");
+    expect(runtime).not.toContain(
+      "When both axes run and concurrent child execution is available, dispatch them in parallel.",
+    );
+  }
+
   async function keepsChildEvidenceDirectAndUncontaminated(): Promise<void> {
     const runtime = await generateSkillRuntime("code-review");
     expect(runtime).toContain(
@@ -159,6 +172,19 @@ function defineCodeReviewRuntimeSuite(): void {
     );
     expect(specPrompt).not.toContain("standards-source");
     expect(specPrompt).not.toContain("smell baseline");
+
+    expect(standardsPrompt).toContain(
+      "Return exactly one single-line plain-text report",
+    );
+    expect(standardsPrompt).toContain(
+      "AXIS=Standards; FINDINGS=<integer>; REPORT=<report>",
+    );
+    expect(specPrompt).toContain(
+      "Return exactly one single-line plain-text report",
+    );
+    expect(specPrompt).toContain(
+      "AXIS=Spec; FINDINGS=<integer>; REPORT=<report>",
+    );
   }
 
   async function preservesUpstreamStopsAndRemoteTranslation(): Promise<void> {
@@ -184,6 +210,9 @@ function defineCodeReviewRuntimeSuite(): void {
     expect(smoke).toContain(
       "Generic browser or tab automation is not equivalent.",
     );
+    expect(smoke).toContain(
+      "Never include the sibling canary literal in the other child's prompt",
+    );
     expect(smoke).not.toContain("Implementation-time result — 2026-08-29\n\n`PASS`");
   }
 
@@ -191,6 +220,7 @@ function defineCodeReviewRuntimeSuite(): void {
   it("lists and loads the projected code-review runtime", listsAndLoadsProjectedRuntime);
   it("preserves both axes and upstream process order", preservesAxisMethodologyAndOrder);
   it("rejects fake isolation and false capability claims", rejectsFakeIsolationAndFalseCapabilityClaims);
+  it("requires chrome-mcp parallel dispatch and strict stop", requiresChromeMcpParallelDispatchAndStrictStop);
   it("keeps child evidence direct and uncontaminated", keepsChildEvidenceDirectAndUncontaminated);
   it("preserves upstream stop behavior and remote mechanics", preservesUpstreamStopsAndRemoteTranslation);
   it("records the child-conversation smoke result truthfully", recordsSmokeTruthfully);
