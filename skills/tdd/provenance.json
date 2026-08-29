@@ -12,12 +12,6 @@
   },
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
-  "adaptations": [
-    "Read repository context and ADR evidence through connected repository capabilities when no local checkout is assumed.",
-    "Inline the exact pinned tests.md and mocking.md supporting documents so the loaded runtime remains self-contained.",
-    "Translate the conditional codebase-design Skill invocation to load_skill and stop that branch when the dependency is unavailable rather than substituting methodology.",
-    "Require observed execution before claiming RED or GREEN while preserving the upstream one-slice, minimum-implementation, no-refactoring loop."
-  ],
   "projection": {
     "entrypoint": "upstream.md",
     "sources": [
