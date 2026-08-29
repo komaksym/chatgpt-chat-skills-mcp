@@ -6,6 +6,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import { afterEach, describe, expect, it } from "vitest";
 
+import { REMOTE_EXECUTION_CONTRACT } from "../src/contract.js";
 import { startService, type RunningService } from "../src/service.js";
 
 const SKILLS_ROOT = new URL("../skills/", import.meta.url);
@@ -32,13 +33,13 @@ function runtimeBody(loaded: string, name: string): string {
   return loaded.slice(start + marker.length).trimEnd();
 }
 
-/** Removes upstream YAML frontmatter while preserving the skill body verbatim. */
-function stripFrontmatter(source: string): string {
-  const body = source.replace(/^---\n[\s\S]*?\n---\n\n/, "");
-  if (body === source) {
-    throw new Error("Expected upstream frontmatter");
-  }
-  return body;
+/** Returns the exact protocol text expected for one committed runtime. */
+async function expectedLoadedText(name: string): Promise<string> {
+  const committedRuntime = await readFile(
+    new URL(`${name}/runtime.md`, SKILLS_ROOT),
+    "utf8",
+  );
+  return `${REMOTE_EXECUTION_CONTRACT}\n\n# ${name}\n\n${committedRuntime.trim()}\n`;
 }
 
 /** Computes the SHA-256 digest of a vendored UTF-8 artifact. */
@@ -70,7 +71,7 @@ function defineGrillRuntimeSuite(): void {
 
   afterEach(cleanup);
 
-  /** Proves public visibility, hidden loading, and immediate parent composition. */
+  /** Proves public visibility, exact loading without provenance, and immediate composition. */
   async function composesHiddenDependenciesImmediately(): Promise<void> {
     const connected = await connect();
     const listing = await connected.callTool({
@@ -92,10 +93,24 @@ function defineGrillRuntimeSuite(): void {
     const parent = await loadText(connected, "grill-with-docs");
     const grilling = await loadText(connected, "grilling");
     const domain = await loadText(connected, "domain-modeling");
-
-    expect(runtimeBody(parent, "grill-with-docs")).toBe(
+    const upstreamParent = await readFile(
+      new URL("grill-with-docs/upstream.md", SKILLS_ROOT),
+      "utf8",
+    );
+    const expectedParent = upstreamParent.replace(
+      'Call the Skill tool twice, for "grilling" and "domain-modeling".',
       'Immediately call `load_skill("grilling")` and `load_skill("domain-modeling")` in this conversation.',
     );
+
+    for (const [name, loaded] of [
+      ["grill-with-docs", parent],
+      ["grilling", grilling],
+      ["domain-modeling", domain],
+    ] as const) {
+      expect(loaded).toBe(await expectedLoadedText(name));
+    }
+
+    expect(runtimeBody(parent, "grill-with-docs")).toBe(expectedParent.trimEnd());
     expect(parent).not.toContain("Map this as a **design tree**");
     expect(parent).not.toContain("# Domain Modeling");
     expect(runtimeBody(grilling, "grilling")).toContain(
@@ -108,8 +123,9 @@ function defineGrillRuntimeSuite(): void {
   async function preservesGrillingMethodology(): Promise<void> {
     const connected = await connect();
     const loaded = await loadText(connected, "grilling");
-    const upstream = stripFrontmatter(
-      await readFile(new URL("grilling/upstream.md", SKILLS_ROOT), "utf8"),
+    const upstream = await readFile(
+      new URL("grilling/upstream.md", SKILLS_ROOT),
+      "utf8",
     );
     const upstreamFactLookup =
       "Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment (filesystem, tools, etc.), dispatch a sub-agent to find it; don't ask the user for anything you could look up yourself. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the sub-agent to report; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait.";
@@ -134,8 +150,9 @@ function defineGrillRuntimeSuite(): void {
   async function preservesSelfContainedDomainModeling(): Promise<void> {
     const connected = await connect();
     const loaded = await loadText(connected, "domain-modeling");
-    const upstream = stripFrontmatter(
-      await readFile(new URL("domain-modeling/upstream.md", SKILLS_ROOT), "utf8"),
+    const upstream = await readFile(
+      new URL("domain-modeling/upstream.md", SKILLS_ROOT),
+      "utf8",
     );
     const contextFormat = await readFile(
       new URL("domain-modeling/CONTEXT-FORMAT.md", SKILLS_ROOT),

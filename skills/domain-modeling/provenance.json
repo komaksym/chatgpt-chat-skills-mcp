@@ -13,5 +13,62 @@
   "adaptations": [
     "Inline the pinned upstream CONTEXT-FORMAT.md and ADR-FORMAT.md contents so one runtime load is self-contained.",
     "Replace only the two relative supporting-file references with references to the inlined sections; remote execution behavior comes from the shared contract."
-  ]
+  ],
+  "projection": {
+    "entrypoint": "upstream.md",
+    "sources": [
+      {
+        "path": "upstream.md",
+        "sha256": "327a2b50620e2fd70abc6893cd6965e76b20f8d0adb0dc2c8d5eb3845efb643e"
+      },
+      {
+        "path": "CONTEXT-FORMAT.md",
+        "sha256": "17ab16ce783e4d2801ee52fd9acdf550cbf44de65ae76797a93943bbedf22a13"
+      },
+      {
+        "path": "ADR-FORMAT.md",
+        "sha256": "944c92aa790e8fbdc9199640b170979abb8a34ba8d0fe18c2a01a63bce140ca0"
+      }
+    ],
+    "changeRecords": [
+      {
+        "allowedRuntimeChange": "inline-supporting-document",
+        "source": "upstream.md",
+        "evidence": "The Target Runtime Profile loads one runtime payload and cannot resolve local relative Supporting Document links, so the CONTEXT format reference must target the inlined copy.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).",
+          "replacement": "Use the `CONTEXT.md` format included below."
+        }
+      },
+      {
+        "allowedRuntimeChange": "inline-supporting-document",
+        "source": "upstream.md",
+        "evidence": "The Target Runtime Profile loads one runtime payload and cannot resolve local relative Supporting Document links, so the ADR format reference must target the inlined copy.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "Use the format in [ADR-FORMAT.md](./ADR-FORMAT.md).",
+          "replacement": "Use the ADR format included below."
+        }
+      },
+      {
+        "allowedRuntimeChange": "inline-supporting-document",
+        "source": "CONTEXT-FORMAT.md",
+        "evidence": "The complete pinned CONTEXT format must be available inside the single loaded domain-modeling runtime because local relative Supporting Documents are not separately loadable.",
+        "transform": {
+          "type": "append-source",
+          "separator": "\n---\n\n"
+        }
+      },
+      {
+        "allowedRuntimeChange": "inline-supporting-document",
+        "source": "ADR-FORMAT.md",
+        "evidence": "The complete pinned ADR format must be available inside the single loaded domain-modeling runtime because local relative Supporting Documents are not separately loadable.",
+        "transform": {
+          "type": "append-source",
+          "separator": "\n---\n\n"
+        }
+      }
+    ]
+  }
 }
