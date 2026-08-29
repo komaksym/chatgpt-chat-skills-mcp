@@ -170,6 +170,14 @@ export async function generateSkillRuntime(
         `Change Record ${index + 1} for ${name} references an unpinned source: ${record.source}.`,
       );
     }
+    if (
+      record.source !== projection.entrypoint &&
+      record.transform.type !== "append-source"
+    ) {
+      throw new Error(
+        `Supporting Document ${record.source} for ${name} must be inlined verbatim.`,
+      );
+    }
     if (record.transform.type === "append-source") {
       if (
         record.allowedRuntimeChange !== "inline-supporting-document" ||
