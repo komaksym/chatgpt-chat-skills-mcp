@@ -59,11 +59,11 @@ Iterate until the user explicitly approves the complete breakdown. Do not create
 
 Publish the approved tickets to GitHub Issues in the active repository. The ticket content is unchanged; this Target Runtime Profile selects the upstream real-tracker GitHub path:
 
-- **GitHub Issues** → publish one issue per ticket in dependency order (blockers first) so each ticket's blocking edges can reference real identifiers. Parent/sub-issue membership represents scope; blocking relationships represent start-order dependency. Create them separately as native GitHub relationships whenever both are required. Use a connected native GitHub relationship capability first; otherwise use another live authenticated GitHub mechanism, such as GitHub REST, that creates that exact native relationship. Markdown `## Parent` or `## Blocked by` text is descriptive only and never substitutes for a required native relationship. If no live mechanism can create a required relationship, stop the affected mutation and report exactly what remains incomplete. Apply the `ready-for-agent` triage label unless instructed otherwise; the tickets are agent-grabbable by construction.
+- **GitHub Issues** → publish one issue per ticket in dependency order (blockers first) so each ticket's blocking edges can reference real identifiers. Parent/sub-issue membership represents scope; blocking relationships represent start-order dependency. If the source was an existing GitHub issue, attach every created ticket to that source issue as a native sub-issue. Create parent/sub-issue membership and blocking relationships separately whenever both are required. Use a connected native GitHub relationship capability first; otherwise use another live authenticated GitHub mechanism, such as GitHub REST, that creates that exact native relationship. Markdown `## Parent` or `## Blocked by` text is descriptive only and never substitutes for a required native relationship. If no live mechanism can create a required relationship, stop the affected mutation and report exactly what remains incomplete. Apply the `ready-for-agent` triage label unless instructed otherwise; the tickets are agent-grabbable by construction.
 
 Work the **frontier**: any ticket whose blockers are all done. For a purely linear chain that means top to bottom.
 
-Do NOT close or modify any parent issue.
+Do NOT close or edit the parent issue's content or state; creating the required native sub-issue relationship is the only permitted parent mutation.
 
 <issue-template>
 
