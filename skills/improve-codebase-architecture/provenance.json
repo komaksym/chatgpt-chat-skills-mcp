@@ -20,10 +20,6 @@
       {
         "path": "upstream.md",
         "sha256": "d1ac25511a936ff4250a48dbcefda363837d6bb9321b3cba73df99fa37270a75"
-      },
-      {
-        "path": "upstream-html-report.md",
-        "sha256": "581e8bb5a521e46bbda8ca7e19b15948bed882187108092ebb90c62513b77528"
       }
     ],
     "changeRecords": [
