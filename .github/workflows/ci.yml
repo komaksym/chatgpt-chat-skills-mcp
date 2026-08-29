@@ -33,11 +33,20 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Test projection contract
+        run: npx vitest run test/projection.test.ts
+
+      - name: Test corpus audit
+        run: npx vitest run test/corpus-quality.test.ts
+
+      - name: Test MCP corpus contract
+        run: npx vitest run test/full-corpus-mcp.test.ts
+
       - name: Test
         run: npm test
 
       - name: Build
         run: npm run build
 
-      - name: Verify generated runtimes
-        run: npm run generate:check
+      - name: Verify complete generated corpus
+        run: npm run corpus:check
