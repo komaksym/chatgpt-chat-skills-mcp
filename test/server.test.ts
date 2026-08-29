@@ -77,7 +77,7 @@ function defineServiceSuite(): void {
         {
           name: "implement",
           description:
-            "Implement one settled GitHub ticket through TDD, observed verification, committed review, and a pull request.",
+            "Implement one settled GitHub ticket through TDD, observed verification, and committed code review.",
         },
         {
           name: "improve-codebase-architecture",

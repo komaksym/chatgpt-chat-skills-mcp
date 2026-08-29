@@ -2,7 +2,9 @@
   "name": "tdd",
   "visibility": "hidden",
   "description": "Drive implementation through behavior-first RED/GREEN cycles at pre-agreed public seams.",
-  "dependencies": [],
+  "dependencies": [
+    "codebase-design"
+  ],
   "upstream": {
     "repository": "https://github.com/mattpocock/skills",
     "location": "skills/engineering/tdd/SKILL.md",

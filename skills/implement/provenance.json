@@ -1,7 +1,7 @@
 {
   "name": "implement",
   "visibility": "public",
-  "description": "Implement one settled GitHub ticket through TDD, observed verification, committed review, and a pull request.",
+  "description": "Implement one settled GitHub ticket through TDD, observed verification, and committed code review.",
   "dependencies": [
     "tdd",
     "code-review"
@@ -14,9 +14,9 @@
   "license": "MIT",
   "attribution": "Copyright (c) 2026 Matt Pocock",
   "adaptations": [
-    "Use connected GitHub feature branches, commits, pull requests, checks, and reviews as Equivalent Mechanisms while protecting the default branch from implicit mutation.",
+    "Use connected GitHub feature branches and commits as Equivalent Mechanisms while protecting the default branch from implicit mutation.",
     "Load tdd only at the upstream testing point and keep both tdd and code-review as separate Dependency Skills rather than embedding their runtimes.",
-    "Claim RED, GREEN, typechecks, tests, builds, CI, commits, pushes, reviews, and pull requests only after their live results are observed; stop affected operations when required capability is unavailable.",
+    "Treat typecheck, test, and commit outcomes as observed only after their live results are returned; report unavailable verification or mutation capability instead of inventing a result.",
     "Quarantine the pinned review-before-commit contradiction as the Temporary Upstream Fix documented in docs/adr/implement-review-order.md."
   ],
   "projection": {
@@ -31,41 +31,41 @@
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
-        "evidence": "The Target Runtime Profile operates on a connected GitHub repository rather than an assumed local checkout. Establishing a non-default feature branch and recording the pre-implementation head preserves the upstream instruction to implement the selected work while providing the immutable fixed point required by the faithful code-review dependency.",
+        "evidence": "The Target Runtime Profile writes through connected GitHub APIs, whose file-write operations can target the default branch when no branch is supplied. Selecting a non-default feature branch before production mutations preserves the upstream implementation step without implicit default-branch mutation. Recording the pre-implementation head supplies the fixed point required by the separately loaded code-review dependency.",
         "transform": {
           "type": "replace-exact",
           "match": "Implement the work described by the user in the spec or tickets.",
-          "replacement": "Implement the work described by the user in the spec or tickets. Treat that scope as settled unless a concrete contradiction blocks implementation. Through connected GitHub, resolve the intended base and any existing feature branch or pull request. If the work is not already on an explicitly selected non-default branch, create a feature branch from the intended base before production mutations. Do not mutate the repository default branch unless the upstream workflow and an explicit user instruction authorize that direct mutation; if the required branch or GitHub write capability is unavailable, stop the mutation and report what remains incomplete. Before changing production code, record the current feature-branch head as `review_base` and keep that fixed point unchanged for the later code review."
+          "replacement": "Implement the work described by the user in the spec or tickets. Through connected GitHub, resolve the intended base and any existing feature branch. If the work is not already on an explicitly selected non-default branch, create a feature branch from the intended base before production mutations. Do not mutate the repository default branch unless the upstream workflow and an explicit user instruction authorize that direct mutation; if the required branch or GitHub write capability is unavailable, stop the affected mutation and report it as incomplete. Before changing production code, record the current feature-branch head as `review_base` and keep that fixed point unchanged for the later `code-review` invocation."
         }
       },
       {
         "allowedRuntimeChange": "translate-invocation-or-tool",
         "source": "upstream.md",
-        "evidence": "The Target Runtime Profile loads Dependency Skills through the MCP load_skill tool. The dependency remains separate and is requested at the same upstream testing point instead of being embedded into implement.",
+        "evidence": "The Target Runtime Profile loads Dependency Skills through the MCP load_skill tool. This changes only the invocation mechanism at the exact upstream testing point.",
         "transform": {
           "type": "replace-exact",
           "match": "Use /tdd where possible, at pre-agreed seams.",
-          "replacement": "Use `tdd` with `load_skill` where possible, at pre-agreed seams. Request that Dependency Skill at this exact testing point; do not embed its runtime into `implement`. If `tdd` cannot be loaded or the required execution capability is unavailable, stop the affected testing operation and report it as incomplete rather than substituting an unobserved result."
+          "replacement": "Use `tdd` with `load_skill` where possible, at pre-agreed seams."
         }
       },
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
-        "evidence": "Remote execution may be provided by connected CI or another live runner rather than a local shell. Preserving the upstream cadence requires observed results before any typecheck or test status is claimed.",
+        "evidence": "The Target Runtime Profile may use connected CI or another live runner rather than a local shell. Naming that Equivalent Mechanism and requiring its returned result preserves the upstream typecheck and test cadence without inventing additional verification steps.",
         "transform": {
           "type": "replace-exact",
           "match": "Run typechecking regularly, single test files regularly, and the full test suite once at the end.",
-          "replacement": "Run typechecking regularly, single test files regularly, and the full test suite once at the end through whatever live execution mechanism is actually connected. Claim a typecheck, test, build, or CI result only after observing its returned result. If required execution or result inspection is unavailable, stop that verification step and report it as not observed."
+          "replacement": "Run typechecking regularly, single test files regularly, and the full test suite once at the end through an available live execution mechanism. Treat each run as complete only after observing its returned result; if no live execution mechanism is available, report that verification step as unobserved."
         }
       },
       {
         "allowedRuntimeChange": "equivalent-mechanism",
         "source": "upstream.md",
-        "evidence": "The Target Runtime Profile commits and publishes through connected GitHub. After the quarantined pre-review implementation commit, this final upstream commit step corresponds to justified review-fix commits, final observed verification, and pull-request publication without mutating the default branch implicitly.",
+        "evidence": "The Target Runtime Profile commits through connected GitHub rather than an assumed local git executable. Naming that Equivalent Mechanism and requiring the returned commit result preserves the upstream commit operation without adding publication or verification steps.",
         "transform": {
           "type": "replace-exact",
           "match": "Commit your work to the current branch.",
-          "replacement": "After review, commit only justified review fixes to the current feature branch; if no justified fix exists, do not manufacture another commit. Complete the required final observed verification, including the upstream full-suite-at-the-end step when a runner is live, then open or update the pull request from the feature branch to the intended base through connected GitHub. Claim commits, pushes, checks, reviews, pull requests, and their statuses only after observing the corresponding results. If a required write, review, execution, or verification capability is unavailable, stop that affected operation and report exactly what remains incomplete."
+          "replacement": "Commit your work to the current feature branch through connected GitHub. Treat the commit as complete only after observing its returned result; if GitHub write capability is unavailable, stop the commit operation and report it as incomplete."
         }
       }
     ],
@@ -83,7 +83,7 @@
       "transform": {
         "type": "replace-exact",
         "match": "Once done, use /code-review to review the work.",
-        "replacement": "Once done, first commit the verified implementation to the current feature branch, then load `code-review` with `load_skill` and review the committed diff from the recorded `review_base` to that implementation commit."
+        "replacement": "Once done, first commit the verified implementation to the current feature branch through connected GitHub and observe the returned commit result, then load `code-review` with `load_skill` and review the committed diff from the recorded `review_base` to that implementation commit. Continue with the upstream commit step for any work remaining after review."
       }
     }
   }

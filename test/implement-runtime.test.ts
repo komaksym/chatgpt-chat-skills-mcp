@@ -103,7 +103,7 @@ function defineImplementRuntimeSuite(): void {
         {
           name: "implement",
           description:
-            "Implement one settled GitHub ticket through TDD, observed verification, committed review, and a pull request.",
+            "Implement one settled GitHub ticket through TDD, observed verification, and committed code review.",
         },
       ]),
     });
@@ -117,6 +117,11 @@ function defineImplementRuntimeSuite(): void {
     expect(implement).not.toContain("## Standards");
     expect(implement).not.toContain("## Spec");
     expect(tdd).toContain("# Test-Driven Development");
+    const tddMetadata = JSON.parse(
+      await readFile(new URL("tdd/provenance.json", SKILLS_ROOT), "utf8"),
+    ) as { dependencies: string[] };
+    expect(tddMetadata.dependencies).toEqual(["codebase-design"]);
+    expect(JSON.stringify(listing)).not.toMatch(/"name":"codebase-design"/);
     expect(review).toContain("## Standards");
     expect(review).toContain("## Spec");
 
@@ -133,18 +138,18 @@ function defineImplementRuntimeSuite(): void {
     const fixedPoint = implement.indexOf(
       "from the recorded `review_base` to that implementation commit",
     );
-    const reviewFixCommit = implement.indexOf(
-      "After review, commit only justified review fixes",
+    const finalCommit = implement.indexOf(
+      "Commit your work to the current feature branch through connected GitHub.",
     );
-    const pullRequest = implement.indexOf("then open or update the pull request");
 
     expect(reviewBase).toBeGreaterThan(-1);
     expect(tddLoad).toBeGreaterThan(reviewBase);
     expect(implementationCommit).toBeGreaterThan(tddLoad);
     expect(reviewLoad).toBeGreaterThan(implementationCommit);
     expect(fixedPoint).toBeGreaterThan(reviewLoad);
-    expect(reviewFixCommit).toBeGreaterThan(fixedPoint);
-    expect(pullRequest).toBeGreaterThan(reviewFixCommit);
+    expect(finalCommit).toBeGreaterThan(fixedPoint);
+    expect(implement).not.toContain("open or update the pull request");
+    expect(implement).not.toContain("After review, commit only justified review fixes");
   }
 
   async function preservesTddLoopAndSupportingMethodology(): Promise<void> {
@@ -167,17 +172,22 @@ function defineImplementRuntimeSuite(): void {
       "Do not mutate the repository default branch unless the upstream workflow and an explicit user instruction authorize that direct mutation",
     );
     expect(implement).toContain(
-      "Claim a typecheck, test, build, or CI result only after observing its returned result",
+      "Treat each run as complete only after observing its returned result",
     );
     expect(implement).toContain(
-      "Claim commits, pushes, checks, reviews, pull requests, and their statuses only after observing the corresponding results",
+      "observe the returned commit result",
     );
     expect(implement).toContain(
-      "stop the mutation and report what remains incomplete",
+      "Treat the commit as complete only after observing its returned result",
     );
     expect(implement).toContain(
-      "stop that verification step and report it as not observed",
+      "stop the affected mutation and report it as incomplete",
     );
+    expect(implement).toContain(
+      "report that verification step as unobserved",
+    );
+    expect(implement).not.toContain("build, or CI");
+    expect(implement).not.toContain("open or update the pull request");
   }
 
   async function expiresFixWhenImplementPinChanges(): Promise<void> {

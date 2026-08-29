@@ -23,9 +23,11 @@ Apply one Temporary Upstream Fix to the single upstream review sentence in
 then load the separate `code-review` Dependency Skill and review from the recorded
 pre-implementation `review_base` to that committed implementation head.
 
-The ordinary final upstream commit sentence remains outside the fix. Its Mechanical
-Projection handles only justified review-fix commits, final observed verification,
-and pull-request publication.
+The ordinary final upstream commit sentence remains outside the fix. Its ordinary
+Change Record only translates the commit operation to connected GitHub. The TUF
+itself carries the contradiction-specific consequence that this later commit step
+applies to any work remaining after review; no ordinary Change Record adds review-fix
+policy, extra verification, or pull-request publication.
 
 ## Expiry guards
 
