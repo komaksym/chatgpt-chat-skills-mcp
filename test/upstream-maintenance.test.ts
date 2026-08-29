@@ -150,6 +150,9 @@ function upstream(options: UpstreamOptions = {}): UpstreamClient {
   const changed = options.changed ?? false;
   return {
     async getFile(_repository, path, commit) {
+      if (path === "skills/untouched/SKILL.md") {
+        return "UNTOUCHED\n";
+      }
       if (path === "skills/example/SKILL.md") {
         if (commit === OLD && options.oldRule) {
           return ENTRY + "\nOLD RULE\n";
@@ -175,11 +178,66 @@ function upstream(options: UpstreamOptions = {}): UpstreamClient {
       throw new Error(`unexpected upstream path: ${path}@${commit}`);
     },
     async getLatestCommit(_repository, path) {
+      if (path === "skills/untouched/SKILL.md") return OLD;
       if (!changed) return OLD;
       if (path === "skills/example/GUIDE.md") return NEXT;
       return options.entryChanged ? NEXT : OLD;
     },
   };
+}
+
+
+async function addUnchangedInvalidBundle(skillsRoot: string): Promise<void> {
+  const bundleRoot = join(skillsRoot, "untouched");
+  const source = "UNTOUCHED\n";
+  await mkdir(bundleRoot, { recursive: true });
+  await writeFile(join(bundleRoot, "upstream.md"), source, "utf8");
+  await writeFile(join(bundleRoot, "runtime.md"), source, "utf8");
+  await writeFile(
+    join(bundleRoot, "provenance.json"),
+    JSON.stringify(
+      {
+        name: "untouched",
+        visibility: "hidden",
+        description: "Unchanged fixture skill.",
+        dependencies: [],
+        upstream: {
+          repository: "https://github.com/example/skills",
+          location: "skills/untouched/SKILL.md",
+          commit: OLD,
+        },
+        license: "MIT",
+        attribution: "Fixture",
+        projection: {
+          entrypoint: "upstream.md",
+          sources: [
+            {
+              path: "upstream.md",
+              upstreamPath: "skills/untouched/SKILL.md",
+              sha256: digest(source),
+            },
+          ],
+          changeRecords: [
+            {
+              allowedRuntimeChange: "equivalent-mechanism",
+              source: "upstream.md",
+              evidence: evidence(
+                "This deliberately stale fixture record must not be evaluated when the bundle is unaffected.",
+              ),
+              transform: {
+                type: "replace-exact",
+                match: "NOT PRESENT",
+                replacement: "NEVER APPLIED",
+              },
+            },
+          ],
+        },
+      },
+      null,
+      2,
+    ) + "\n",
+    "utf8",
+  );
 }
 
 describe("reviewable upstream Mechanical Projection updates", () => {
@@ -245,6 +303,23 @@ describe("reviewable upstream Mechanical Projection updates", () => {
       ),
     ) as { upstream: { commit: string } };
     expect(provenance.upstream.commit).toBe(NEXT);
+  });
+
+  it("regenerates only bundles affected by upstream source changes", async () => {
+    const { root, skillsRoot } = await setup();
+    await addUnchangedInvalidBundle(skillsRoot);
+
+    const result = await checkUpstreamUpdates({
+      repositoryRoot: root,
+      skillsRoot,
+      upstream: upstream({ changed: true }),
+    });
+
+    expect(result.blocked).toBe(false);
+    expect(result.updates.map((update) => update.name)).toEqual(["example"]);
+    expect(
+      await readFile(join(skillsRoot, "untouched", "runtime.md"), "utf8"),
+    ).toBe("UNTOUCHED\n");
   });
 
   it("rejects a locally altered pinned source before mutation", async () => {
