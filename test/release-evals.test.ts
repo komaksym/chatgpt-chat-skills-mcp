@@ -57,16 +57,25 @@ async function suite(): Promise<Suite> {
 
 
 function completedRun(data: Suite): Record<string, unknown> {
+  const releaseSha = "a".repeat(40);
   return {
     mode: "manual-release",
     runId: "test-run",
-    releaseSha: "a".repeat(40),
+    releaseSha,
     cases: data.cases.map((item, index) => {
       const rubric = item.rubric.map((criterion) => ({
         id: criterion.id,
         judgment: "pass",
         evidence: "Observed fixture evidence.",
       }));
+      const externalResults = item.rubric.some((criterion) => criterion.requiresExternalEvidence)
+        ? ["Observed external fixture result."]
+        : [];
+      const skillsMcp = {
+        repository: "komaksym/chatgpt-chat-skills-mcp",
+        releaseSha,
+        evidence: "Observed fixture service revision.",
+      };
       const repository = {
         sourceRepository: item.repositoryContext.sourceRepository,
         baseSha: item.repositoryContext.baseSha,
@@ -80,10 +89,11 @@ function completedRun(data: Suite): Record<string, unknown> {
         baseline: {
           skill: null,
           model: item.model,
+          skillsMcp: { ...skillsMcp },
           repository: { ...repository, url: `https://example.test/baseline-${index}` },
           capabilities: item.capabilities,
           output: "Observed baseline output.",
-          externalResults: [],
+          externalResults: [...externalResults],
           rubric,
           pass: true,
           rationale: "Baseline fixture completed.",
@@ -91,10 +101,11 @@ function completedRun(data: Suite): Record<string, unknown> {
         adapted: {
           skill: item.workflow,
           model: item.model,
+          skillsMcp: { ...skillsMcp },
           repository: { ...repository, url: `https://example.test/adapted-${index}` },
           capabilities: item.capabilities,
           output: "Observed adapted output.",
-          externalResults: [],
+          externalResults: [...externalResults],
           rubric: rubric.map((entry) => ({ ...entry })),
           pass: true,
           rationale: "Adapted fixture completed.",
