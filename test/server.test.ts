@@ -89,6 +89,16 @@ function defineServiceSuite(): void {
           description:
             "Establish minimal GitHub-first domain documentation from repository evidence.",
         },
+        {
+          name: "to-spec",
+          description:
+            "Synthesize settled work into a GitHub specification without restarting discovery.",
+        },
+        {
+          name: "to-tickets",
+          description:
+            "Turn settled work into approved GitHub tracer-bullet tickets with explicit relationships.",
+        },
       ],
     });
 

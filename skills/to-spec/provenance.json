@@ -1,0 +1,48 @@
+{
+  "name": "to-spec",
+  "visibility": "public",
+  "description": "Synthesize settled work into a GitHub specification without restarting discovery.",
+  "dependencies": [],
+  "upstream": {
+    "repository": "https://github.com/mattpocock/skills",
+    "location": "skills/engineering/to-spec/SKILL.md",
+    "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76"
+  },
+  "license": "MIT",
+  "attribution": "Copyright (c) 2026 Matt Pocock",
+  "adaptations": [
+    "Select GitHub Issues in the active repository from the upstream tracker abstraction.",
+    "Preserve the upstream synthesis, highest-seam confirmation, specification template, and ready-for-agent publication behavior."
+  ],
+  "projection": {
+    "entrypoint": "upstream.md",
+    "sources": [
+      {
+        "path": "upstream.md",
+        "sha256": "43ad9cf318e5e7d3d1fa360253a37021796dc87a0c2e595ad262661a10f85088"
+      }
+    ],
+    "changeRecords": [
+      {
+        "allowedRuntimeChange": "select-upstream-supported-branch",
+        "source": "upstream.md",
+        "evidence": "GitHub Issues is the configured tracker for this Target Runtime Profile, so setup/tracker indirection is unnecessary.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "The issue tracker and triage label vocabulary should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`.",
+          "replacement": "Use GitHub Issues in the active repository as the configured project issue tracker."
+        }
+      },
+      {
+        "allowedRuntimeChange": "select-upstream-supported-branch",
+        "source": "upstream.md",
+        "evidence": "Publishing through the active repository's GitHub Issues capability is the selected upstream-supported tracker branch; the upstream ready-for-agent label requirement is preserved.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "3. Write the spec using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.",
+          "replacement": "3. Write the spec using the template below, then publish it as a GitHub issue in the active repository. Apply the `ready-for-agent` triage label - no need for additional triage."
+        }
+      }
+    ]
+  }
+}
