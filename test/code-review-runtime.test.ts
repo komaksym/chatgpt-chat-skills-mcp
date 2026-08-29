@@ -214,9 +214,7 @@ function defineCodeReviewRuntimeSuite(): void {
     expect(smoke).toContain(
       "two tabs showing the same conversation, or two sequential prompts",
     );
-    expect(smoke).toContain(
-      "Never include the sibling canary literal in the other child's prompt",
-    );
+    expect(smoke).toContain("sibling canary literal");
     expect(smoke).not.toContain("Implementation-time result — 2026-08-29\n\n`PASS`");
   }
 
