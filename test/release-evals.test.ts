@@ -158,7 +158,7 @@ describe("manual faithful-workflow release evaluations", () => {
     expect(guide).toContain("manual/release only");
     expect(guide).toContain("same model receives the same task");
     expect(guide).toContain("pinned upstream");
-    expect(guide).toMatch(/Skill Adaptation\\s+Contract/);
+    expect(guide).toMatch(/Skill Adaptation\s+Contract/);
     expect(guide).toContain("failed or unavailable Live Capability");
     expect(guide).toContain("node evals/release/validate-run.mjs");
     expect(guide).toContain("must not call a model");
