@@ -29,20 +29,24 @@ For each case:
 1. Prepare two fresh contexts exactly as `repositoryContext.reset` says. If the case
    permits writes, the baseline and adapted variants must use separate disposable
    repositories so one cannot contaminate the other.
-2. Fix the case's `model`, `task`, repository base SHA and fixture, `capabilities`,
+2. Run both variants against a Skills MCP built from the recorded releaseSha. Record
+   the observed Skills MCP revision and how it was verified for each variant; a typed
+   SHA with no observation is not enough.
+3. Fix the case's `model`, `task`, repository base SHA and fixture, `capabilities`,
    `prompt`, optional `followUp`, and rubric. These inputs are identical between
    variants.
-3. Baseline: use a fresh conversation and do **not** load the evaluated workflow.
-4. Adapted: use another fresh conversation, load only the named public workflow, then
+4. Baseline: use a fresh conversation and do **not** load the evaluated workflow.
+5. Adapted: use another fresh conversation, load only the named public workflow, then
    send the exact same prompt.
-5. Send the fixed `followUp` only at the scripted boundary. If a variant crosses that
+6. Send the fixed `followUp` only at the scripted boundary. If a variant crosses that
    boundary early, record the relevant rubric failure before continuing.
-6. A failed or unavailable Live Capability never passes because a weaker fallback
+7. A failed or unavailable Live Capability never passes because a weaker fallback
    produced something convenient. Judge against the upstream-required stop behavior
    or other upstream fallback declared by the source.
-7. Record relevant model output and any durable external result needed to verify the
+8. Record relevant model output and any durable external result needed to verify the
    behavior. Claims about GitHub mutations, tests, commits, PRs, labels, or
-   relationships require observed external evidence.
+   relationships require observed external evidence. A rubric criterion marked
+   `requiresExternalEvidence` cannot pass with an empty `externalResults` record.
 
 Normally there is one representative case per public workflow. A second case is
 allowed for a documented regression or uncovered behavior; anything beyond two is a
@@ -54,6 +58,8 @@ Copy `run-template.json` to a release record outside routine CI artifacts. For e
 variant record:
 
 - exact model, repository URL/base, and capabilities;
+- the observed Skills MCP revision, matching the run's `releaseSha`, plus evidence
+  showing how that running revision was identified;
 - relevant output and external results;
 - one judgment plus evidence for every fixed rubric item;
 - overall pass/fail and a short rationale.
