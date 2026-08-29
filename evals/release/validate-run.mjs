@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import process from "node:process";
+import { URL } from "node:url";
 
 const CASES_URL = new URL("./cases.json", import.meta.url);
 const JUDGMENTS = new Set(["pass", "fail", "not-observed"]);
@@ -94,7 +95,7 @@ function variant(value, definition, expectedSkill, label) {
   if (item.pass && item.rubric.some((entry) => entry.judgment !== "pass")) {
     fail(label + " cannot pass unless every rubric item passes.");
   }
-  return repository;
+  return { repository, pass: item.pass };
 }
 
 async function main() {
@@ -131,15 +132,21 @@ async function main() {
       fail(caseId + " task/prompt/followUp must match the fixed case exactly.");
     }
 
-    const baselineRepository = variant(result.baseline, definition, null, caseId + ".baseline");
-    const adaptedRepository = variant(
+    const baseline = variant(result.baseline, definition, null, caseId + ".baseline");
+    const adapted = variant(
       result.adapted,
       definition,
       definition.workflow,
       caseId + ".adapted",
     );
-    if (definition.repositoryContext.writes && baselineRepository.url === adaptedRepository.url) {
+    if (definition.repositoryContext.writes && baseline.repository.url === adapted.repository.url) {
       fail(caseId + " writable variants must use separate disposable repositories.");
+    }
+
+    if (typeof result.pass !== "boolean") fail(caseId + ".pass must be boolean.");
+    text(result.rationale, caseId + ".rationale");
+    if (result.pass && !adapted.pass) {
+      fail(caseId + " paired result cannot pass unless the adapted condition passes.");
     }
     text(result.comparison, caseId + ".comparison");
   }
