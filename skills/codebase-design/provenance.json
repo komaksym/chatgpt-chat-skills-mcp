@@ -44,7 +44,7 @@
         "transform": {
           "type": "replace-exact",
           "match": "- **Exploring alternative interfaces**, see [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md): spin up parallel sub-agents to design the interface several radically different ways, then compare on depth, locality, and seam placement.",
-          "replacement": "- **Exploring alternative interfaces**, see the exact pinned **Design It Twice** Supporting Document appended below: use parallel independent child explorations only when each child has direct connected GitHub access and remains isolated until comparison; otherwise stop that alternative-interface branch rather than pretending parallel independence."
+          "replacement": "- **Exploring alternative interfaces**, see the exact pinned **Design It Twice** Supporting Document appended below: use parallel independent child explorations only when each child can access the repository directly through connected GitHub capabilities and their findings remain isolated until comparison; otherwise stop this alternative-interface branch rather than simulating parallel independence."
         }
       },
       {
