@@ -32,11 +32,13 @@ npm start
 
 Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
 
-## Current public skill
+## Current public skills
 
 - `grill-with-docs` — Stress-test a plan through evidence-led decisions and
   durable domain language.
 - `handoff` — Create a compact continuation brief for another conversation.
+- `improve-codebase-architecture` — Find deepening opportunities in a remote
+  repository and present candidate architecture improvements.
 - `setup-matt-pocock-skills` — Establish minimal GitHub-first domain
   documentation from repository evidence.
 
@@ -44,6 +46,11 @@ Set `PORT` to use another loopback port. The MCP endpoint is `/mcp`.
 `grill-with-docs` instructs ChatGPT to load both immediately in the same
 conversation. They never appear in `list_skills`, remain separately loadable by
 exact canonical name, and are never concatenated into the parent runtime.
+
+`codebase-design` is a hidden Dependency Skill of `improve-codebase-architecture`.
+The architecture workflow loads it before analysis, keeps it separate from the
+parent runtime, and requests `grilling` and `domain-modeling` only after the user
+selects a candidate.
 
 The MCP surface contains exactly `load_skill` and `list_skills`. Call
 `load_skill` with the exact canonical name `handoff`; its input is deliberately a

@@ -70,6 +70,11 @@ function defineServiceSuite(): void {
             "Create a compact continuation brief for another conversation.",
         },
         {
+          name: "improve-codebase-architecture",
+          description:
+            "Find deepening opportunities in a remote repository and present candidate architecture improvements.",
+        },
+        {
           name: "setup-matt-pocock-skills",
           description:
             "Establish minimal GitHub-first domain documentation from repository evidence.",
