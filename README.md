@@ -24,7 +24,8 @@ never at MCP startup or request time. Regenerate one skill with
 `npm run generate -- handoff`, or run `npm run generate` without a name to
 regenerate the complete corpus. `npm run corpus:check` rebuilds every runtime
 byte for byte, validates structural corpus invariants, and reports runtime sizes
-without imposing an arbitrary size cap. The committed `runtime.md` is the
+without imposing an arbitrary size cap. In CI, the audit also reports each runtime's
+byte delta against the compared base commit. The committed `runtime.md` is the
 artifact served in production.
 
 Start the built service on `127.0.0.1:2092`:
