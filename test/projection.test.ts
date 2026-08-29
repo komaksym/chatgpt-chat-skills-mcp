@@ -513,6 +513,31 @@ function defineProjectionSuite(): void {
   }
 
 
+  /** Proves Target Runtime evidence names a machine-checkable profile constraint. */
+  async function rejectsUnverifiableTargetRuntimeEvidence(): Promise<void> {
+    const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
+    roots.push(repositoryRoot);
+    const { skillsRoot } = await createProjectionFixture(repositoryRoot, {
+      expectedSource: "A\\n",
+      changeRecords: [
+        {
+          allowedRuntimeChange: "equivalent-mechanism",
+          source: "upstream.md",
+          evidence: { targetRuntimeProfile: "Fixture prose is not machine-checkable." },
+          transform: {
+            type: "replace-exact",
+            match: "A",
+            replacement: "B",
+          },
+        },
+      ],
+    });
+
+    await expect(
+      generateSkillRuntime("fixture-skill", { repositoryRoot, skillsRoot }),
+    ).rejects.toThrow("Invalid provenance for fixture-skill.");
+  }
+
   /** Proves Target Runtime evidence is structured rather than free text. */
   async function rejectsFreeTextChangeRecordEvidence(): Promise<void> {
     const repositoryRoot = await mkdtemp(join(tmpdir(), "projection-repo-"));
@@ -595,6 +620,10 @@ function defineProjectionSuite(): void {
     generatesGrillingBundleDeterministically,
   );
   it("rejects altered pinned source", rejectsAlteredPinnedSource);
+  it(
+    "rejects Target Runtime evidence without machine-checkable constraints",
+    rejectsUnverifiableTargetRuntimeEvidence,
+  );
   it("rejects free-text Change Record evidence", rejectsFreeTextChangeRecordEvidence);
   it("rejects no-op Change Records", rejectsNoOpChangeRecord);
   it("rejects unconsumed Supporting Documents", rejectsUnconsumedSupportingSource);
