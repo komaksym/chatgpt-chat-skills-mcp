@@ -80,8 +80,15 @@ function unresolvedSupportingLinks(runtime, provenance) {
     .filter((path) => {
       const name = basename(path);
       if (generatedPaths.has(path) || generatedNames.has(name)) return true;
+      if (isTargetRepositoryDocument(path)) return false;
       return !inlinedUpstreamNames.has(name.toLowerCase());
     });
+}
+
+function isTargetRepositoryDocument(path) {
+  const normalized = path.replace(/^\.\//, "");
+  return /(?:^|\/)CONTEXT(?:-MAP)?\.md$/i.test(normalized) ||
+    /^docs\/adr\/.+\.md$/i.test(normalized);
 }
 
 function hasLargeRepeatedBlock(runtime) {
