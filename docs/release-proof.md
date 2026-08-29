@@ -8,6 +8,12 @@ This record is not a success claim. The repository-side deterministic gates can 
 
 A browser request to `http://127.0.0.1:2092/healthz` reached a browser error page, so the machine-local Skills service was not running in this session. The tunnel-backed ChatGPT Web smoke therefore remains `NOT EXERCISED`; no remote-read/write, missing-capability, or strict child-conversation result is claimed here.
 
+## Local deterministic observation — 2026-08-29
+
+The local checkout tested revision `1a7a341ff83af095ec00aac7b69631f2305c902b`. `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, and `npm run corpus:check` completed successfully; the test suite reported 14 files and 98 tests, and the corpus check reported 11 skills (7 public and 4 hidden). After starting that built revision directly, `GET /healthz` returned HTTP 200 with exactly `{"status":"ok"}`.
+
+The installed launcher was also invoked with the built service, but this machine-local session could not start the managed Skills target because its default state location was not writable and no dedicated `chatgpt-chat-skills-mcp` tunnel runtime was available. Native tunnel runtime creation and Chrome selection were unavailable in the session. These are environment blockers, not live acceptance results; the tunnel/Web, GitHub fixture, missing-capability, paired-evaluation, and strict child-conversation observations remain `NOT EXERCISED`.
+
 ## Preconditions
 
 1. Build the exact release revision and start the loopback service.
@@ -64,5 +70,5 @@ Committed evidence must contain no secrets, tunnel credentials, machine-local co
 - Overall status: `NOT EXERCISED`
 - ChatGPT Web / tunnel smoke: `NOT EXERCISED`
 - Strict code-review smoke: use the status recorded in `docs/code-review-strict-smoke.md`
-- Deterministic corpus gates: record the release CI run URL after execution
-- Manual release evaluations: record the validated evidence location after execution
+- Deterministic corpus gates: PASS locally for `1a7a341ff83af095ec00aac7b69631f2305c902b`; no release CI URL is claimed here
+- Manual release evaluations: `NOT EXERCISED`; no validated evidence record exists
