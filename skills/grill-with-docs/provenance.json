@@ -15,5 +15,26 @@
   "attribution": "Copyright (c) 2026 Matt Pocock",
   "adaptations": [
     "Replace upstream Skill-tool composition with immediate same-conversation load_skill calls for grilling and domain-modeling."
-  ]
+  ],
+  "projection": {
+    "entrypoint": "upstream.md",
+    "sources": [
+      {
+        "path": "upstream.md",
+        "sha256": "7de372c13488f1ee96cc11cd8907b56b6809cc93eef776eeddd37de6b6cbe3fe"
+      }
+    ],
+    "changeRecords": [
+      {
+        "allowedRuntimeChange": "translate-invocation-or-tool",
+        "source": "upstream.md",
+        "evidence": "The Target Runtime Profile composes skills through the MCP load_skill tool rather than the upstream Skill tool. Both dependency loads remain immediate and in the same conversation.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "Call the Skill tool twice, for \"grilling\" and \"domain-modeling\".",
+          "replacement": "Immediately call `load_skill(\"grilling\")` and `load_skill(\"domain-modeling\")` in this conversation."
+        }
+      }
+    ]
+  }
 }

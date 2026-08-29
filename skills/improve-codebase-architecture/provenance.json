@@ -1,0 +1,139 @@
+{
+  "name": "improve-codebase-architecture",
+  "visibility": "public",
+  "description": "Find deepening opportunities in a remote repository and present candidate architecture improvements.",
+  "dependencies": [
+    "codebase-design",
+    "grilling",
+    "domain-modeling"
+  ],
+  "upstream": {
+    "repository": "https://github.com/mattpocock/skills",
+    "location": "skills/engineering/improve-codebase-architecture/SKILL.md",
+    "commit": "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76"
+  },
+  "license": "MIT",
+  "attribution": "Copyright (c) 2026 Matt Pocock",
+  "adaptations": [
+    "Read repository source, canonical domain vocabulary, ADRs, and commit history through live connected GitHub capabilities and stop affected analysis when required evidence is unavailable.",
+    "Load codebase-design before analysis and keep grilling and domain-modeling separate until their exact post-selection upstream points.",
+    "Use independent child exploration only when the child can inspect GitHub directly without parent-supplied evidence; otherwise continue the upstream exploration in the current conversation.",
+    "Select the direct Markdown candidate-report mechanism for the Target Runtime, preserving the upstream candidate fields, recommendation, vocabulary, ADR rules, and user-selection boundary while using diagrams only when materially useful.",
+    "Keep candidate analysis non-mutating with respect to production code and wait for explicit candidate selection before later design phases."
+  ],
+  "projection": {
+    "entrypoint": "upstream.md",
+    "sources": [
+      {
+        "path": "upstream.md",
+        "sha256": "d1ac25511a936ff4250a48dbcefda363837d6bb9321b3cba73df99fa37270a75"
+      },
+      {
+        "path": "upstream-html-report.md",
+        "sha256": "581e8bb5a521e46bbda8ca7e19b15948bed882187108092ebb90c62513b77528"
+      }
+    ],
+    "changeRecords": [
+      {
+        "allowedRuntimeChange": "equivalent-mechanism",
+        "source": "upstream.md",
+        "evidence": "Issue #9 selects the direct Markdown candidate report for the Target Runtime. Updating the upstream frontmatter description keeps the model-visible summary consistent with that selected output mechanism.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "description: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.",
+          "replacement": "description: Scan a codebase for deepening opportunities, present them as a Markdown candidate report, then grill through whichever one you pick."
+        }
+      },
+      {
+        "allowedRuntimeChange": "equivalent-mechanism",
+        "source": "upstream.md",
+        "evidence": "Issue #9's Target Runtime is analysis-only. Making the upstream candidate-analysis boundary explicit prevents an architecture scan from silently becoming an implementation task while preserving the upstream purpose.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "Surface architectural friction and propose **deepening opportunities**: refactors that turn shallow modules into deep ones. The aim is testability and AI-navigability.",
+          "replacement": "Surface architectural friction and propose **deepening opportunities**: refactors that turn shallow modules into deep ones. The aim is testability and AI-navigability. Analyze and report only: do not change production code, and wait at the upstream candidate-selection boundary before any selected-candidate design work."
+        }
+      },
+      {
+        "allowedRuntimeChange": "translate-invocation-or-tool",
+        "source": "upstream.md",
+        "evidence": "Dependency Skills are loaded through the MCP load_skill tool. codebase-design remains a separate Dependency Skill and is requested at the same upstream point before architecture analysis.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "- Call the Skill tool with \"codebase-design\" for the architecture vocabulary (**module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**) and its principles (the deletion test, \"the interface is the test surface\", \"one adapter = hypothetical seam, two = real\"). Use these terms exactly in every suggestion, and don't drift into \"component,\" \"service,\" \"API,\" or \"boundary.\"",
+          "replacement": "- Load `codebase-design` with `load_skill` for the architecture vocabulary (**module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**) and its principles (the deletion test, \"the interface is the test surface\", \"one adapter = hypothetical seam, two = real\"). Request this separate Dependency Skill at this exact upstream point before analysis; do not embed its runtime. Use these terms exactly in every suggestion, and don't drift into \"component,\" \"service,\" \"API,\" or \"boundary.\" If the dependency cannot be loaded when required, stop the affected architecture analysis rather than substituting invented methodology."
+        }
+      },
+      {
+        "allowedRuntimeChange": "equivalent-mechanism",
+        "source": "upstream.md",
+        "evidence": "The Target Runtime inspects repository history through connected GitHub capabilities rather than an assumed local git executable. The same hotspot-selection rule is preserved, and missing history is reported instead of fabricated.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "- Otherwise, walk back a good stretch of the commit history (`git log --oneline`) to find the codebase's hot spots, the files and areas that keep coming up, and let those paths pull your attention first. If the changes are scattered with no clear hot spot, widen the net.",
+          "replacement": "- Otherwise, walk back a good stretch of the live commit history through connected GitHub capabilities to find the codebase's hot spots, the files and areas that keep coming up, and let those paths pull your attention first. If the changes are scattered with no clear hot spot, widen the net. If commit-history read capability is unavailable, report that missing evidence and widen the scan without inventing a hotspot."
+        }
+      },
+      {
+        "allowedRuntimeChange": "equivalent-mechanism",
+        "source": "upstream.md",
+        "evidence": "Repository and history inspection must use live connected GitHub reads in the Target Runtime. Reading the canonical glossary and ADRs through that capability preserves upstream evidence requirements; unavailable reads stop the affected analysis.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "Read the project's domain glossary (`CONTEXT.md`) and any ADRs in the area you're touching first.",
+          "replacement": "Read the project's committed domain glossary (`CONTEXT.md`) and any ADRs in the area you're touching first through live connected GitHub capabilities. Read the relevant repository source through the same connected capability. If any repository evidence required for the affected analysis cannot be read, name the missing evidence and stop that affected analysis rather than inventing repository facts."
+        }
+      },
+      {
+        "allowedRuntimeChange": "select-upstream-supported-branch",
+        "source": "upstream.md",
+        "evidence": "The upstream exploration delegates repository walking to a sub-agent. In the Target Runtime that branch is valid only when a child can independently inspect the repository through direct GitHub access; otherwise continuing the same organic scan in the current conversation preserves the exploration without pretending isolation.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "Then spawn a sub-agent to walk the codebase. Don't follow rigid heuristics; explore organically and note where you experience friction:",
+          "replacement": "Then, if an independent child exploration can directly access GitHub and inspect the repository without parent-supplied evidence, use it to walk the codebase. Otherwise continue the same codebase walk in this conversation; do not pretend a child was independent. Don't follow rigid heuristics; explore organically and note where you experience friction:"
+        }
+      },
+      {
+        "allowedRuntimeChange": "equivalent-mechanism",
+        "source": "upstream.md",
+        "evidence": "The Target Runtime cannot rely on an OS temp directory, browser opener, Tailwind CDN, or Mermaid CDN. A direct Markdown candidate report preserves the upstream report fields, recommendation ordering, vocabulary, ADR handling, and candidate-selection boundary; diagrams remain available only where they materially clarify structure.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "### 2. Present candidates as an HTML report\n\nWrite a self-contained HTML file to the OS temp directory so nothing lands in the repo. Resolve the temp dir from `$TMPDIR`, falling back to `/tmp` (or `%TEMP%` on Windows), and write to `<tmpdir>/architecture-review-<timestamp>.html` so each run gets a fresh file. Open it for the user (`xdg-open <path>` on Linux, `open <path>` on macOS, `start <path>` on Windows) and tell them the absolute path.\n\nThe report uses **Tailwind via CDN** for layout and styling, and **Mermaid via CDN** for diagrams where a graph/flow/sequence reliably communicates the structure. Mix Mermaid with hand-crafted CSS/SVG visuals: use Mermaid when relationships are graph-shaped (call graphs, dependencies, sequences), and hand-built divs/SVG when you want something more editorial (mass diagrams, cross-sections, collapse animations). Each candidate gets a **before/after visualisation**. Be visual.\n\nFor each candidate, render a card with:\n\n- **Files**: which files/modules are involved\n- **Problem**: why the current architecture is causing friction\n- **Solution**: plain English description of what would change\n- **Benefits**: explained in terms of locality and leverage, and how tests would improve\n- **Before / After diagram**: side-by-side, custom-drawn, illustrating the shallowness and the deepening\n- **Recommendation strength**: one of `Strong`, `Worth exploring`, `Speculative`, rendered as a badge\n\nEnd the report with a **Top recommendation** section: which candidate you'd tackle first and why.\n\n**Use CONTEXT.md vocabulary for the domain, and the `/codebase-design` vocabulary for the architecture.** If `CONTEXT.md` defines \"Order,\" talk about \"the Order intake module,\" not \"the FooBarHandler,\" and not \"the Order service.\"\n\n**ADR conflicts**: if a candidate contradicts an existing ADR, only surface it when the friction is real enough to warrant revisiting the ADR. Mark it clearly in the card (e.g. a warning callout: _\"contradicts ADR-0007, but worth reopening because…\"_). Don't list every theoretical refactor an ADR forbids.\n\nSee [HTML-REPORT.md](HTML-REPORT.md) for the full HTML scaffold, diagram patterns, and styling guidance.\n\nDo NOT propose interfaces yet. After the file is written, ask the user: \"Which of these would you like to explore?\"",
+          "replacement": "### 2. Present candidates as a Markdown report\n\nReturn the candidate report directly in Markdown. Do not create temporary report files, browser infrastructure, or CDN-backed presentation. Use a diagram only where it materially clarifies the architecture; plain Markdown is the default.\n\nFor each candidate, include:\n\n- **Files**: which files/modules are involved\n- **Problem**: why the current architecture is causing friction\n- **Solution**: plain English description of what would change\n- **Benefits**: explained in terms of locality and leverage, and how tests would improve\n- **Before / After diagram**: include only when it materially clarifies the shallowness and the deepening\n- **Recommendation strength**: one of `Strong`, `Worth exploring`, `Speculative`\n\nEnd the report with a **Top recommendation** section: which candidate you'd tackle first and why.\n\n**Use CONTEXT.md vocabulary for the domain, and the `codebase-design` vocabulary for the architecture.** If `CONTEXT.md` defines \"Order,\" talk about \"the Order intake module,\" not \"the FooBarHandler,\" and not \"the Order service.\"\n\n**ADR conflicts**: if a candidate contradicts an existing ADR, only surface it when the friction is real enough to warrant revisiting the ADR. Mark it clearly in the candidate. Don't list every theoretical refactor an ADR forbids.\n\nDo NOT propose interfaces yet. After presenting the Markdown report, ask the user: \"Which of these would you like to explore?\" Then wait for the user's selection before loading later Dependency Skills or changing any production code."
+        }
+      },
+      {
+        "allowedRuntimeChange": "translate-invocation-or-tool",
+        "source": "upstream.md",
+        "evidence": "grilling remains a separate Dependency Skill and is requested only after the upstream user-selection boundary. The Target Runtime invokes it with load_skill.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "Once the user picks a candidate, call the Skill tool with \"grilling\" to walk the decision tree with them: constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.",
+          "replacement": "Once the user picks a candidate, load `grilling` with `load_skill` to walk the decision tree with them: constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive. Keep that Dependency Skill separate; if it cannot be loaded, stop the selected-candidate grilling phase rather than embedding or approximating it."
+        }
+      },
+      {
+        "allowedRuntimeChange": "translate-invocation-or-tool",
+        "source": "upstream.md",
+        "evidence": "domain-modeling remains a separate Dependency Skill and is requested only inside the upstream post-selection grilling loop as decisions crystallize.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "Side effects happen inline as decisions crystallize; call the Skill tool with \"domain-modeling\" to keep the domain model current as you go:",
+          "replacement": "Side effects happen inline as decisions crystallize; load `domain-modeling` with `load_skill` to keep the domain model current as you go. Keep that Dependency Skill separate and request it only at this upstream post-selection point; if it cannot be loaded when required, report that missing capability and stop the affected domain-modeling action:"
+        }
+      },
+      {
+        "allowedRuntimeChange": "translate-invocation-or-tool",
+        "source": "upstream.md",
+        "evidence": "The later codebase-design consultation remains a separate Dependency Skill invocation. Its own Mechanical Projection governs whether independent parallel child design is available.",
+        "transform": {
+          "type": "replace-exact",
+          "match": "- **Want to explore alternative interfaces for the deepened module?** Call the Skill tool with \"codebase-design\" and use its design-it-twice parallel sub-agent pattern.",
+          "replacement": "- **Want to explore alternative interfaces for the deepened module?** Load `codebase-design` with `load_skill` and use its Design It Twice pattern. Follow that Dependency Skill's capability rule for independent children instead of pretending parallel isolation."
+        }
+      }
+    ]
+  }
+}

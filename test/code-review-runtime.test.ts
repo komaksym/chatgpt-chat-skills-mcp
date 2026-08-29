@@ -23,6 +23,15 @@ async function loadText(client: Client, name: string): Promise<string> {
   return block.text;
 }
 
+/** Returns one required section or fails with a useful test error. */
+function between(source: string, start: string, end: string): string {
+  const startIndex = source.indexOf(start);
+  const endIndex = source.indexOf(end, startIndex + start.length);
+  expect(startIndex).toBeGreaterThan(-1);
+  expect(endIndex).toBeGreaterThan(startIndex);
+  return source.slice(startIndex, endIndex);
+}
+
 /** Defines the strict two-axis Mechanical Projection contract. */
 function defineCodeReviewRuntimeSuite(): void {
   let service: RunningService | undefined;
@@ -82,6 +91,12 @@ function defineCodeReviewRuntimeSuite(): void {
     expect(runtime).toContain("- **Spec**:");
     expect(runtime).toContain("**Mysterious Name**");
     expect(runtime).toContain("documented repo standard overrides the baseline");
+    expect(runtime).toContain(
+      'The brief: "Report, per file/hunk where relevant, (a) every place the diff violates a documented standard',
+    );
+    expect(runtime).toContain(
+      'The brief: "Report: (a) requirements the spec asked for that are missing or partial;',
+    );
 
     const standards = runtime.indexOf("### 3. Identify the standards sources");
     const children = runtime.indexOf("### 4. Run both reviews in independent child conversations");
@@ -91,29 +106,65 @@ function defineCodeReviewRuntimeSuite(): void {
     expect(aggregate).toBeGreaterThan(children);
   }
 
-  async function requiresIsolationAndDirectGitHub(): Promise<void> {
+  async function rejectsFakeIsolationAndFalseCapabilityClaims(): Promise<void> {
     const runtime = await generateSkillRuntime("code-review");
-    expect(runtime).toContain("two distinct child conversations");
     expect(runtime).toContain(
-      "Each child must independently resolve the pinned head SHA through connected GitHub",
+      "Requires genuinely independent child-review contexts and reports the axes side by side; strict review stops when equivalent isolation or direct GitHub access is unavailable.",
+    );
+    expect(runtime).not.toContain("Runs both reviews in parallel sub-agents");
+    expect(runtime).toContain(
+      "The pinned upstream workflow has no non-isolated fallback branch",
     );
     expect(runtime).toContain(
-      "Do not paste repository files, diffs, issue bodies, or one child's findings into the other child.",
+      "do not substitute sequential Standards and Spec passes in this conversation or label them as isolated child reviews",
     );
     expect(runtime).toContain(
-      "do not describe sequential passes here as isolated",
-    );
-    expect(runtime).toContain(
-      "The pinned upstream workflow defines no non-isolated fallback branch.",
+      "shared chat history, parent-pasted repository evidence, or one child's findings",
     );
     expect(runtime).not.toContain("NON-ISOLATED REVIEW");
-    expect(runtime).not.toContain("reference chat history");
+  }
+
+  async function keepsChildEvidenceDirectAndUncontaminated(): Promise<void> {
+    const runtime = await generateSkillRuntime("code-review");
+    expect(runtime).toContain(
+      "every child can use connected GitHub directly",
+    );
+    expect(runtime).toContain(
+      "Do not inspect or share any child's findings until all child reviews that will run have completed; aggregate only after that.",
+    );
+
+    const standardsPrompt = between(
+      runtime,
+      "**Standards child-review prompt** should include:",
+      "**Spec child-review prompt** should include:",
+    );
+    expect(standardsPrompt).toContain("standards-source paths");
+    expect(standardsPrompt).toContain(
+      "The child must fetch those repository files itself through connected GitHub.",
+    );
+    expect(standardsPrompt).toContain(
+      "smell baseline from step 3 pasted in full as review methodology",
+    );
+    expect(standardsPrompt).not.toContain("spec source");
+    expect(standardsPrompt).not.toContain("fetched spec contents");
+
+    const specPrompt = between(
+      runtime,
+      "**Spec child-review prompt** should include:",
+      "If the spec is missing, skip the Spec child review",
+    );
+    expect(specPrompt).toContain("repository or GitHub-issue locator");
+    expect(specPrompt).toContain(
+      "The child must fetch that evidence itself through connected GitHub",
+    );
+    expect(specPrompt).not.toContain("standards-source");
+    expect(specPrompt).not.toContain("smell baseline");
   }
 
   async function preservesUpstreamStopsAndRemoteTranslation(): Promise<void> {
     const runtime = await generateSkillRuntime("code-review");
     expect(runtime).toContain(
-      "A bad ref or empty diff should fail here, not inside the two independent review contexts.",
+      "A bad ref or empty diff should fail here, not inside the independent child reviews.",
     );
     expect(runtime).toContain(
       'If the spec is missing, skip the Spec child review and note this in the final report.',
@@ -133,12 +184,14 @@ function defineCodeReviewRuntimeSuite(): void {
     expect(smoke).toContain(
       "Generic browser or tab automation is not equivalent.",
     );
+    expect(smoke).not.toContain("Implementation-time result — 2026-08-29\n\n`PASS`");
   }
 
   it("generates code-review deterministically from pinned upstream", generatesDeterministically);
   it("lists and loads the projected code-review runtime", listsAndLoadsProjectedRuntime);
   it("preserves both axes and upstream process order", preservesAxisMethodologyAndOrder);
-  it("requires independent contexts and direct GitHub", requiresIsolationAndDirectGitHub);
+  it("rejects fake isolation and false capability claims", rejectsFakeIsolationAndFalseCapabilityClaims);
+  it("keeps child evidence direct and uncontaminated", keepsChildEvidenceDirectAndUncontaminated);
   it("preserves upstream stop behavior and remote mechanics", preservesUpstreamStopsAndRemoteTranslation);
   it("records the child-conversation smoke result truthfully", recordsSmokeTruthfully);
 }
