@@ -64,19 +64,39 @@ canary token. No repository contents or sibling findings were pasted between
 contexts. The strict code-review smoke status is therefore `PASS`.
 
 This does not complete the release proof: the targeted manual release evaluation
-record is still `NOT EXERCISED`.
+has no valid passing record yet.
 
-## Targeted manual evaluation attempt — 2026-08-30
+## Targeted manual evaluation — 2026-08-30
 
-A fresh ChatGPT Web conversation was instructed to invoke the connected Skills MCP
-`list_skills` tool directly, with no web-search or documentation fallback. The
-observed result was `UNAVAILABLE: MCP SSE probe returned 429 from openai`.
+The built service for release SHA
+`23f44f01fa99346c8fa27b46defd857982442d8a` returned HTTP 200 with exactly
+`{"status":"ok"}` on its loopback health endpoint. The configured tunnel recorded
+MCP session initialization, metadata fetch, and successful startup. The connected
+Skills boundary then returned exactly the seven public skills: `code-review`,
+`grill-with-docs`, `handoff`, `implement`, `improve-codebase-architecture`,
+`to-spec`, and `to-tickets`.
 
-Because the Skills MCP itself was unavailable at the evaluation boundary, the fixed
-manual release cases in `evals/release/` could not start truthfully. No disposable
-evaluation repositories were provisioned, no GitHub evaluation writes were attempted,
-and no weaker substitute was used. The targeted manual release evaluation therefore
-remains `NOT EXERCISED`; this is the remaining release-proof blocker.
+The paired `representative-to-spec` case was exercised with fresh hidden evaluator
+contexts, the fixed `GPT-5.6 Sol` model, identical task/prompt/capabilities, and the
+two supplied separate fixtures. The baseline created and read back native GitHub
+issue [#2](https://github.com/komaksym/chatgpt-chat-skills-mcp-eval-1788113675-baseline/issues/2)
+with `ready-for-agent`. The adapted variant loaded only `to-spec`, waited for and
+received the exact confirmation, then created and read back native GitHub
+issue [#2](https://github.com/komaksym/chatgpt-chat-skills-mcp-eval-1788113675-adapted/issues/2)
+with `ready-for-agent`. Existing issue #1 in each fixture was left untouched and
+excluded from run evidence.
+
+The two focused observation cases also passed: `grill-with-docs` requested separate
+`grilling` and `domain-modeling` bundles immediately at the parent composition point,
+and `code-review` stopped rather than simulating isolation when independent direct-
+GitHub child contexts were unavailable.
+
+However, both supplied fixtures already contained a duplicate issue #1 before this
+run. That violates the case's fresh-repository reset precondition, so the paired
+case is recorded as invalid rather than as a release pass. The complete record is
+[validated here](../evals/release/runs/2026-08-30-23f44f0.json) with
+`pass: false` for that case. No issue #1 was modified or closed, and no weaker
+substitute was used.
 
 ## Preconditions
 
@@ -132,7 +152,7 @@ Committed evidence must contain no secrets, tunnel credentials, machine-local co
 ## Result
 
 - Overall status: `NOT EXERCISED`
-- ChatGPT Web / tunnel smoke: PARTIAL — discovery, catalog, hidden loads, envelope isolation, dependency timing, and truthful unavailable-capability stopping observed; targeted evaluations still pending
+- ChatGPT Web / tunnel smoke: PARTIAL — local/tunnel readiness and live catalog observed; the paired behavioral run was invalidated by pre-existing fixture issues, so the clean release gate remains open
 - Strict code-review smoke: `PASS` — two independent ChatGPT child conversations satisfied the documented canary on 2026-08-30
-- Deterministic corpus gates: PASS locally for `95bd98f71181557f1069b31cf4020be11a661615`; no release CI URL is claimed here
-- Targeted manual release evaluations: `NOT EXERCISED`; no validated evidence record exists
+- Deterministic corpus gates: PASS on the release tree for `23f44f01fa99346c8fa27b46defd857982442d8a`; [CI run #152](https://github.com/komaksym/chatgpt-chat-skills-mcp/actions/runs/33334872657) passed on that head
+- Targeted manual release evaluations: `FAIL` for this attempt because the supplied fixtures were not fresh; a validated record exists, but it is not a release pass
