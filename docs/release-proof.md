@@ -65,6 +65,18 @@ contexts. The strict code-review smoke status is therefore `PASS`.
 This does not complete the release proof: the targeted manual release evaluation
 record is still `NOT EXERCISED`.
 
+## Targeted manual evaluation attempt — 2026-08-30
+
+A fresh ChatGPT Web conversation was instructed to invoke the connected Skills MCP
+`list_skills` tool directly, with no web-search or documentation fallback. The
+observed result was `UNAVAILABLE: MCP SSE probe returned 429 from openai`.
+
+Because the Skills MCP itself was unavailable at the evaluation boundary, the fixed
+manual release cases in `evals/release/` could not start truthfully. No disposable
+evaluation repositories were provisioned, no GitHub evaluation writes were attempted,
+and no weaker substitute was used. The targeted manual release evaluation therefore
+remains `NOT EXERCISED`; this is the remaining release-proof blocker.
+
 ## Preconditions
 
 1. Build the exact release revision and start the loopback service.
