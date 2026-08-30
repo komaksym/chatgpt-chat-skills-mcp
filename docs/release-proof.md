@@ -32,7 +32,7 @@ An intentionally unavailable GitHub-write capability caused `to-spec` to stop an
 
 The connected GitHub capability exercised a disposable fixture in `komaksym/chatgpt-quota-mcp`: issue `#1` was created, read, labeled with native `documentation` and `ready-for-agent` labels, closed, and read back with closed state. The durable result is [the closed fixture issue](https://github.com/komaksym/chatgpt-quota-mcp/issues/1). No repository credentials or local configuration were recorded.
 
-These observations cover the live Skills tunnel path, but do not complete the release proof: the targeted manual evaluation record and strict two-child code-review canary remain unexercised.
+At the time of these 2026-08-29 observations, the live Skills tunnel path was covered but the release proof was still incomplete because the targeted manual evaluation record and strict two-child code-review canary both remained unexercised. The strict canary was exercised later; the targeted manual evaluation remains pending.
 
 ## Sanitized observation ledger
 
@@ -46,7 +46,24 @@ These observations cover the live Skills tunnel path, but do not complete the re
 | Loader envelope | `Remote execution contract` followed by only requested `code-review` runtime; no `codebase-design` runtime. |
 | Dependency timing | `grill-with-docs → grilling → domain-modeling`. |
 | Required capability unavailable | `to-spec` reported unavailable GitHub write and used no substitute. |
-| GitHub fixture | Disposable issue was created, read, labeled with native `documentation` and `ready-for-agent` labels, closed, and read back closed: [issue #1](https://github.com/komaksym/chatgpt-quota-mcp/issues/1). |
+| GitHub fixture | Disposable issue was created, read, labeled with native `documentation` and `ready-for-agent` labels, closed, and read back closed: [issue #1](https://github.com/komaksym/chatgpt-quota-mcp/issues/1). |\n| Strict child isolation | Two fresh `@chrome-mcp` tabs used distinct ChatGPT conversation IDs; both children independently resolved the same pinned head through GitHub, returned only their own canary, and reported no sibling-canary exposure. |
+
+## Strict child-conversation observation — 2026-08-30
+
+The documented two-child synthetic canary passed against committed head
+`bf5de9371e8255d7ed27c3391b9478ee0b0c3acd`. Two fresh `@chrome-mcp`
+tabs produced distinct ChatGPT conversation IDs. The parent dispatched both prompts
+in parallel and inspected no report until both tabs reported Ready.
+
+The Standards child independently resolved the pinned head through connected GitHub,
+fetched `README.md`, returned `STANDARDS-CANARY-7A`, and reported no other
+canary token. The Spec child independently resolved the same pinned head, fetched
+GitHub issue `#1`, returned `SPEC-CANARY-7B`, and likewise reported no other
+canary token. No repository contents or sibling findings were pasted between
+contexts. The strict code-review smoke status is therefore `PASS`.
+
+This does not complete the release proof: the targeted manual release evaluation
+record is still `NOT EXERCISED`.
 
 ## Preconditions
 
@@ -103,6 +120,6 @@ Committed evidence must contain no secrets, tunnel credentials, machine-local co
 
 - Overall status: `NOT EXERCISED`
 - ChatGPT Web / tunnel smoke: PARTIAL — discovery, catalog, hidden loads, envelope isolation, dependency timing, and truthful unavailable-capability stopping observed; targeted evaluations still pending
-- Strict code-review smoke: use the status recorded in `docs/code-review-strict-smoke.md`
+- Strict code-review smoke: `PASS` — two independent ChatGPT child conversations satisfied the documented canary on 2026-08-30
 - Deterministic corpus gates: PASS locally for `95bd98f71181557f1069b31cf4020be11a661615`; no release CI URL is claimed here
 - Targeted manual release evaluations: `NOT EXERCISED`; no validated evidence record exists
