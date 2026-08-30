@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
-const ROOT = new URL("../", import.meta.url);
+const REPOSITORY_ROOT_URL = new URL("../", import.meta.url);
 const CANONICAL_TERMS = [
   "Faithful Adapter",
   "Upstream Skill Bundle",
@@ -23,11 +23,20 @@ const CANONICAL_TERMS = [
 describe("domain context glossary", () => {
   /** Verifies that issue #1's canonical adaptation vocabulary has one discoverable home. */
   it("defines the canonical issue 1 adaptation terms", async () => {
-    const context = await readFile(new URL("CONTEXT.md", ROOT), "utf8");
-    const headings = [...context.matchAll(/^- \*\*(.+?)\*\* — /gm)].map(([, term]) => term);
+    const context = await readFile(new URL("CONTEXT.md", REPOSITORY_ROOT_URL), "utf8");
+    const sectionStart = context.indexOf("## Canonical terms\n");
+    const nextSectionStart = context.indexOf("\n## ", sectionStart + 1);
+    const canonicalSection = context.slice(
+      sectionStart,
+      nextSectionStart === -1 ? context.length : nextSectionStart,
+    );
+    const headings = [...canonicalSection.matchAll(/^- \*\*(.+?)\*\* — /gm)].map(
+      ([, term]) => term,
+    );
 
-    expect(context).toContain("## Canonical terms");
-    expect(headings).toEqual(CANONICAL_TERMS);
+    expect(sectionStart).toBeGreaterThanOrEqual(0);
+    expect(headings).toHaveLength(CANONICAL_TERMS.length);
+    expect(new Set(headings)).toEqual(new Set(CANONICAL_TERMS));
     expect(context).toContain("GitHub issue #1");
   });
 });
