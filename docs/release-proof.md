@@ -46,7 +46,8 @@ At the time of these 2026-08-29 observations, the live Skills tunnel path was co
 | Loader envelope | `Remote execution contract` followed by only requested `code-review` runtime; no `codebase-design` runtime. |
 | Dependency timing | `grill-with-docs → grilling → domain-modeling`. |
 | Required capability unavailable | `to-spec` reported unavailable GitHub write and used no substitute. |
-| GitHub fixture | Disposable issue was created, read, labeled with native `documentation` and `ready-for-agent` labels, closed, and read back closed: [issue #1](https://github.com/komaksym/chatgpt-quota-mcp/issues/1). |\n| Strict child isolation | Two fresh `@chrome-mcp` tabs used distinct ChatGPT conversation IDs; both children independently resolved the same pinned head through GitHub, returned only their own canary, and reported no sibling-canary exposure. |
+| GitHub fixture | Disposable issue was created, read, labeled with native `documentation` and `ready-for-agent` labels, closed, and read back closed: [issue #1](https://github.com/komaksym/chatgpt-quota-mcp/issues/1). |
+| Strict child isolation | Two fresh `@chrome-mcp` tabs used distinct ChatGPT conversation IDs; both children independently resolved the same pinned head through GitHub, returned only their own canary, and reported no sibling-canary exposure. |
 
 ## Strict child-conversation observation — 2026-08-30
 
