@@ -1,6 +1,6 @@
 # Faithful ChatGPT Web release proof
 
-Status: NOT EXERCISED
+Status: FAIL
 
 This record is not a success claim. The repository-side deterministic gates can be verified in CI, but the complete release requires a real ChatGPT Web Developer Mode session connected through the machine-local Secure MCP Tunnel. Change the status to `PASS` only after every required observation below is captured; otherwise record `FAIL` or leave it `NOT EXERCISED`.
 
@@ -61,7 +61,8 @@ fetched `README.md`, returned `STANDARDS-CANARY-7A`, and reported no other
 canary token. The Spec child independently resolved the same pinned head, fetched
 GitHub issue `#1`, returned `SPEC-CANARY-7B`, and likewise reported no other
 canary token. No repository contents or sibling findings were pasted between
-contexts. The strict code-review smoke status is therefore `PASS`.
+contexts. This is historical evidence only; the current strict review record
+remains `NOT EXERCISED` because the canary was not rerun against the current head.
 
 This does not complete the release proof: the targeted manual release evaluation
 has no valid passing record yet.
@@ -151,8 +152,8 @@ Committed evidence must contain no secrets, tunnel credentials, machine-local co
 
 ## Result
 
-- Overall status: `NOT EXERCISED`
+- Overall status: `FAIL`
 - ChatGPT Web / tunnel smoke: PARTIAL — local/tunnel readiness and live catalog observed; the paired behavioral run was invalidated by pre-existing fixture issues, so the clean release gate remains open
-- Strict code-review smoke: `PASS` — two independent ChatGPT child conversations satisfied the documented canary on 2026-08-30
+- Strict code-review smoke: `NOT EXERCISED` for the current head — the documented canary was observed only against older head `bf5de9371e8255d7ed27c3391b9478ee0b0c3acd`
 - Deterministic corpus gates: PASS on the release tree for `23f44f01fa99346c8fa27b46defd857982442d8a`; [CI run #152](https://github.com/komaksym/chatgpt-chat-skills-mcp/actions/runs/33334872657) passed on that head
 - Targeted manual release evaluations: `FAIL` for this attempt because the supplied fixtures were not fresh; a validated record exists, but it is not a release pass
