@@ -66,3 +66,19 @@ The synthetic canary was not run during implementation. This status does not rej
 the separate-tab mechanism: in this environment, distinct ChatGPT conversations in
 separately addressable `@chrome-mcp` tabs are the intended sub-agent implementation
 and can be recorded as `PASS` once the canary above succeeds.
+
+## Live result — 2026-08-30
+
+`PASS`
+
+The synthetic canary ran against committed head
+`bf5de9371e8255d7ed27c3391b9478ee0b0c3acd`. The parent created two fresh
+`@chrome-mcp` tabs with distinct ChatGPT conversation IDs, dispatched the two
+prompts in parallel, and inspected no report until both tabs reported Ready.
+
+The Standards child returned `STANDARDS-CANARY-7A`, independently resolved the
+pinned head, fetched `README.md`, and reported that it saw no other canary token.
+The Spec child returned `SPEC-CANARY-7B`, independently resolved the same pinned
+head, fetched GitHub issue `#1`, and likewise reported that it saw no other canary
+token. Neither child received parent-pasted repository contents or the sibling
+canary literal.
