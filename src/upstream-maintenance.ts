@@ -758,6 +758,16 @@ export async function checkUpstreamUpdates(options: {
       }
     }
 
+    if (blockers.length > 0) {
+      return {
+        changed: false,
+        blocked: true,
+        runtimeDeltas: [],
+        updates,
+        report: renderReport(updates, runtimeDeltas, expired, blockers),
+      };
+    }
+
     for (const plan of plans) {
       for (const source of plan.sources) {
         await writeFile(

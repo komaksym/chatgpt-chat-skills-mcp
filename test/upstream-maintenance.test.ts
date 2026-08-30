@@ -350,7 +350,7 @@ describe("reviewable upstream Mechanical Projection updates", () => {
       upstream: upstream({ changed: true, entryChanged: true, oldRule: true }),
     });
 
-    expect(result.changed).toBe(true);
+    expect(result.changed).toBe(false);
     expect(result.blocked).toBe(true);
     expect(result.report).toContain(
       "does not match its affected upstream material",
@@ -360,6 +360,10 @@ describe("reviewable upstream Mechanical Projection updates", () => {
 
   it("blocks newly required but unrecorded Supporting Documents", async () => {
     const { root, skillsRoot } = await setup();
+    const sourcePath = join(skillsRoot, "example", "upstream.md");
+    const provenancePath = join(skillsRoot, "example", "provenance.json");
+    const sourceBefore = await readFile(sourcePath, "utf8");
+    const provenanceBefore = await readFile(provenancePath, "utf8");
     const result = await checkUpstreamUpdates({
       repositoryRoot: root,
       skillsRoot,
@@ -370,11 +374,13 @@ describe("reviewable upstream Mechanical Projection updates", () => {
       }),
     });
 
-    expect(result.changed).toBe(true);
+    expect(result.changed).toBe(false);
     expect(result.blocked).toBe(true);
     expect(result.report).toContain(
       "required Supporting Document is not declared: skills/example/EXTRA.md",
     );
+    expect(await readFile(sourcePath, "utf8")).toBe(sourceBefore);
+    expect(await readFile(provenancePath, "utf8")).toBe(provenanceBefore);
   });
 
   it("expires Temporary Upstream Fixes on any affected pin change", async () => {
@@ -388,7 +394,7 @@ describe("reviewable upstream Mechanical Projection updates", () => {
       upstream: upstream({ changed: true }),
     });
 
-    expect(result.changed).toBe(true);
+    expect(result.changed).toBe(false);
     expect(result.blocked).toBe(true);
     expect(result.report).toContain("### Expired Temporary Upstream Fixes");
     expect(result.report).toContain(

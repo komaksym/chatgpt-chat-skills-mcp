@@ -33,12 +33,12 @@ if (process.env.GITHUB_OUTPUT) {
   );
 }
 
-if (!result.changed) {
-  process.stdout.write("No upstream skill changes detected.\n");
-} else if (result.blocked) {
+if (result.blocked) {
   process.stdout.write(
-    `Prepared ${result.updates.length} upstream skill update(s); regeneration requires human resolution.\n`,
+    `Blocked ${result.updates.length} upstream skill update(s); no changes applied.\n`,
   );
+} else if (!result.changed) {
+  process.stdout.write("No upstream skill changes detected.\n");
 } else {
   process.stdout.write(
     `Prepared ${result.updates.length} upstream skill update(s).\n`,
