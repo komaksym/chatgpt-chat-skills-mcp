@@ -12,8 +12,8 @@ source of requirements.
 - **Upstream Skill Bundle** — the exact pinned `SKILL.md` plus every required
   Supporting Document for one skill.
 - **Supporting Document** — a same-bundle document required by the upstream skill to
-  execute its methodology. It is inlined verbatim into the generated runtime when
-  the target runtime cannot resolve it separately.
+  execute its methodology. Mechanical Projection includes every required Supporting
+  Document verbatim in the Self-Contained Runtime.
 - **Dependency Skill** — a separately named skill composed by another skill. It
   remains a separate bundle and is loaded at the timing specified upstream.
 - **Target Runtime Profile** — the stable product constraints for ChatGPT Web through
@@ -46,6 +46,7 @@ source of requirements.
 ## Repository boundaries
 
 GitHub issue #1 owns repository-wide adaptation requirements. ADRs under `docs/adr/`
-record durable tradeoffs. Skill-specific requirements belong in their issue history
-and projection provenance. Runtime and provenance mechanics are documented in
-`docs/maintainer.md` and `docs/architecture.md`.
+record durable tradeoffs. Skill-specific requirements belong in their issue/spec
+history. Projection provenance records implementation evidence and deterministic
+transforms; it is not a requirements source. Runtime and provenance mechanics are
+documented in `docs/maintainer.md` and `docs/architecture.md`.
