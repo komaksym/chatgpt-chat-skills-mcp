@@ -1,0 +1,72 @@
+name: upstream maintenance
+
+on:
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: upstream-maintenance
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out default branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build maintenance command
+        run: npm run build
+
+      - name: Check pinned upstream bundles
+        id: upstream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPSTREAM_REPORT_PATH: ${{ runner.temp }}/upstream-update-pr.md
+        run: node dist/upstream-maintenance-cli.js
+
+      - name: Open human-review pull request
+        if: steps.upstream.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          UPSTREAM_REPORT_PATH: ${{ runner.temp }}/upstream-update-pr.md
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          branch="automation/upstream-${GITHUB_RUN_ID}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git add skills
+          git diff --cached --quiet && {
+            echo "Maintenance reported changes but produced no skill diff." >&2
+            exit 1
+          }
+          git commit -m "chore(skills): vendor upstream updates"
+          git push --set-upstream origin "$branch"
+
+          gh pr create \
+            --base "$DEFAULT_BRANCH" \
+            --head "$branch" \
+            --title "chore(skills): review upstream updates" \
+            --body-file "$UPSTREAM_REPORT_PATH"
