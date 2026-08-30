@@ -49,6 +49,31 @@ describe("issue 15 release documentation", () => {
     }
   });
 
+  /** Verifies that the canonical adaptation vocabulary lives in the domain glossary. */
+  it("defines issue 1 adaptation terms in the root domain glossary", async () => {
+    const context = await read("CONTEXT.md");
+    for (const term of [
+      "Faithful Adapter",
+      "Upstream Skill Bundle",
+      "Supporting Document",
+      "Dependency Skill",
+      "Target Runtime Profile",
+      "Live Capability",
+      "Generated Runtime",
+      "Mechanical Projection",
+      "Self-Contained Runtime",
+      "Allowed Runtime Change",
+      "Equivalent Mechanism",
+      "Unforced Drift",
+      "Change Record",
+      "Runtime Envelope",
+      "Temporary Upstream Fix",
+    ]) {
+      expect(context).toContain(term);
+    }
+    expect(context).toContain("GitHub issue #1");
+  });
+
   /** Verifies that the tunnel guide matches the launcher lifecycle. */
   it("keeps the Secure MCP Tunnel guide aligned with the launcher lifecycle", async () => {
     const tunnel = await read("docs/SECURE_MCP_TUNNEL.md");
