@@ -1,9 +1,11 @@
 # Behavioral release evaluations
 
-This suite is **manual/release only**. It answers one practical question: when the
-same model receives the same task in the same repository context with the same live
-capabilities, does loading one adapted skill make the result follow the important
-outcomes of the pinned upstream workflow?
+This suite is **manual/release only**. It answers one practical question: does the
+product preserve the highest-risk upstream outcomes at the ChatGPT Web boundary?
+It deliberately uses one paired no-skill/with-skill workflow plus focused
+observation cases; it is not an exhaustive skill-by-skill benchmark. Where a
+comparison is used, the same model receives the same task in the same repository
+context with the same live capabilities.
 
 The stochastic model runs are not routine CI. CI may validate the definitions and
 record format, but it must not call a model. Exact Mechanical Projection generation,
@@ -22,9 +24,9 @@ the local mechanism. For example, architecture reporting is judged by the upstre
 candidate fields and selection boundary rather than by whether the adapted runtime
 uses the upstream HTML delivery mechanism.
 
-## Paired protocol
+## Evaluation protocol
 
-For each case:
+For the paired representative case:
 
 1. Prepare two fresh contexts exactly as `repositoryContext.reset` says. If the case
    permits writes, the baseline and adapted variants must use separate disposable
@@ -48,9 +50,13 @@ For each case:
    relationships require observed external evidence. A rubric criterion marked
    `requiresExternalEvidence` cannot pass with an empty `externalResults` record.
 
-Normally there is one representative case per public workflow. A second case is
-allowed for a documented regression or uncovered behavior; anything beyond two is a
-suite-definition error.
+For observation cases, set `baseline` to `null` and use the adapted record to capture
+the direct observation. Do not invent a no-skill comparison for dependency timing or
+an unavailable-capability stop check when direct observation is the meaningful test.
+
+The suite contains one representative normal workflow and focused observations for
+dependency timing and truthful stopping. Add another case only for a documented
+regression or uncovered high-risk behavior.
 
 ## Recording
 
@@ -64,7 +70,8 @@ variant record:
 - one judgment plus evidence for every fixed rubric item;
 - overall pass/fail and a short rationale.
 
-Then write the behavioral delta in `comparison`. A variant may legitimately fail; the
+Then write the behavioral delta in `comparison` for paired cases. Observation cases
+should state what was directly observed instead. A variant may legitimately fail; the
 record must say why rather than turning `not-observed` into success.
 
 Validate the completed record with:

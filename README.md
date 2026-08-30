@@ -8,6 +8,14 @@ skills to ChatGPT without embedding the skill catalog in tool schemas.
 - Node.js 20 or newer
 - npm 10 or newer
 
+## Documentation
+
+- [User guide](docs/user.md) — explicit loading, public discovery, hidden dependencies, and missing capabilities.
+- [Operator guide](docs/operator.md) — install/build/start, health, Secure MCP Tunnel, and launcher lifecycle.
+- [Maintainer guide](docs/maintainer.md) — pinned inputs, Mechanical Projection generation, provenance, and corpus gates.
+- [Architecture](docs/architecture.md) — two-tool surface, committed runtimes, GitHub-only remote behavior, and loopback transport.
+- [Release proof](docs/release-proof.md) — the evidence checklist and current real ChatGPT Web proof status.
+
 ## Development
 
 ```sh

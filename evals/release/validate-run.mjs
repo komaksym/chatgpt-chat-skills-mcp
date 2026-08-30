@@ -28,14 +28,17 @@ function same(left, right) {
 }
 
 function definitions(suite) {
-  if (suite.version !== 3 || suite.mode !== "manual-release-only" || !Array.isArray(suite.cases)) {
-    fail("cases.json must be a version 3 manual-release-only suite.");
+  if (suite.version !== 4 || suite.mode !== "manual-release-only" || !Array.isArray(suite.cases)) {
+    fail("cases.json must be a version 4 manual-release-only suite.");
   }
 
   const seen = new Set();
   const counts = new Map();
   for (const definition of suite.cases) {
     text(definition.id, "case.id");
+    if (definition.mode !== "paired" && definition.mode !== "observation") {
+      fail(definition.id + ".mode must be paired or observation.");
+    }
     text(definition.workflow, definition.id + ".workflow");
     text(definition.model, definition.id + ".model");
     text(definition.task, definition.id + ".task");
@@ -154,6 +157,9 @@ async function main() {
 
     const definition = byId.get(caseId);
     if (!definition) fail("unknown evaluation case " + caseId);
+    if (result.mode !== definition.mode) {
+      fail(caseId + ".mode must match the fixed evaluation mode.");
+    }
     if (
       result.task !== definition.task ||
       result.prompt !== definition.prompt ||
@@ -162,13 +168,18 @@ async function main() {
       fail(caseId + " task/prompt/followUp must match the fixed case exactly.");
     }
 
-    const baseline = variant(
-      result.baseline,
-      definition,
-      null,
-      run.releaseSha,
-      caseId + ".baseline",
-    );
+    let baseline = null;
+    if (definition.mode === "paired") {
+      baseline = variant(
+        result.baseline,
+        definition,
+        null,
+        run.releaseSha,
+        caseId + ".baseline",
+      );
+    } else if (result.baseline !== null) {
+      fail(caseId + ".baseline must be null for an observation case.");
+    }
     const adapted = variant(
       result.adapted,
       definition,
@@ -176,7 +187,11 @@ async function main() {
       run.releaseSha,
       caseId + ".adapted",
     );
-    if (definition.repositoryContext.writes && baseline.repository.url === adapted.repository.url) {
+    if (
+      definition.mode === "paired" &&
+      definition.repositoryContext.writes &&
+      baseline.repository.url === adapted.repository.url
+    ) {
       fail(caseId + " writable variants must use separate disposable repositories.");
     }
 
@@ -189,7 +204,7 @@ async function main() {
   }
 
   process.stdout.write(
-    "Validated " + run.cases.length + " paired manual release evaluations.\n",
+    "Validated " + run.cases.length + " manual release evaluations.\n",
   );
 }
 
