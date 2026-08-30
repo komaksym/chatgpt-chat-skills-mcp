@@ -8,16 +8,6 @@ import { describe, expect, it } from "vitest";
 
 const ROOT = new URL("../evals/release/", import.meta.url);
 const PIN = "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76";
-const PUBLIC = [
-  "grill-with-docs",
-  "to-spec",
-  "to-tickets",
-  "implement",
-  "code-review",
-  "improve-codebase-architecture",
-  "handoff",
-];
-
 interface RubricCriterion {
   id: string;
   passWhen: string;
@@ -30,6 +20,7 @@ interface RubricCriterion {
 
 interface EvaluationCase {
   id: string;
+  mode: "paired" | "observation";
   workflow: string;
   model: string;
   task: string;
@@ -81,23 +72,26 @@ function completedRun(data: Suite): Record<string, unknown> {
         baseSha: item.repositoryContext.baseSha,
       };
 
+      const baseline = item.mode === "paired" ? {
+        skill: null,
+        model: item.model,
+        skillsMcp: { ...skillsMcp },
+        repository: { ...repository, url: `https://example.test/baseline-${index}` },
+        capabilities: item.capabilities,
+        output: "Observed baseline output.",
+        externalResults: [...externalResults],
+        rubric,
+        pass: true,
+        rationale: "Baseline fixture completed.",
+      } : null;
+
       return {
         caseId: item.id,
+        mode: item.mode,
         task: item.task,
         prompt: item.prompt,
         followUp: item.followUp ?? null,
-        baseline: {
-          skill: null,
-          model: item.model,
-          skillsMcp: { ...skillsMcp },
-          repository: { ...repository, url: `https://example.test/baseline-${index}` },
-          capabilities: item.capabilities,
-          output: "Observed baseline output.",
-          externalResults: [...externalResults],
-          rubric,
-          pass: true,
-          rationale: "Baseline fixture completed.",
-        },
+        baseline,
         adapted: {
           skill: item.workflow,
           model: item.model,
@@ -119,11 +113,13 @@ function completedRun(data: Suite): Record<string, unknown> {
 }
 
 describe("manual faithful-workflow release evaluations", () => {
-  it("fixes comparable paired inputs for every public workflow", async () => {
+  it("defines one paired case and focused observation cases", async () => {
     const data = await suite();
-    expect(data.version).toBe(3);
+    expect(data.version).toBe(4);
     expect(data.mode).toBe("manual-release-only");
-    expect(data.cases.map((item) => item.workflow).sort()).toEqual([...PUBLIC].sort());
+    expect(data.cases).toHaveLength(3);
+    expect(data.cases.filter((item) => item.mode === "paired")).toHaveLength(1);
+    expect(data.cases.filter((item) => item.mode === "observation")).toHaveLength(2);
 
     for (const item of data.cases) {
       expect(item.model).toBe("GPT-5.6 Sol");
@@ -153,25 +149,20 @@ describe("manual faithful-workflow release evaluations", () => {
     }
   });
 
-  it("keeps one or two representative cases and covers issue 14 outcomes", async () => {
+  it("covers the agreed high-risk release outcomes", async () => {
     const data = await suite();
-    const counts = new Map<string, number>();
     const rubricIds = data.cases.flatMap((item) => item.rubric.map((criterion) => criterion.id));
 
-    for (const item of data.cases) {
-      counts.set(item.workflow, (counts.get(item.workflow) ?? 0) + 1);
-    }
-    expect([...counts.values()].every((count) => count >= 1 && count <= 2)).toBe(true);
     expect(rubricIds).toEqual(
       expect.arrayContaining([
         "dependency-timing",
-        "native-relationships",
         "ready-for-agent",
-        "seam-confirmation",
         "stop-instead-degrade",
-        "upstream-example",
       ]),
     );
+    expect(data.cases.find((item) => item.workflow === "to-spec")?.mode).toBe("paired");
+    expect(data.cases.find((item) => item.workflow === "grill-with-docs")?.mode).toBe("observation");
+    expect(data.cases.find((item) => item.workflow === "code-review")?.mode).toBe("observation");
   });
 
   it("keeps workflow answers and forbidden product changes out of evaluation inputs", async () => {
@@ -184,24 +175,6 @@ describe("manual faithful-workflow release evaluations", () => {
       /inspect repository evidence|distinguish facts from decisions|canonical domain language/i,
     );
     expect(byWorkflow.get("to-spec")).not.toMatch(/includeHidden|ask and wait|requires confirmation/i);
-    expect(byWorkflow.get("to-tickets")).not.toMatch(
-      /tracer-bullet|native hierarchy|blocking relationships|show the complete proposed breakdown|wait;|do not create/i,
-    );
-    expect(byWorkflow.get("implement")).not.toMatch(
-      /sourceRef|provenance upstream commit|non-default feature branch/i,
-    );
-    expect(byWorkflow.get("code-review")).not.toMatch(
-      /two-axis|independent review contexts|sequential passes|pretend a child/i,
-    );
-    expect(byWorkflow.get("improve-codebase-architecture")).not.toMatch(
-      /stop at the upstream user-selection boundary|canonical architecture vocabulary|stop after asking/i,
-    );
-    expect(byWorkflow.get("handoff")).not.toMatch(
-      /suggests next skills|redacts sensitive material|Suggested next workflows|do not carry sensitive material/i,
-    );
-
-    const toTickets = data.cases.find((item) => item.workflow === "to-tickets");
-    expect(JSON.stringify(toTickets?.repositoryContext)).not.toContain("includeHidden");
   });
 
   it("marks criteria that require observed external state", async () => {
@@ -216,17 +189,13 @@ describe("manual faithful-workflow release evaluations", () => {
       expect.arrayContaining([
         "to-spec:ready-for-agent",
         "to-spec:observed-publication",
-        "to-tickets:native-relationships",
-        "to-tickets:ready-for-agent",
-        "to-tickets:upstream-ticket-shape",
-        "implement:observed-red-green",
-        "implement:verification-cadence",
-        "implement:commit-review-current-branch",
+        "grill-with-docs:dependency-timing",
+        "code-review:stop-instead-degrade",
       ]),
     );
   });
 
-  it("records comparable outputs, external results, judgments, pass/fail, and rationale", async () => {
+  it("records paired and observation outputs, external results, judgments, and rationale", async () => {
     const template = JSON.parse(
       await readFile(new URL("run-template.json", ROOT), "utf8"),
     ) as Record<string, unknown>;
@@ -238,6 +207,7 @@ describe("manual faithful-workflow release evaluations", () => {
       cases: [
         {
           caseId: "",
+          mode: "paired",
           task: "",
           prompt: "",
           followUp: null,
@@ -287,7 +257,7 @@ describe("manual faithful-workflow release evaluations", () => {
           adapted: { externalResults: unknown[] };
         }>;
       };
-      const toSpec = run.cases.find((item) => item.caseId === "to-spec-seam-label-example");
+      const toSpec = run.cases.find((item) => item.caseId === "representative-to-spec");
       if (!toSpec) throw new Error("expected to-spec evaluation case");
       toSpec.adapted.externalResults = [];
       await writeFile(runPath, JSON.stringify(run), "utf8");
@@ -325,7 +295,7 @@ describe("manual faithful-workflow release evaluations", () => {
     }
   });
 
-  it("validates completed paired records through the CLI boundary", async () => {
+  it("validates completed paired and observation records through the CLI boundary", async () => {
     const data = await suite();
     const directory = await mkdtemp(join(tmpdir(), "release-evals-"));
     const runPath = join(directory, "run.json");
@@ -337,7 +307,7 @@ describe("manual faithful-workflow release evaluations", () => {
 
       const valid = spawnSync(process.execPath, [validatorPath, runPath], { encoding: "utf8" });
       expect(valid.status).toBe(0);
-      expect(valid.stdout).toContain("Validated 7 paired manual release evaluations.");
+      expect(valid.stdout).toContain("Validated 3 manual release evaluations.");
 
       const invalid = run as {
         cases: Array<{ adapted: { capabilities: string[] } }>;
@@ -352,6 +322,29 @@ describe("manual faithful-workflow release evaluations", () => {
       expect(rejected.stderr).toContain(
         "capabilities must exactly match the fixed case capabilities",
       );
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects a baseline record for an observation case", async () => {
+    const data = await suite();
+    const directory = await mkdtemp(join(tmpdir(), "release-evals-"));
+    const runPath = join(directory, "run.json");
+    const validatorPath = fileURLToPath(new URL("validate-run.mjs", ROOT));
+
+    try {
+      const run = completedRun(data) as {
+        cases: Array<{ caseId: string; baseline: unknown }>;
+      };
+      const observation = run.cases.find((item) => item.caseId === "grill-with-docs-dependency-timing");
+      if (!observation) throw new Error("expected dependency-timing observation case");
+      observation.baseline = {};
+      await writeFile(runPath, JSON.stringify(run), "utf8");
+
+      const rejected = spawnSync(process.execPath, [validatorPath, runPath], { encoding: "utf8" });
+      expect(rejected.status).toBe(1);
+      expect(rejected.stderr).toContain("baseline must be null for an observation case");
     } finally {
       await rm(directory, { recursive: true, force: true });
     }

@@ -12,7 +12,7 @@ A browser request to `http://127.0.0.1:2092/healthz` reached a browser error pag
 
 The local checkout tested revision `1a7a341ff83af095ec00aac7b69631f2305c902b`. `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, and `npm run corpus:check` completed successfully; the test suite reported 14 files and 98 tests, and the corpus check reported 11 skills (7 public and 4 hidden). After starting that built revision directly, `GET /healthz` returned HTTP 200 with exactly `{"status":"ok"}`.
 
-The installed launcher was also invoked with the built service, but this machine-local session could not start the managed Skills target because its default state location was not writable and no dedicated `chatgpt-chat-skills-mcp` tunnel runtime was available. Native tunnel runtime creation and Chrome selection were unavailable in the session. These are environment blockers, not live acceptance results; the tunnel/Web, GitHub fixture, missing-capability, paired-evaluation, and strict child-conversation observations remain `NOT EXERCISED`.
+The installed launcher was also invoked with the built service, but this machine-local session could not start the managed Skills target because its default state location was not writable and no dedicated `chatgpt-chat-skills-mcp` tunnel runtime was available. Native tunnel runtime creation and Chrome selection were unavailable in the session. These are environment blockers, not live acceptance results; the tunnel/Web, GitHub fixture, missing-capability, targeted-evaluation, and strict child-conversation observations remain `NOT EXERCISED`.
 
 The deterministic gates were rerun against the current pushed revision `95bd98f71181557f1069b31cf4020be11a661615` after the live session. Lint, typecheck, tests (14 files / 98 tests), build, and corpus check (11 skills / 7 public / 4 hidden) passed. The first test attempt was intentionally discarded because the live service occupied port 2092; after stopping the service, the clean rerun passed.
 
@@ -32,7 +32,7 @@ An intentionally unavailable GitHub-write capability caused `to-spec` to stop an
 
 The connected GitHub capability exercised a disposable fixture in `komaksym/chatgpt-quota-mcp`: issue `#1` was created, read, labeled with native `documentation` and `ready-for-agent` labels, closed, and read back with closed state. The durable result is [the closed fixture issue](https://github.com/komaksym/chatgpt-quota-mcp/issues/1). No repository credentials or local configuration were recorded.
 
-These observations cover the live Skills tunnel path, but do not complete the release proof: the paired manual evaluation record and strict two-child code-review canary remain unexercised.
+These observations cover the live Skills tunnel path, but do not complete the release proof: the targeted manual evaluation record and strict two-child code-review canary remain unexercised.
 
 ## Sanitized observation ledger
 
@@ -89,7 +89,7 @@ npm run build
 npm run corpus:check
 ```
 
-Also complete the small paired manual release evaluations exactly as documented in `evals/release/README.md`, validate the completed record with `node evals/release/validate-run.mjs`, and keep the observed Skills MCP revision tied to the release revision under test.
+Also complete the targeted manual release evaluations exactly as documented in `evals/release/README.md`, validate the completed record with `node evals/release/validate-run.mjs`, and keep the observed Skills MCP revision tied to the release revision under test.
 
 ## Maintenance scope
 
@@ -102,7 +102,7 @@ Committed evidence must contain no secrets, tunnel credentials, machine-local co
 ## Result
 
 - Overall status: `NOT EXERCISED`
-- ChatGPT Web / tunnel smoke: PARTIAL — discovery, catalog, hidden loads, envelope isolation, dependency timing, and truthful unavailable-capability stopping observed; paired evaluations still pending
+- ChatGPT Web / tunnel smoke: PARTIAL — discovery, catalog, hidden loads, envelope isolation, dependency timing, and truthful unavailable-capability stopping observed; targeted evaluations still pending
 - Strict code-review smoke: use the status recorded in `docs/code-review-strict-smoke.md`
 - Deterministic corpus gates: PASS locally for `95bd98f71181557f1069b31cf4020be11a661615`; no release CI URL is claimed here
-- Manual release evaluations: `NOT EXERCISED`; no validated evidence record exists
+- Targeted manual release evaluations: `NOT EXERCISED`; no validated evidence record exists

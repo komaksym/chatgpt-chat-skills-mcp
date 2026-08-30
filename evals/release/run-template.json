@@ -5,6 +5,7 @@
   "cases": [
     {
       "caseId": "",
+      "mode": "paired",
       "task": "",
       "prompt": "",
       "followUp": null,
