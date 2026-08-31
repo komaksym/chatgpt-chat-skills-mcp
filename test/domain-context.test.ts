@@ -24,13 +24,13 @@ describe("domain context glossary", () => {
   /** Verifies that issue #1's canonical adaptation vocabulary has one discoverable home. */
   it("defines the canonical issue 1 adaptation terms", async () => {
     const context = await readFile(new URL("CONTEXT.md", REPOSITORY_ROOT_URL), "utf8");
-    const sectionStart = context.indexOf("## Canonical terms\n");
+    const sectionStart = context.indexOf("## Language\n");
     const nextSectionStart = context.indexOf("\n## ", sectionStart + 1);
     const canonicalSection = context.slice(
       sectionStart,
       nextSectionStart === -1 ? context.length : nextSectionStart,
     );
-    const headings = [...canonicalSection.matchAll(/^- \*\*(.+?)\*\* — /gm)].map(
+    const headings = [...canonicalSection.matchAll(/^\*\*(.+?)\*\*:\s*$/gm)].map(
       ([, term]) => term,
     );
 
@@ -38,5 +38,6 @@ describe("domain context glossary", () => {
     expect(headings).toHaveLength(CANONICAL_TERMS.length);
     expect(new Set(headings)).toEqual(new Set(CANONICAL_TERMS));
     expect(context).toContain("GitHub issue #1");
+    expect(context).not.toContain("## Repository boundaries");
   });
 });
