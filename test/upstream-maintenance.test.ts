@@ -122,13 +122,13 @@ async function fixture(
         visibility: "public",
         description: "Fixture skill.",
         dependencies: [],
-        upstream: {
+        sourceProvenance: {
+          type: "pinned-github",
           repository: "https://github.com/example/skills",
-          location: "skills/example/SKILL.md",
           commit: OLD,
+          license: "MIT",
+          attribution: "Fixture",
         },
-        license: "MIT",
-        attribution: "Fixture",
         projection,
       },
       null,
@@ -201,13 +201,13 @@ async function addUnchangedInvalidBundle(skillsRoot: string): Promise<void> {
         visibility: "hidden",
         description: "Unchanged fixture skill.",
         dependencies: [],
-        upstream: {
+        sourceProvenance: {
+          type: "pinned-github",
           repository: "https://github.com/example/skills",
-          location: "skills/untouched/SKILL.md",
           commit: OLD,
+          license: "MIT",
+          attribution: "Fixture",
         },
-        license: "MIT",
-        attribution: "Fixture",
         projection: {
           entrypoint: "upstream.md",
           sources: [
