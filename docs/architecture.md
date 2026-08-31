@@ -14,7 +14,7 @@ There is no runtime provenance service. Source pins, Change Records, licenses, a
 
 ## Versioned Target Runtime Profiles
 
-`chatgpt-web-mcp-v1` is frozen with its historical GitHub-centric semantics: it does not assume a local checkout, shell, filesystem, Git CLI, background process, connected tool, or write access. Existing Change Records keep that meaning permanently.
+`chatgpt-web-mcp-v1` is frozen with its historical GitHub-only, GitHub-centric semantics: it does not assume a local checkout, shell, filesystem, Git CLI, background process, connected tool, or write access. Existing Change Records keep that meaning permanently.
 
 `chatgpt-web-mcp-v2` models the richer ChatGPT Web environment without redefining v1. It can cite stable support for the ChatGPT sandbox, connected GitHub, Chrome Browser MCP, Playwright MCP, independent ChatGPT child workers, and ChatGPT Library for appropriate user-facing deliverables. It still denies arbitrary host filesystem access, native-application control, local daemons, and unrelated host processes.
 
