@@ -1,5 +1,10 @@
 import * as z from "zod/v4";
 
+import {
+  isLegacyV1ProvenanceName,
+  pinnedSourceProvenance as resolvePinnedSourceProvenance,
+} from "./provenance-state.mjs";
+
 export const CANONICAL_NAME = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const COMMIT_SHA = /^[a-f0-9]{40}$/;
 const SHA256 = /^[a-f0-9]{64}$/;
@@ -87,20 +92,24 @@ const targetRuntimeV2ConstraintSchema = z.enum([
   "no-unrelated-host-processes",
 ]);
 
+const targetRuntimeV1EvidenceSchema = z.strictObject({
+  targetRuntimeProfile: z.literal(TARGET_RUNTIME_PROFILE_V1_ID),
+  constraints: z.array(targetRuntimeV1ConstraintSchema).min(1),
+  incompatibility: z.string().min(1),
+});
+
+const targetRuntimeV2EvidenceSchema = z.strictObject({
+  targetRuntimeProfile: z.literal(TARGET_RUNTIME_PROFILE_V2_ID),
+  constraints: z.array(targetRuntimeV2ConstraintSchema).min(1),
+  incompatibility: z.string().min(1),
+});
+
 const targetRuntimeEvidenceSchema = z.discriminatedUnion("targetRuntimeProfile", [
-  z.strictObject({
-    targetRuntimeProfile: z.literal(TARGET_RUNTIME_PROFILE_V1_ID),
-    constraints: z.array(targetRuntimeV1ConstraintSchema).min(1),
-    incompatibility: z.string().min(1),
-  }),
-  z.strictObject({
-    targetRuntimeProfile: z.literal(TARGET_RUNTIME_PROFILE_V2_ID),
-    constraints: z.array(targetRuntimeV2ConstraintSchema).min(1),
-    incompatibility: z.string().min(1),
-  }),
+  targetRuntimeV1EvidenceSchema,
+  targetRuntimeV2EvidenceSchema,
 ]);
 
-const changeRecordSchema = z.strictObject({
+const changeRecordFields = {
   allowedRuntimeChange: z.enum([
     "inline-supporting-document",
     "translate-invocation-or-tool",
@@ -108,8 +117,17 @@ const changeRecordSchema = z.strictObject({
     "select-upstream-supported-branch",
   ]),
   source: artifactPathSchema,
-  evidence: targetRuntimeEvidenceSchema,
   transform: z.discriminatedUnion("type", [replaceExactSchema, appendSourceSchema]),
+} as const;
+
+const legacyV1ChangeRecordSchema = z.strictObject({
+  ...changeRecordFields,
+  evidence: targetRuntimeV1EvidenceSchema,
+});
+
+const changeRecordSchema = z.strictObject({
+  ...changeRecordFields,
+  evidence: targetRuntimeEvidenceSchema,
 });
 
 const pinnedSourceArtifactSchema = z.strictObject({
@@ -136,11 +154,20 @@ const temporaryUpstreamFixSchema = z.strictObject({
   transform: replaceExactSchema,
 });
 
-const pinnedProjectionSchema = z.strictObject({
+const pinnedProjectionFields = {
   entrypoint: artifactPathSchema,
   sources: z.array(pinnedSourceArtifactSchema).min(1),
-  changeRecords: z.array(changeRecordSchema),
   temporaryUpstreamFix: temporaryUpstreamFixSchema.optional(),
+} as const;
+
+const legacyV1PinnedProjectionSchema = z.strictObject({
+  ...pinnedProjectionFields,
+  changeRecords: z.array(legacyV1ChangeRecordSchema),
+});
+
+const pinnedProjectionSchema = z.strictObject({
+  ...pinnedProjectionFields,
+  changeRecords: z.array(changeRecordSchema),
 });
 
 const absentProjectionSchema = z.strictObject({
@@ -169,6 +196,7 @@ const commonProvenanceFields = {
 
 const legacyV1ProvenanceSchema = z.strictObject({
   ...commonProvenanceFields,
+  name: commonProvenanceFields.name.refine(isLegacyV1ProvenanceName),
   upstream: z.strictObject({
     repository: z.url(),
     location: z.string().min(1),
@@ -176,7 +204,7 @@ const legacyV1ProvenanceSchema = z.strictObject({
   }),
   license: z.string().min(1),
   attribution: z.string().min(1),
-  projection: pinnedProjectionSchema,
+  projection: legacyV1PinnedProjectionSchema,
 });
 
 const pinnedGitHubProvenanceSchema = z.strictObject({
@@ -224,32 +252,7 @@ export interface PinnedSourceProvenance {
 export function getPinnedSourceProvenance(
   provenance: SkillProvenance,
 ): PinnedSourceProvenance | undefined {
-  if ("upstream" in provenance) {
-    return {
-      repository: provenance.upstream.repository,
-      location: provenance.upstream.location,
-      commit: provenance.upstream.commit,
-      license: provenance.license,
-      attribution: provenance.attribution,
-    };
-  }
-  if (provenance.sourceProvenance.type === "absent") {
-    return undefined;
-  }
-
-  const entrypoint = provenance.projection.sources.find(
-    (source) => source.path === provenance.projection.entrypoint,
-  );
-  if (!entrypoint || !isPinnedProjectionSource(entrypoint)) {
-    return undefined;
-  }
-  return {
-    repository: provenance.sourceProvenance.repository,
-    location: entrypoint.upstreamPath,
-    commit: provenance.sourceProvenance.commit,
-    license: provenance.sourceProvenance.license,
-    attribution: provenance.sourceProvenance.attribution,
-  };
+  return resolvePinnedSourceProvenance(provenance);
 }
 
 /** Narrows one projection source to exact pinned GitHub/source-integrity metadata. */
