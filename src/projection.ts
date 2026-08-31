@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 
 import {
   CANONICAL_NAME,
+  getPinnedSourceProvenance,
+  isPinnedProjectionSource,
   parseSkillProvenance,
   type SkillProvenance,
 } from "./provenance.js";
@@ -77,6 +79,19 @@ async function readPinnedSource(
   return source;
 }
 
+/** Reads one intentionally unpinned local source for an absent-provenance bundle. */
+async function readLocalSource(
+  name: string,
+  bundleRoot: string,
+  path: string,
+): Promise<string> {
+  try {
+    return await readFile(join(bundleRoot, path), "utf8");
+  } catch {
+    throw new Error(`Missing projection source: ${name}/${path}.`);
+  }
+}
+
 /** Reads non-empty repository evidence required by a Temporary Upstream Fix. */
 async function requireEvidence(path: string, label: string): Promise<void> {
   let source: string;
@@ -147,7 +162,9 @@ export async function generateSkillRuntime(
     }
     sources.set(
       source.path,
-      await readPinnedSource(name, bundleRoot, source.path, source.sha256),
+      isPinnedProjectionSource(source)
+        ? await readPinnedSource(name, bundleRoot, source.path, source.sha256)
+        : await readLocalSource(name, bundleRoot, source.path),
     );
   }
 
@@ -224,7 +241,8 @@ export async function generateSkillRuntime(
 
   const fix = projection.temporaryUpstreamFix;
   if (fix) {
-    if (fix.upstreamCommit !== provenance.upstream.commit) {
+    const pinnedProvenance = getPinnedSourceProvenance(provenance);
+    if (!pinnedProvenance || fix.upstreamCommit !== pinnedProvenance.commit) {
       throw new Error(
         `Temporary Upstream Fix for ${name} expired when the upstream pin changed.`,
       );
@@ -248,7 +266,11 @@ export async function generateSkillRuntime(
           `Temporary Upstream Fix for ${name} cannot verify dependency ${dependencyPin.name} upstream pin.`,
         );
       }
-      if (dependency.upstream.commit !== dependencyPin.upstreamCommit) {
+      const dependencyProvenance = getPinnedSourceProvenance(dependency);
+      if (
+        !dependencyProvenance ||
+        dependencyProvenance.commit !== dependencyPin.upstreamCommit
+      ) {
         throw new Error(
           `Temporary Upstream Fix for ${name} expired when dependency ${dependencyPin.name} upstream pin changed.`,
         );

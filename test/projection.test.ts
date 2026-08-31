@@ -98,13 +98,13 @@ async function createProjectionFixture(
         visibility: "public",
         description: "Projection fixture.",
         dependencies: [],
-        upstream: {
+        sourceProvenance: {
+          type: "pinned-github",
           repository: "https://github.com/example/skills",
-          location: "skills/fixture/SKILL.md",
           commit: PIN_B,
+          license: "MIT",
+          attribution: "Fixture author",
         },
-        license: "MIT",
-        attribution: "Fixture author",
         projection,
       },
       null,
