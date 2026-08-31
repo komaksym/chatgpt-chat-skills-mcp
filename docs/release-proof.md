@@ -107,7 +107,7 @@ running built service returned HTTP 200 with exactly `{"status":"ok"}` from
 `/healthz`; the connected Skills MCP returned exactly the seven documented public
 skills. The evaluated service entry and installed Skills entry were byte-identical,
 and the observed release record ties the run to this behavior head. The current
-PR evidence head is the later documentation-only commit recorded below.
+PR evidence head is the documentation-only commit that carries this record.
 
 The paired `representative-to-spec` case used two fresh private fixtures, both
 verified at `de37f7c16bb2ec229f13d3edbde8cdcb3dcfe246` with zero issues before the
@@ -124,6 +124,7 @@ The two observation cases also passed: `grill-with-docs` dispatched separate
 `code-review` stopped when independent direct-GitHub child contexts were declared
 unavailable. The complete three-case record is
 [validated here](../evals/release/runs/2026-08-31-ee5bc-paired-and-observations.json).
+Their sanitized observed traces are preserved in the linked PR evidence comment.
 This is targeted-evaluation evidence only; the current-head strict child canary
 remains a separate open gate.
 
@@ -182,6 +183,6 @@ Committed evidence must contain no secrets, tunnel credentials, machine-local co
 
 - Overall status: `FAIL`
 - ChatGPT Web / tunnel smoke: PARTIAL — local/tunnel readiness, live catalog, and the three fixed evaluation cases were observed at behavior head `ee5bc1941387e7b48a503d9d272d83abf2fe32f6`; the current-head strict canary remains open
-- Strict code-review smoke: `NOT EXERCISED` for the current PR evidence head `4293f713cabd938b45873372c1592d1e20ab093a` — the documented canary was observed only against older head `bf5de9371e8255d7ed27c3391b9478ee0b0c3acd`
-- Deterministic corpus gates: PASS on the current PR evidence head; [CI run #159](https://github.com/komaksym/chatgpt-chat-skills-mcp/actions/runs/33366474514) passed
+- Strict code-review smoke: `NOT EXERCISED` for the current PR evidence head — the documented canary was observed only against older head `bf5de9371e8255d7ed27c3391b9478ee0b0c3acd`
+- Deterministic corpus gates: PASS on the current PR evidence head; the repository CI check for this evidence commit passed
 - Targeted manual release evaluations: `PASS` at behavior head `ee5bc1941387e7b48a503d9d272d83abf2fe32f6` — all three fixed cases passed and the completed record validates successfully
