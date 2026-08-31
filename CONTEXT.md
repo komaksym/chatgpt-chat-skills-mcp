@@ -1,52 +1,74 @@
 # Domain Context
 
-This repository is a **Faithful Adapter** for Matt Pocock's pinned engineering skills.
-GitHub issue #1 is the canonical adaptation contract. This file defines the domain
-vocabulary used by that contract; it does not restate policy or introduce a second
-source of requirements.
+This context defines the vocabulary for preserving upstream engineering methodology
+while adapting it to a constrained runtime. It exists so GitHub issue #1's canonical
+terms are used consistently.
 
-## Canonical terms
+## Language
 
-- **Faithful Adapter** — a repository that preserves upstream methodology by default
-  and changes it only when the Target Runtime Profile forces an allowed adaptation.
-- **Upstream Skill Bundle** — the exact pinned `SKILL.md` plus every required
-  Supporting Document for one skill.
-- **Supporting Document** — a same-bundle document required by the upstream skill to
-  execute its methodology. Mechanical Projection includes every required Supporting
-  Document verbatim in the Self-Contained Runtime.
-- **Dependency Skill** — a separately named skill composed by another skill. It
-  remains a separate bundle and is loaded at the timing specified upstream.
-- **Target Runtime Profile** — the stable product constraints for ChatGPT Web through
-  this MCP: exactly `load_skill` and `list_skills`, GitHub as repository and issue
-  tracker, and no assumed local checkout, shell, filesystem, Git CLI, background
-  process, connected tool, or write access.
-- **Live Capability** — a capability actually observed in the current conversation.
-  Product support alone is not evidence that a read, write, relationship, browser,
-  child-conversation, or execution operation is available.
-- **Generated Runtime** — the committed `runtime.md` served for one skill.
-- **Mechanical Projection** — the deterministic development-time transformation from
-  a verified Upstream Skill Bundle, ordered Change Records, and any active Temporary
-  Upstream Fix into the Generated Runtime.
-- **Self-Contained Runtime** — a Generated Runtime containing every required
-  Supporting Document while keeping Dependency Skills separate.
-- **Allowed Runtime Change** — one of the four adaptation categories authorized by
-  GitHub issue #1. The list is closed; this glossary does not redefine those rules.
-- **Equivalent Mechanism** — an alternate available mechanism that produces the same
-  externally visible result as the unavailable upstream operation.
-- **Unforced Drift** — a difference from pinned upstream that is not required by the
-  Target Runtime Profile or an active Temporary Upstream Fix.
-- **Change Record** — compact machine-checkable provenance for one intentional
-  runtime difference, including its allowed category, affected upstream material,
-  concrete Target Runtime Profile evidence, and deterministic transformation.
-- **Runtime Envelope** — centralized cross-skill remote-execution guidance prepended
-  by the loader and kept outside each Generated Runtime.
-- **Temporary Upstream Fix** — a minimal, exceptional, pin-guarded correction for a
-  reproduced upstream contradiction that no Allowed Runtime Change can resolve.
+**Faithful Adapter**:
+A repository that preserves an upstream skill's methodology and changes it only
+when the target runtime requires an allowed adaptation.
+_Avoid_: local rewrite, methodology fork
 
-## Repository boundaries
+**Upstream Skill Bundle**:
+The upstream skill and the documents it needs in order to be understood and used.
+_Avoid_: source file, prompt fragment
 
-GitHub issue #1 owns repository-wide adaptation requirements. ADRs under `docs/adr/`
-record durable tradeoffs. Skill-specific requirements belong in their issue/spec
-history. Projection provenance records implementation evidence and deterministic
-transforms; it is not a requirements source. Runtime and provenance mechanics are
-documented in `docs/maintainer.md` and `docs/architecture.md`.
+**Supporting Document**:
+A document that an upstream skill needs in order to explain or carry out its
+methodology.
+_Avoid_: unrelated reference, dependency skill
+
+**Dependency Skill**:
+A separately named skill that another skill uses while remaining its own distinct
+bundle.
+_Avoid_: embedded skill, copied methodology
+
+**Target Runtime Profile**:
+The fixed constraints of the environment where an adapted skill is used.
+_Avoid_: user preference, live capability
+
+**Live Capability**:
+A capability verified in the current conversation rather than assumed from product
+support.
+_Avoid_: documented support, expected access
+
+**Generated Runtime**:
+The runtime text produced for one skill after its upstream methodology has been
+adapted.
+_Avoid_: upstream source, implementation notes
+
+**Mechanical Projection**:
+A repeatable transformation from an upstream skill bundle into its target runtime.
+_Avoid_: rewrite, creative adaptation
+
+**Self-Contained Runtime**:
+A runtime that contains the supporting material needed to understand and use it.
+_Avoid_: flattened dependencies, incomplete runtime
+
+**Allowed Runtime Change**:
+An adaptation category explicitly permitted by GitHub issue #1.
+_Avoid_: convenience change, preference-based cleanup
+
+**Equivalent Mechanism**:
+An alternate way to produce the same visible result as an unavailable operation.
+_Avoid_: weaker substitute, textual imitation
+
+**Unforced Drift**:
+A difference from upstream that the target runtime does not require.
+_Avoid_: harmless rewrite, local improvement
+
+**Change Record**:
+A concise explanation of why a runtime differs from upstream and how that difference
+is bounded.
+_Avoid_: implementation log, scratch note
+
+**Runtime Envelope**:
+Shared guidance that applies across loaded skills.
+_Avoid_: skill-specific methodology, duplicated instructions
+
+**Temporary Upstream Fix**:
+A narrow correction for a reproduced upstream contradiction while its resolution is
+not yet part of the upstream source.
+_Avoid_: permanent fork, undocumented patch
