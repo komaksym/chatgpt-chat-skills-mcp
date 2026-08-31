@@ -87,19 +87,57 @@ async function readRequests(skillsRoot) {
       throw new Error(`Invalid provenance for ${name}.`);
     }
 
-    const repository = checkedRepository(provenance?.upstream?.repository);
-    const commit = provenance?.upstream?.commit;
-    const location = provenance?.upstream?.location;
     const projection = provenance?.projection;
     if (
       provenance?.name !== name ||
-      !COMMIT.test(commit ?? "") ||
-      !isSafeArtifactPath(location) ||
       !projection ||
       !isSafeArtifactPath(projection.entrypoint) ||
       !Array.isArray(projection.sources) ||
       projection.sources.length === 0
     ) {
+      throw new Error(`Invalid Source Provenance metadata for ${name}.`);
+    }
+
+    if (provenance?.sourceProvenance?.type === "absent") {
+      for (const source of projection.sources) {
+        if (
+          !isSafeArtifactPath(source?.path) ||
+          Object.keys(source ?? {}).some((key) => key !== "path")
+        ) {
+          throw new Error(`Invalid absent-source metadata for ${name}.`);
+        }
+        try {
+          await readFile(join(skillsRoot, name, source.path));
+        } catch {
+          throw new Error(`Missing projection source: ${name}/${source.path}.`);
+        }
+      }
+      continue;
+    }
+
+    let repository;
+    let commit;
+    let location;
+    if (provenance?.sourceProvenance?.type === "pinned-github") {
+      repository = checkedRepository(provenance.sourceProvenance.repository);
+      const repositoryUrl = new URL(provenance.sourceProvenance.repository);
+      if (repositoryUrl.hostname !== "github.com") {
+        throw new Error("Pinned GitHub source must use github.com.");
+      }
+      commit = provenance.sourceProvenance.commit;
+      const entrypointSource = projection.sources.find(
+        (source) => source?.path === projection.entrypoint,
+      );
+      location = entrypointSource?.upstreamPath;
+    } else if (provenance?.sourceProvenance === undefined) {
+      repository = checkedRepository(provenance?.upstream?.repository);
+      commit = provenance?.upstream?.commit;
+      location = provenance?.upstream?.location;
+    } else {
+      throw new Error(`Invalid Source Provenance metadata for ${name}.`);
+    }
+
+    if (!COMMIT.test(commit ?? "") || !isSafeArtifactPath(location)) {
       throw new Error(`Invalid pinned upstream metadata for ${name}.`);
     }
 
@@ -108,7 +146,7 @@ async function readRequests(skillsRoot) {
     );
     if (!entrypoint || entrypoint.upstreamPath !== location) {
       throw new Error(
-        `${name}: entrypoint upstreamPath must exactly equal upstream.location.`,
+        `${name}: entrypoint upstreamPath must exactly equal Source Provenance location.`,
       );
     }
 
