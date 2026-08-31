@@ -236,11 +236,12 @@ async function findUndeclaredSupportingDocuments(
   commit: string,
   upstream: UpstreamClient,
 ): Promise<string[]> {
-  const declared = new Set(
-    provenance.projection.sources
-      .filter(isPinnedProjectionSource)
-      .map((source) => source.upstreamPath),
-  );
+  const declared = new Set<string>();
+  for (const source of provenance.projection.sources) {
+    if (isPinnedProjectionSource(source)) {
+      declared.add(source.upstreamPath);
+    }
+  }
   const bundleDirectory = posix.dirname(pinned.location);
   const missing = new Set<string>();
 
