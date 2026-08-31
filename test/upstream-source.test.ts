@@ -72,7 +72,7 @@ async function fixture(
   await git(upstreamRoot, "commit", "-m", "pin fixture");
   const commit = await git(upstreamRoot, "rev-parse", "HEAD");
 
-  const bundleRoot = join(skillsRoot, "alpha");
+  const bundleRoot = join(skillsRoot, "handoff");
   const sourcePath = join(bundleRoot, "upstream.md");
   const provenancePath = join(bundleRoot, "provenance.json");
   await mkdir(bundleRoot, { recursive: true });
@@ -81,7 +81,7 @@ async function fixture(
     provenancePath,
     JSON.stringify(
       {
-        name: "alpha",
+        name: "handoff",
         visibility: "public",
         description: "Fixture.",
         dependencies: [],
@@ -128,7 +128,7 @@ describe("pinned upstream source verification", () => {
     const result = await run(skillsRoot);
 
     expect(result.code).toBe(0);
-    expect(result.stdout).toContain("verified alpha/upstream.md");
+    expect(result.stdout).toContain("verified handoff/upstream.md");
   });
 
   it("accepts a pinned HTTPS upstream outside github.com", async () => {
@@ -151,7 +151,7 @@ describe("pinned upstream source verification", () => {
     });
 
     expect(result.code).toBe(0);
-    expect(result.stdout).toContain("verified alpha/upstream.md");
+    expect(result.stdout).toContain("verified handoff/upstream.md");
   });
 
   it("accepts explicit pinned GitHub Source Provenance with exact remote verification", async () => {
@@ -189,7 +189,7 @@ describe("pinned upstream source verification", () => {
     });
 
     expect(result.code).toBe(0);
-    expect(result.stdout).toContain("verified alpha/upstream.md");
+    expect(result.stdout).toContain("verified handoff/upstream.md");
   });
 
   it("accepts intentionally absent Source Provenance without fabricated pins", async () => {
@@ -218,7 +218,7 @@ describe("pinned upstream source verification", () => {
     const result = await run(skillsRoot);
 
     expect(result.code).toBe(0);
-    expect(result.stdout).not.toContain("verified alpha/upstream.md");
+    expect(result.stdout).not.toContain("verified handoff/upstream.md");
   });
 
   it("rejects an omitted Supporting Document required by the pinned entrypoint", async () => {
@@ -255,7 +255,7 @@ describe("pinned upstream source verification", () => {
 
     expect(result.code).toBe(1);
     expect(result.stderr).toContain(
-      "alpha/upstream.md does not match pinned upstream",
+      "handoff/upstream.md does not match pinned upstream",
     );
   });
 });
