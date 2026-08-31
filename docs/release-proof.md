@@ -57,12 +57,12 @@ tabs produced distinct ChatGPT conversation IDs. The parent dispatched both prom
 in parallel and inspected no report until both tabs reported Ready.
 
 The Standards child independently resolved the pinned head through connected GitHub,
-fetched `README.md`, returned `STANDARDS-CANARY-7A`, and reported no other
-canary token. The Spec child independently resolved the same pinned head, fetched
-GitHub issue `#1`, returned `SPEC-CANARY-7B`, and likewise reported no other
-canary token. No repository contents or sibling findings were pasted between
-contexts. This is historical evidence only; the current strict review record
-remains `NOT EXERCISED` because the canary was not rerun against the current head.
+fetched `README.md`, returned its private marker, and reported no foreign marker.
+The Spec child independently resolved the same pinned head, fetched GitHub issue
+`#1`, returned its private marker, and likewise reported no foreign marker. No
+repository contents or sibling findings were pasted between contexts. This is
+historical evidence only; the current strict review record remains `NOT EXERCISED`
+because the canary was not rerun against the current head.
 
 This historical observation did not complete the release proof; the targeted
 manual release evaluation was still pending at that date.
