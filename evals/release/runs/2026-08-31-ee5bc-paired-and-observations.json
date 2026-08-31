@@ -128,7 +128,8 @@
         "output": "The fresh read-only evaluator verified the pinned commit through GitHub MCP, then observed the exact load order grill-with-docs, grilling, domain-modeling. The parent workflow requested both separate dependency bundles immediately; both dispatches occurred in the same client-observed millisecond before either dependency completed. grilling completed before domain-modeling. Dependency runtimes arrived as separate load responses and were not embedded in the parent response.",
         "externalResults": [
           "https://github.com/komaksym/chatgpt-chat-skills-mcp/commit/de37f7c16bb2ec229f13d3edbde8cdcb3dcfe246 — GitHub MCP pin evidence.",
-          "https://github.com/komaksym/chatgpt-chat-skills-mcp/blob/de37f7c16bb2ec229f13d3edbde8cdcb3dcfe246/skills/grill-with-docs/runtime.md — evaluated runtime."
+          "https://github.com/komaksym/chatgpt-chat-skills-mcp/blob/de37f7c16bb2ec229f13d3edbde8cdcb3dcfe246/skills/grill-with-docs/runtime.md — evaluated runtime.",
+          "https://github.com/komaksym/chatgpt-chat-skills-mcp/pull/41#issuecomment-5475083523 — sanitized durable record of the observed separate dependency dispatches and completion ordering."
         ],
         "rubric": [
           {
@@ -171,7 +172,8 @@
         ],
         "output": "The fresh read-only evaluator verified the pinned commit through GitHub MCP, loaded code-review, and stopped because independent child conversations with direct GitHub access were declared unavailable. It performed no sequential parent-context substitute, produced no findings or review pass, and made no GitHub write.",
         "externalResults": [
-          "https://github.com/komaksym/chatgpt-chat-skills-mcp/commit/de37f7c16bb2ec229f13d3edbde8cdcb3dcfe246 — GitHub MCP pin evidence; no substitute review result was produced."
+          "https://github.com/komaksym/chatgpt-chat-skills-mcp/commit/de37f7c16bb2ec229f13d3edbde8cdcb3dcfe246 — GitHub MCP pin evidence; no substitute review result was produced.",
+          "https://github.com/komaksym/chatgpt-chat-skills-mcp/pull/41#issuecomment-5475083523 — sanitized durable record of the observed truthful stop without a sequential substitute review."
         ],
         "rubric": [
           {
