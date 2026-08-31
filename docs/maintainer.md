@@ -4,7 +4,7 @@ The canonical adaptation contract is GitHub issue #1. This guide explains the re
 
 ## Bundle inputs and generated output
 
-Each `skills/<name>/` directory contains the committed inputs and artifacts for one skill projection. New `provenance.json` documents model Source Provenance explicitly as either `pinned-github` or `absent`; the legacy v1 shape remains valid for existing bundles.
+Each `skills/<name>/` directory contains the committed Upstream Skill Bundle inputs and artifacts for one skill projection. New `provenance.json` documents model Source Provenance explicitly as either `pinned-github` or `absent`; the legacy v1 shape remains valid for existing bundles.
 
 A pinned GitHub source records the repository, exact commit, license, attribution, upstream paths, and SHA-256 digests. An absent source records only the intentional absence plus local projection-source paths. Do not add placeholder repositories, commits, hashes, licenses, or attribution merely to satisfy metadata validation.
 
