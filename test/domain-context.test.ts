@@ -40,4 +40,24 @@ describe("domain context glossary", () => {
     expect(context).toContain("GitHub issue #1");
     expect(context).not.toContain("## Repository boundaries");
   });
+
+  /** Verifies that the glossary preserves the contract's audit-critical constraints. */
+  it("defines the allowed changes and runtime boundaries", async () => {
+    const context = await readFile(new URL("CONTEXT.md", REPOSITORY_ROOT_URL), "utf8");
+    const normalized = context.replaceAll(/\s+/g, " ");
+
+    expect(normalized).toContain("exact pinned `SKILL.md`");
+    expect(normalized).toContain("exactly `load_skill` and `list_skills`");
+    expect(normalized).toContain("GitHub as the supported repository and issue tracker");
+    for (const change of [
+      "Inline required Supporting Documents verbatim",
+      "Translate invocation syntax or tools",
+      "Replace an unavailable operation with an Equivalent Mechanism",
+      "Select an upstream-supported branch",
+      "preserving timing, ordering, arguments, workflow meaning, and Dependency Skill boundaries",
+      "remove only setup or selection content for unsupported branches",
+    ]) {
+      expect(normalized).toContain(change);
+    }
+  });
 });

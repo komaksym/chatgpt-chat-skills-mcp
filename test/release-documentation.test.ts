@@ -59,11 +59,10 @@ describe("issue 15 release documentation", () => {
     expect(tunnel).not.toContain("tunnel-client runtimes connect");
   });
 
-  /** Verifies that the completed release proof has one consistent success status. */
-  it("keeps release proof status aligned with completed observations", async () => {
+  /** Verifies that release proof stays unexercised until live evidence exists. */
+  it("keeps release proof truthful until the real ChatGPT Web path is observed", async () => {
     const proof = await read("docs/release-proof.md");
-    expect(proof).toContain("Status: PASS");
-    expect(proof).not.toContain("Status: FAIL");
+    expect(proof).toContain("Status: NOT EXERCISED");
     expect(proof).toContain("exactly seven public skills");
     for (const skill of ["code-review", "grill-with-docs", "handoff", "implement", "improve-codebase-architecture", "to-spec", "to-tickets"]) {
       expect(proof).toContain(skill);
@@ -75,6 +74,5 @@ describe("issue 15 release documentation", () => {
     expect(proof).toContain("evals/release/README.md");
     expect(proof).toContain("#12");
     expect(proof).not.toContain("exactly eight public skills");
-    expect(proof).toContain("Overall status: `PASS`");
   });
 });

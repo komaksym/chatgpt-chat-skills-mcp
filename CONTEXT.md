@@ -12,7 +12,7 @@ when the target runtime requires an allowed adaptation.
 _Avoid_: local rewrite, methodology fork
 
 **Upstream Skill Bundle**:
-The upstream skill and the documents it needs in order to be understood and used.
+The exact pinned `SKILL.md` plus every required Supporting Document for one skill.
 _Avoid_: source file, prompt fragment
 
 **Supporting Document**:
@@ -26,7 +26,10 @@ bundle.
 _Avoid_: embedded skill, copied methodology
 
 **Target Runtime Profile**:
-The fixed constraints of the environment where an adapted skill is used.
+The stable constraints for ChatGPT Web through this MCP: exactly `load_skill` and
+`list_skills`, GitHub as the supported repository and issue tracker, and no assumed
+local checkout, shell, filesystem, Git CLI, background process, connected tool, or
+write access.
 _Avoid_: user preference, live capability
 
 **Live Capability**:
@@ -48,7 +51,17 @@ A runtime that contains the supporting material needed to understand and use it.
 _Avoid_: flattened dependencies, incomplete runtime
 
 **Allowed Runtime Change**:
-An adaptation category explicitly permitted by GitHub issue #1.
+One of exactly four adaptation categories explicitly permitted by GitHub issue #1:
+
+1. Inline required Supporting Documents verbatim and retarget their references.
+2. Translate invocation syntax or tools while preserving timing, ordering,
+   arguments, workflow meaning, and Dependency Skill boundaries.
+3. Replace an unavailable operation with an Equivalent Mechanism that produces the
+   same externally visible result.
+4. Select an upstream-supported branch that matches the Target Runtime Profile and
+   remove only setup or selection content for unsupported branches.
+
+The list is closed.
 _Avoid_: convenience change, preference-based cleanup
 
 **Equivalent Mechanism**:

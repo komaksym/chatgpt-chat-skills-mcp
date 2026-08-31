@@ -1,10 +1,8 @@
 # Faithful ChatGPT Web release proof
 
-Status: PASS
+Status: NOT EXERCISED
 
-This record summarizes the observed release evidence. Keep the status at `PASS` only
-while every required observation below remains captured; otherwise record `FAIL` or
-leave it `NOT EXERCISED`.
+This record is not a success claim. The repository-side deterministic gates can be verified in CI, but the complete release requires a real ChatGPT Web Developer Mode session connected through the machine-local Secure MCP Tunnel. Change the status to `PASS` only after every required observation below is captured; otherwise record `FAIL` or leave it `NOT EXERCISED`.
 
 ## Implementation-time observation — 2026-08-29
 
@@ -34,7 +32,7 @@ An intentionally unavailable GitHub-write capability caused `to-spec` to stop an
 
 The connected GitHub capability exercised a disposable fixture in `komaksym/chatgpt-quota-mcp`: issue `#1` was created, read, labeled with native `documentation` and `ready-for-agent` labels, closed, and read back with closed state. The durable result is [the closed fixture issue](https://github.com/komaksym/chatgpt-quota-mcp/issues/1). No repository credentials or local configuration were recorded.
 
-At the time of these 2026-08-29 observations, the live Skills tunnel path was covered but the release proof was still incomplete because the targeted manual evaluation record and strict two-child code-review canary both remained unexercised. The strict canary was exercised later against an older head; the targeted evaluation was still pending at that date.
+These observations cover the live Skills tunnel path, but do not complete the release proof: the targeted manual evaluation record and strict two-child code-review canary remain unexercised.
 
 ## Sanitized observation ledger
 
@@ -49,98 +47,6 @@ At the time of these 2026-08-29 observations, the live Skills tunnel path was co
 | Dependency timing | `grill-with-docs → grilling → domain-modeling`. |
 | Required capability unavailable | `to-spec` reported unavailable GitHub write and used no substitute. |
 | GitHub fixture | Disposable issue was created, read, labeled with native `documentation` and `ready-for-agent` labels, closed, and read back closed: [issue #1](https://github.com/komaksym/chatgpt-quota-mcp/issues/1). |
-| Strict child isolation | Two fresh `@chrome-mcp` tabs used distinct ChatGPT conversation IDs; both children independently resolved the same pinned head through GitHub, returned only their own canary, and reported no sibling-canary exposure. |
-
-## Strict child-conversation observation — 2026-08-30
-
-The documented two-child synthetic canary passed against committed head
-`bf5de9371e8255d7ed27c3391b9478ee0b0c3acd`. Two fresh `@chrome-mcp`
-tabs produced distinct ChatGPT conversation IDs. The parent dispatched both prompts
-in parallel and inspected no report until both tabs reported Ready.
-
-The Standards child independently resolved the pinned head through connected GitHub,
-fetched `README.md`, returned its private marker, and reported no foreign marker.
-The Spec child independently resolved the same pinned head, fetched GitHub issue
-`#1`, returned its private marker, and likewise reported no foreign marker. No
-repository contents or sibling findings were pasted between contexts. This is
-historical evidence only; the current strict review record remains `NOT EXERCISED`
-because the canary was not rerun against the current head.
-
-This historical observation did not complete the release proof; the targeted
-manual release evaluation was still pending at that date.
-
-## Targeted manual evaluation — 2026-08-30
-
-The built service for release SHA
-`23f44f01fa99346c8fa27b46defd857982442d8a` returned HTTP 200 with exactly
-`{"status":"ok"}` on its loopback health endpoint. The configured tunnel recorded
-MCP session initialization, metadata fetch, and successful startup. The connected
-Skills boundary then returned exactly the seven public skills: `code-review`,
-`grill-with-docs`, `handoff`, `implement`, `improve-codebase-architecture`,
-`to-spec`, and `to-tickets`.
-
-The paired `representative-to-spec` case was exercised with fresh hidden evaluator
-contexts, the fixed `GPT-5.6 Sol` model, identical task/prompt/capabilities, and the
-two supplied separate fixtures. The baseline created and read back native GitHub
-issue [#2](https://github.com/komaksym/chatgpt-chat-skills-mcp-eval-1788113675-baseline/issues/2)
-with `ready-for-agent`. The adapted variant loaded only `to-spec`, waited for and
-received the exact confirmation, then created and read back native GitHub
-issue [#2](https://github.com/komaksym/chatgpt-chat-skills-mcp-eval-1788113675-adapted/issues/2)
-with `ready-for-agent`. Existing issue #1 in each fixture was left untouched and
-excluded from run evidence.
-
-The two focused observation cases also passed: `grill-with-docs` requested separate
-`grilling` and `domain-modeling` bundles immediately at the parent composition point,
-and `code-review` stopped rather than simulating isolation when independent direct-
-GitHub child contexts were unavailable.
-
-However, both supplied fixtures already contained a duplicate issue #1 before this
-run. That violates the case's fresh-repository reset precondition, so the paired
-case is recorded as invalid rather than as a release pass. The complete record is
-[validated here](../evals/release/runs/2026-08-30-23f44f0.json) with
-`pass: false` for that case. No issue #1 was modified or closed, and no weaker
-substitute was used.
-
-## Targeted manual evaluation — 2026-08-31
-
-The fixed release suite was rerun against behavior head
-`ee5bc1941387e7b48a503d9d272d83abf2fe32f6`. GitHub MCP verified that head and the
-running built service returned HTTP 200 with exactly `{"status":"ok"}` from
-`/healthz`; the connected Skills MCP returned exactly the seven documented public
-skills. The evaluated service entry and installed Skills entry were byte-identical,
-and the observed release record ties the run to this behavior head. The current
-PR evidence head is the documentation-only commit that carries this record.
-
-The paired `representative-to-spec` case used two fresh private fixtures, both
-verified at `de37f7c16bb2ec229f13d3edbde8cdcb3dcfe246` with zero issues before the
-first write. The baseline did not invoke Skills MCP and published native issue
-[#1](https://github.com/komaksym/chatgpt-chat-skills-mcp-eval-20260831-061315-baseline-fresh/issues/1),
-which was read back open with `ready-for-agent`. The adapted variant loaded only
-`to-spec` once, proposed the existing built-process `/healthz` seam, stopped at
-the confirmation boundary, received the exact follow-up, and published native
-issue [#1](https://github.com/komaksym/chatgpt-chat-skills-mcp-eval-20260831-061315-adapted-fresh/issues/1),
-which was read back open with `ready-for-agent`.
-
-The two observation cases also passed: `grill-with-docs` dispatched separate
-`grilling` and `domain-modeling` loads immediately and in parallel, while
-`code-review` stopped when independent direct-GitHub child contexts were declared
-unavailable. The complete three-case record is
-[validated here](../evals/release/runs/2026-08-31-ee5bc-paired-and-observations.json).
-Their sanitized observed traces are preserved in the linked PR evidence comment.
-This is targeted-evaluation evidence only; the current-head strict child canary
-is recorded separately below.
-
-## Final strict child-conversation observation — 2026-08-31
-
-The documented two-child synthetic canary passed against the final committed head
-of the release branch. Two separately addressable `@chrome-mcp` tabs contained
-distinct ChatGPT conversations. The parent dispatched both prompts in parallel
-and inspected no report until both children finished. Each child independently
-used connected GitHub, resolved the same committed head, fetched its assigned
-repository evidence, and reported zero findings on its axis. Each returned its
-own fresh private marker and reported no foreign marker. No repository contents or
-sibling findings were pasted between contexts, and marker values are not stored
-in committed evidence.
 
 ## Preconditions
 
@@ -195,8 +101,8 @@ Committed evidence must contain no secrets, tunnel credentials, machine-local co
 
 ## Result
 
-- Overall status: `PASS`
-- ChatGPT Web / tunnel smoke: PASS — local/tunnel readiness, live catalog, and the three fixed evaluation cases were observed at behavior head `ee5bc1941387e7b48a503d9d272d83abf2fe32f6`; the final strict child canary also passed against the final committed evidence head
-- Strict code-review smoke: `PASS` — two independently addressable child conversations directly accessed GitHub, resolved the same final committed head, and reported zero findings without foreign-marker exposure
-- Deterministic corpus gates: PASS on the current PR evidence head; the repository CI check for this evidence commit passed
-- Targeted manual release evaluations: `PASS` at behavior head `ee5bc1941387e7b48a503d9d272d83abf2fe32f6` — all three fixed cases passed and the completed record validates successfully
+- Overall status: `NOT EXERCISED`
+- ChatGPT Web / tunnel smoke: PARTIAL — discovery, catalog, hidden loads, envelope isolation, dependency timing, and truthful unavailable-capability stopping observed; targeted evaluations still pending
+- Strict code-review smoke: use the status recorded in `docs/code-review-strict-smoke.md`
+- Deterministic corpus gates: PASS locally for `95bd98f71181557f1069b31cf4020be11a661615`; no release CI URL is claimed here
+- Targeted manual release evaluations: `NOT EXERCISED`; no validated evidence record exists
