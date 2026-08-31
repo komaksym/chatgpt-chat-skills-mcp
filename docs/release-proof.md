@@ -32,7 +32,7 @@ An intentionally unavailable GitHub-write capability caused `to-spec` to stop an
 
 The connected GitHub capability exercised a disposable fixture in `komaksym/chatgpt-quota-mcp`: issue `#1` was created, read, labeled with native `documentation` and `ready-for-agent` labels, closed, and read back with closed state. The durable result is [the closed fixture issue](https://github.com/komaksym/chatgpt-quota-mcp/issues/1). No repository credentials or local configuration were recorded.
 
-At the time of these 2026-08-29 observations, the live Skills tunnel path was covered but the release proof was still incomplete because the targeted manual evaluation record and strict two-child code-review canary both remained unexercised. The strict canary was exercised later; the targeted manual evaluation remains pending.
+At the time of these 2026-08-29 observations, the live Skills tunnel path was covered but the release proof was still incomplete because the targeted manual evaluation record and strict two-child code-review canary both remained unexercised. The strict canary was exercised later against an older head; the targeted evaluation was still pending at that date.
 
 ## Sanitized observation ledger
 
@@ -64,8 +64,8 @@ canary token. No repository contents or sibling findings were pasted between
 contexts. This is historical evidence only; the current strict review record
 remains `NOT EXERCISED` because the canary was not rerun against the current head.
 
-This does not complete the release proof: the targeted manual release evaluation
-has no valid passing record yet.
+This historical observation did not complete the release proof; the targeted
+manual release evaluation was still pending at that date.
 
 ## Targeted manual evaluation — 2026-08-30
 
@@ -98,6 +98,33 @@ case is recorded as invalid rather than as a release pass. The complete record i
 [validated here](../evals/release/runs/2026-08-30-23f44f0.json) with
 `pass: false` for that case. No issue #1 was modified or closed, and no weaker
 substitute was used.
+
+## Targeted manual evaluation — 2026-08-31
+
+The fixed release suite was rerun against PR #41 head
+`ee5bc1941387e7b48a503d9d272d83abf2fe32f6`. GitHub MCP verified the head and the
+running built service returned HTTP 200 with exactly `{"status":"ok"}` from
+`/healthz`; the connected Skills MCP returned exactly the seven documented public
+skills. The evaluated service entry and installed Skills entry were byte-identical,
+and the observed release record ties the run to this head.
+
+The paired `representative-to-spec` case used two fresh private fixtures, both
+verified at `de37f7c16bb2ec229f13d3edbde8cdcb3dcfe246` with zero issues before the
+first write. The baseline did not invoke Skills MCP and published native issue
+[#1](https://github.com/komaksym/chatgpt-chat-skills-mcp-eval-20260831-061315-baseline-fresh/issues/1),
+which was read back open with `ready-for-agent`. The adapted variant loaded only
+`to-spec` once, proposed the existing built-process `/healthz` seam, stopped at
+the confirmation boundary, received the exact follow-up, and published native
+issue [#1](https://github.com/komaksym/chatgpt-chat-skills-mcp-eval-20260831-061315-adapted-fresh/issues/1),
+which was read back open with `ready-for-agent`.
+
+The two observation cases also passed: `grill-with-docs` dispatched separate
+`grilling` and `domain-modeling` loads immediately and in parallel, while
+`code-review` stopped when independent direct-GitHub child contexts were declared
+unavailable. The complete three-case record is
+[validated here](../evals/release/runs/2026-08-31-ee5bc-paired-and-observations.json).
+This is targeted-evaluation evidence only; the current-head strict child canary
+remains a separate open gate.
 
 ## Preconditions
 
@@ -153,7 +180,7 @@ Committed evidence must contain no secrets, tunnel credentials, machine-local co
 ## Result
 
 - Overall status: `FAIL`
-- ChatGPT Web / tunnel smoke: PARTIAL — local/tunnel readiness and live catalog observed; the paired behavioral run was invalidated by pre-existing fixture issues, so the clean release gate remains open
-- Strict code-review smoke: `NOT EXERCISED` for the current head — the documented canary was observed only against older head `bf5de9371e8255d7ed27c3391b9478ee0b0c3acd`
-- Deterministic corpus gates: PASS on the release tree for `23f44f01fa99346c8fa27b46defd857982442d8a`; [CI run #152](https://github.com/komaksym/chatgpt-chat-skills-mcp/actions/runs/33334872657) passed on that head
-- Targeted manual release evaluations: `FAIL` for this attempt because the supplied fixtures were not fresh; a validated record exists, but it is not a release pass
+- ChatGPT Web / tunnel smoke: PARTIAL — local/tunnel readiness, live catalog, and the three fixed evaluation cases were observed; the current-head strict canary remains open
+- Strict code-review smoke: `NOT EXERCISED` for the current head `ee5bc1941387e7b48a503d9d272d83abf2fe32f6` — the documented canary was observed only against older head `bf5de9371e8255d7ed27c3391b9478ee0b0c3acd`
+- Deterministic corpus gates: PASS on the release tree for the evaluated service runtime; current-head CI evidence must still be recorded after the final evidence commit
+- Targeted manual release evaluations: `PASS` — all three fixed cases passed and the completed record validates successfully
