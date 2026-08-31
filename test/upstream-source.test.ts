@@ -159,19 +159,19 @@ describe("pinned upstream source verification", () => {
     const provenance = JSON.parse(
       await (await import("node:fs/promises")).readFile(provenancePath, "utf8"),
     ) as {
-      attribution: string;
-      license: string;
+      attribution?: string;
+      license?: string;
       projection: unknown;
-      upstream: { commit: string };
+      upstream?: { commit: string };
       [key: string]: unknown;
     };
     const repository = "https://github.com/example/skills";
     provenance.sourceProvenance = {
       type: "pinned-github",
       repository,
-      commit: provenance.upstream.commit,
-      license: provenance.license,
-      attribution: provenance.attribution,
+      commit: provenance.upstream!.commit,
+      license: provenance.license!,
+      attribution: provenance.attribution!,
     };
     delete provenance.upstream;
     delete provenance.license;
