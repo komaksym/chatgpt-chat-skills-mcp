@@ -206,7 +206,7 @@ function defineCodeReviewRuntimeSuite(): void {
       "utf8",
     );
     expect(smoke).toContain("Two-child synthetic canary");
-    expect(smoke).toContain("NOT EXERCISED");
+    expect(smoke).toContain("## Current result — 2026-08-31\n\n`PASS`");
     expect(smoke).toContain(
       "`@chrome-mcp` is the supported child-review",
     );
