@@ -59,24 +59,29 @@ async function bundle(
     visibility: "public",
     description: "Fixture.",
     dependencies: options.dependency ? [options.dependency] : [],
-    upstream: {
+    sourceProvenance: {
+      type: "pinned-github",
       repository: "https://github.com/example/skills",
-      location: "skills/" + name + "/SKILL.md",
       commit: "a".repeat(40),
+      license: "MIT",
+      attribution: "Copyright (c) Example",
     },
-    license: "MIT",
-    attribution: "Copyright (c) Example",
-  };
-
-  if (options.legacy) {
-    provenance.adaptations = ["legacy free-text adaptation"];
-  } else {
-    provenance.projection = {
+    projection: {
       entrypoint: "upstream.md",
       sources: [
-        { path: "upstream.md", upstreamPath: "skills/" + name + "/SKILL.md", sha256: "b".repeat(64) },
+        {
+          path: "upstream.md",
+          upstreamPath: "skills/" + name + "/SKILL.md",
+          sha256: "b".repeat(64),
+        },
         ...(options.supporting
-          ? [{ path: "supporting.md", upstreamPath: "skills/" + name + "/supporting.md", sha256: "c".repeat(64) }]
+          ? [
+              {
+                path: "supporting.md",
+                upstreamPath: "skills/" + name + "/supporting.md",
+                sha256: "c".repeat(64),
+              },
+            ]
           : []),
       ],
       changeRecords: options.supporting
@@ -84,12 +89,20 @@ async function bundle(
             {
               allowedRuntimeChange: "inline-supporting-document",
               source: "supporting.md",
-              evidence: "Fixture supporting document.",
+              evidence: {
+                targetRuntimeProfile: "chatgpt-web-mcp-v2",
+                constraints: ["chatgpt-sandbox"],
+                incompatibility: "Fixture supporting document.",
+              },
               transform: { type: "append-source", separator: "\n\n" },
             },
           ]
         : [],
-    };
+    },
+  };
+
+  if (options.legacy) {
+    provenance.adaptations = ["legacy free-text adaptation"];
   }
 
   await writeFile(
