@@ -238,7 +238,7 @@ export function getPinnedSourceProvenance(
   const entrypoint = provenance.projection.sources.find(
     (source) => source.path === provenance.projection.entrypoint,
   );
-  if (!entrypoint || !("upstreamPath" in entrypoint)) {
+  if (!entrypoint || !isPinnedProjectionSource(entrypoint)) {
     return undefined;
   }
   return {
