@@ -101,12 +101,13 @@ substitute was used.
 
 ## Targeted manual evaluation — 2026-08-31
 
-The fixed release suite was rerun against PR #41 head
-`ee5bc1941387e7b48a503d9d272d83abf2fe32f6`. GitHub MCP verified the head and the
+The fixed release suite was rerun against behavior head
+`ee5bc1941387e7b48a503d9d272d83abf2fe32f6`. GitHub MCP verified that head and the
 running built service returned HTTP 200 with exactly `{"status":"ok"}` from
 `/healthz`; the connected Skills MCP returned exactly the seven documented public
 skills. The evaluated service entry and installed Skills entry were byte-identical,
-and the observed release record ties the run to this head.
+and the observed release record ties the run to this behavior head. The current
+PR evidence head is the later documentation-only commit recorded below.
 
 The paired `representative-to-spec` case used two fresh private fixtures, both
 verified at `de37f7c16bb2ec229f13d3edbde8cdcb3dcfe246` with zero issues before the
@@ -180,7 +181,7 @@ Committed evidence must contain no secrets, tunnel credentials, machine-local co
 ## Result
 
 - Overall status: `FAIL`
-- ChatGPT Web / tunnel smoke: PARTIAL — local/tunnel readiness, live catalog, and the three fixed evaluation cases were observed; the current-head strict canary remains open
-- Strict code-review smoke: `NOT EXERCISED` for the current head `ee5bc1941387e7b48a503d9d272d83abf2fe32f6` — the documented canary was observed only against older head `bf5de9371e8255d7ed27c3391b9478ee0b0c3acd`
-- Deterministic corpus gates: PASS on the release tree for the evaluated service runtime; current-head CI evidence must still be recorded after the final evidence commit
-- Targeted manual release evaluations: `PASS` — all three fixed cases passed and the completed record validates successfully
+- ChatGPT Web / tunnel smoke: PARTIAL — local/tunnel readiness, live catalog, and the three fixed evaluation cases were observed at behavior head `ee5bc1941387e7b48a503d9d272d83abf2fe32f6`; the current-head strict canary remains open
+- Strict code-review smoke: `NOT EXERCISED` for the current PR evidence head `4293f713cabd938b45873372c1592d1e20ab093a` — the documented canary was observed only against older head `bf5de9371e8255d7ed27c3391b9478ee0b0c3acd`
+- Deterministic corpus gates: PASS on the current PR evidence head; [CI run #159](https://github.com/komaksym/chatgpt-chat-skills-mcp/actions/runs/33366474514) passed
+- Targeted manual release evaluations: `PASS` at behavior head `ee5bc1941387e7b48a503d9d272d83abf2fe32f6` — all three fixed cases passed and the completed record validates successfully
