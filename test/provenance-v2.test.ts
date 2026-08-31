@@ -19,7 +19,7 @@ function sha256(source: string): string {
 
 function legacyV1Provenance() {
   return {
-    name: "legacy-v1",
+    name: "handoff",
     visibility: "public",
     description: "Legacy v1 fixture.",
     dependencies: [],
@@ -74,15 +74,35 @@ describe("v2 runtime profiles and explicit Source Provenance", () => {
     );
   });
 
-  it("keeps legacy v1 metadata valid without widening v1 constraints", () => {
+  it("keeps grandfathered legacy v1 metadata valid without widening v1", () => {
     const legacy = legacyV1Provenance();
     expect(parseSkillProvenance(JSON.stringify(legacy)).success).toBe(true);
 
-    const invalid = structuredClone(legacy);
-    invalid.projection.changeRecords[0]!.evidence.constraints = [
+    const invalidConstraint = structuredClone(legacy);
+    invalidConstraint.projection.changeRecords[0]!.evidence.constraints = [
       "chatgpt-sandbox",
     ];
-    expect(parseSkillProvenance(JSON.stringify(invalid))).toEqual({
+    expect(parseSkillProvenance(JSON.stringify(invalidConstraint))).toEqual({
+      success: false,
+      reason: "invalid-metadata",
+    });
+
+    const invalidProfile = structuredClone(legacy);
+    invalidProfile.projection.changeRecords[0]!.evidence.targetRuntimeProfile =
+      "chatgpt-web-mcp-v2";
+    invalidProfile.projection.changeRecords[0]!.evidence.constraints = [
+      "connected-github",
+    ];
+    expect(parseSkillProvenance(JSON.stringify(invalidProfile))).toEqual({
+      success: false,
+      reason: "invalid-metadata",
+    });
+  });
+
+  it("requires explicit Source Provenance for newly added bundles", () => {
+    const newlyAddedLegacy = legacyV1Provenance();
+    newlyAddedLegacy.name = "new-legacy";
+    expect(parseSkillProvenance(JSON.stringify(newlyAddedLegacy))).toEqual({
       success: false,
       reason: "invalid-metadata",
     });
