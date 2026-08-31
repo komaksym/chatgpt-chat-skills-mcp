@@ -8,6 +8,8 @@ import { fileURLToPath, URL } from "node:url";
 import { promisify } from "node:util";
 import process from "node:process";
 
+import { isLegacyV1ProvenanceName } from "../src/provenance-state.mjs";
+
 const execFileAsync = promisify(execFile);
 const CANONICAL = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const COMMIT = /^[a-f0-9]{40}$/;
@@ -129,7 +131,10 @@ async function readRequests(skillsRoot) {
         (source) => source?.path === projection.entrypoint,
       );
       location = entrypointSource?.upstreamPath;
-    } else if (provenance?.sourceProvenance === undefined) {
+    } else if (
+      provenance?.sourceProvenance === undefined &&
+      isLegacyV1ProvenanceName(name)
+    ) {
       repository = checkedRepository(provenance?.upstream?.repository);
       commit = provenance?.upstream?.commit;
       location = provenance?.upstream?.location;
