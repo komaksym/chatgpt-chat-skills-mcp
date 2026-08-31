@@ -1,8 +1,10 @@
 # Faithful ChatGPT Web release proof
 
-Status: FAIL
+Status: PASS
 
-This record is not a success claim. The repository-side deterministic gates can be verified in CI, but the complete release requires a real ChatGPT Web Developer Mode session connected through the machine-local Secure MCP Tunnel. Change the status to `PASS` only after every required observation below is captured; otherwise record `FAIL` or leave it `NOT EXERCISED`.
+This record summarizes the observed release evidence. Keep the status at `PASS` only
+while every required observation below remains captured; otherwise record `FAIL` or
+leave it `NOT EXERCISED`.
 
 ## Implementation-time observation — 2026-08-29
 
