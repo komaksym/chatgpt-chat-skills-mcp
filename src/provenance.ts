@@ -73,6 +73,8 @@ const targetRuntimeV1ConstraintSchema = z.enum([
 ]);
 
 const targetRuntimeV2ConstraintSchema = z.enum([
+  "chatgpt-web-through-mcp",
+  "only-load-skill-and-list-skills",
   "chatgpt-sandbox",
   "connected-github",
   "chrome-browser-mcp",
@@ -169,7 +171,7 @@ const legacyV1ProvenanceSchema = z.strictObject({
   ...commonProvenanceFields,
   upstream: z.strictObject({
     repository: z.url(),
-    location: artifactPathSchema,
+    location: z.string().min(1),
     commit: z.string().regex(COMMIT_SHA),
   }),
   license: z.string().min(1),
