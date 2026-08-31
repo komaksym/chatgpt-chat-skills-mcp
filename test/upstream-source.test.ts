@@ -230,7 +230,7 @@ describe("pinned upstream source verification", () => {
 
     expect(result.code).toBe(1);
     expect(result.stderr).toContain(
-      "alpha: required Supporting Document is not declared: skills/example/guide.md.",
+      "handoff: required Supporting Document is not declared: skills/example/guide.md.",
     );
   });
 
