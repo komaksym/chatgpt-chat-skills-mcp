@@ -206,7 +206,7 @@ function defineCodeReviewRuntimeSuite(): void {
       "utf8",
     );
     expect(smoke).toContain("Two-child synthetic canary");
-    expect(smoke).toContain("NOT EXERCISED");
+    expect(smoke).toContain("## Current result — 2026-08-31\n\n`PASS`");
     expect(smoke).toContain(
       "`@chrome-mcp` is the supported child-review",
     );
@@ -214,7 +214,10 @@ function defineCodeReviewRuntimeSuite(): void {
     expect(smoke).toContain(
       "two tabs showing the same conversation, or two sequential prompts",
     );
-    expect(smoke).toContain("sibling canary literal");
+    expect(smoke).toContain("fresh random per-run private markers");
+    expect(smoke).toContain("Never record the");
+    expect(smoke).toContain("foreign marker");
+    expect(smoke).not.toMatch(/[A-Z][A-Z0-9]+-CANARY-[A-Z0-9]+/);
     expect(smoke).not.toContain("Implementation-time result — 2026-08-29\n\n`PASS`");
   }
 
