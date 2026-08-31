@@ -38,13 +38,13 @@ async function createBundle(root: string, skill: FixtureSkill): Promise<void> {
         visibility: skill.visibility,
         description: skill.description,
         dependencies: skill.dependencies ?? [],
-        upstream: {
+        sourceProvenance: {
+          type: "pinned-github",
           repository: "https://github.com/example/skills",
-          location: `skills/${skill.name}/SKILL.md`,
           commit: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          license: "MIT",
+          attribution: "Fixture author",
         },
-        license: "MIT",
-        attribution: "Fixture author",
         projection: {
           entrypoint: "upstream.md",
           sources: [
