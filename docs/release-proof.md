@@ -126,7 +126,19 @@ unavailable. The complete three-case record is
 [validated here](../evals/release/runs/2026-08-31-ee5bc-paired-and-observations.json).
 Their sanitized observed traces are preserved in the linked PR evidence comment.
 This is targeted-evaluation evidence only; the current-head strict child canary
-remains a separate open gate.
+is recorded separately below.
+
+## Final strict child-conversation observation — 2026-08-31
+
+The documented two-child synthetic canary passed against the final committed head
+of the release branch. Two separately addressable `@chrome-mcp` tabs contained
+distinct ChatGPT conversations. The parent dispatched both prompts in parallel
+and inspected no report until both children finished. Each child independently
+used connected GitHub, resolved the same committed head, fetched its assigned
+repository evidence, and reported zero findings on its axis. Each returned its
+own fresh private marker and reported no foreign marker. No repository contents or
+sibling findings were pasted between contexts, and marker values are not stored
+in committed evidence.
 
 ## Preconditions
 
@@ -181,8 +193,8 @@ Committed evidence must contain no secrets, tunnel credentials, machine-local co
 
 ## Result
 
-- Overall status: `FAIL`
-- ChatGPT Web / tunnel smoke: PARTIAL — local/tunnel readiness, live catalog, and the three fixed evaluation cases were observed at behavior head `ee5bc1941387e7b48a503d9d272d83abf2fe32f6`; the current-head strict canary remains open
-- Strict code-review smoke: `NOT EXERCISED` for the current PR evidence head — the documented canary was observed only against older head `bf5de9371e8255d7ed27c3391b9478ee0b0c3acd`
+- Overall status: `PASS`
+- ChatGPT Web / tunnel smoke: PASS — local/tunnel readiness, live catalog, and the three fixed evaluation cases were observed at behavior head `ee5bc1941387e7b48a503d9d272d83abf2fe32f6`; the final strict child canary also passed against the final committed evidence head
+- Strict code-review smoke: `PASS` — two independently addressable child conversations directly accessed GitHub, resolved the same final committed head, and reported zero findings without foreign-marker exposure
 - Deterministic corpus gates: PASS on the current PR evidence head; the repository CI check for this evidence commit passed
 - Targeted manual release evaluations: `PASS` at behavior head `ee5bc1941387e7b48a503d9d272d83abf2fe32f6` — all three fixed cases passed and the completed record validates successfully
