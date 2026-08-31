@@ -301,8 +301,8 @@ describe("reviewable upstream Mechanical Projection updates", () => {
         join(skillsRoot, "example", "provenance.json"),
         "utf8",
       ),
-    ) as { upstream: { commit: string } };
-    expect(provenance.upstream.commit).toBe(NEXT);
+    ) as { sourceProvenance: { commit: string } };
+    expect(provenance.sourceProvenance.commit).toBe(NEXT);
   });
 
   it("regenerates only bundles affected by upstream source changes", async () => {
