@@ -154,6 +154,73 @@ describe("pinned upstream source verification", () => {
     expect(result.stdout).toContain("verified alpha/upstream.md");
   });
 
+  it("accepts explicit pinned GitHub Source Provenance with exact remote verification", async () => {
+    const { provenancePath, skillsRoot, upstreamRoot } = await fixture(roots);
+    const provenance = JSON.parse(
+      await (await import("node:fs/promises")).readFile(provenancePath, "utf8"),
+    ) as {
+      attribution: string;
+      license: string;
+      projection: unknown;
+      upstream: { commit: string };
+      [key: string]: unknown;
+    };
+    const repository = "https://github.com/example/skills";
+    provenance.sourceProvenance = {
+      type: "pinned-github",
+      repository,
+      commit: provenance.upstream.commit,
+      license: provenance.license,
+      attribution: provenance.attribution,
+    };
+    delete provenance.upstream;
+    delete provenance.license;
+    delete provenance.attribution;
+    await writeFile(
+      provenancePath,
+      JSON.stringify(provenance, null, 2) + "\n",
+      "utf8",
+    );
+
+    const result = await run(skillsRoot, {
+      GIT_CONFIG_COUNT: "1",
+      GIT_CONFIG_KEY_0: `url.${pathToFileURL(upstreamRoot).href}.insteadOf`,
+      GIT_CONFIG_VALUE_0: repository,
+    });
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain("verified alpha/upstream.md");
+  });
+
+  it("accepts intentionally absent Source Provenance without fabricated pins", async () => {
+    const { provenancePath, skillsRoot } = await fixture(roots);
+    const provenance = JSON.parse(
+      await (await import("node:fs/promises")).readFile(provenancePath, "utf8"),
+    ) as {
+      projection: {
+        sources: Array<{ path: string; upstreamPath?: string; sha256?: string }>;
+      };
+      [key: string]: unknown;
+    };
+    provenance.sourceProvenance = { type: "absent" };
+    delete provenance.upstream;
+    delete provenance.license;
+    delete provenance.attribution;
+    provenance.projection.sources = provenance.projection.sources.map((source) => ({
+      path: source.path,
+    }));
+    await writeFile(
+      provenancePath,
+      JSON.stringify(provenance, null, 2) + "\n",
+      "utf8",
+    );
+
+    const result = await run(skillsRoot);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).not.toContain("verified alpha/upstream.md");
+  });
+
   it("rejects an omitted Supporting Document required by the pinned entrypoint", async () => {
     const { skillsRoot } = await fixture(roots, {
       omittedSupportingDocument: true,
