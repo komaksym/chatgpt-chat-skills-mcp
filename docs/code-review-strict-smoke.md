@@ -59,12 +59,13 @@ they contain distinct ChatGPT conversations and satisfy the canary. Arbitrary br
 tabs, two tabs showing the same conversation, or two sequential prompts in one
 conversation are not equivalent.
 
-## Current result — 2026-08-30
+## Current result — 2026-08-31
 
-`NOT EXERCISED`
+`PASS`
 
-The synthetic canary was previously observed against committed head
-`bf5de9371e8255d7ed27c3391b9478ee0b0c3acd`, but it was not rerun against the
-current release head. The older observation cannot establish the result for a
-different head, so rerun the canary against the exact final committed head before
-recording `PASS`.
+Two separately addressable `@chrome-mcp` tabs contained distinct ChatGPT
+conversations. Both children independently accessed GitHub, resolved the same
+committed head, fetched repository evidence, and completed their assigned review
+axis with zero findings. Each returned its own fresh private marker and reported
+no foreign marker. No parent-pasted repository evidence or sibling findings were
+used. Marker values are intentionally not stored in this document.
