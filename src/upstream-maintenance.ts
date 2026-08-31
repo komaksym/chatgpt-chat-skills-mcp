@@ -21,6 +21,8 @@ import {
   type SkillProvenance,
 } from "./provenance.js";
 
+type PinnedProjectionSource = Extract<ProjectionSource, { sha256: string }>;
+
 export interface UpstreamClient {
   getFile(
     repository: string,
@@ -31,7 +33,7 @@ export interface UpstreamClient {
 }
 
 interface SourceSnapshot {
-  metadata: ProjectionSource;
+  metadata: PinnedProjectionSource;
   before: string;
 }
 
@@ -313,12 +315,12 @@ async function readCurrentBundle(
       );
     }
 
-    const pinned = await upstream.getFile(
+    const remoteSource = await upstream.getFile(
       pinned.repository,
       metadata.upstreamPath,
       pinned.commit,
     );
-    if (pinned !== before) {
+    if (remoteSource !== before) {
       throw new Error(
         `${directory}/${metadata.path} does not match pinned upstream ` +
           `${pinned.repository}@${pinned.commit}:` +
