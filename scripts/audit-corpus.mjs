@@ -23,6 +23,25 @@ async function required(root, name, file, errors) {
   }
 }
 
+function pinnedSourceProvenance(provenance) {
+  if (provenance?.sourceProvenance?.type === "pinned-github") {
+    const entrypoint = provenance.projection?.sources?.find(
+      (source) => source?.path === provenance.projection.entrypoint,
+    );
+    return {
+      commit: provenance.sourceProvenance.commit,
+      location: entrypoint?.upstreamPath,
+    };
+  }
+  if (provenance?.sourceProvenance === undefined && provenance?.upstream) {
+    return {
+      commit: provenance.upstream.commit,
+      location: provenance.upstream.location,
+    };
+  }
+  return null;
+}
+
 function parseProvenance(name, source, errors) {
   let value;
   try {
@@ -37,10 +56,24 @@ function parseProvenance(name, source, errors) {
     value.name !== name ||
     !CANONICAL.test(name) ||
     !["public", "hidden"].includes(value.visibility) ||
-    !Array.isArray(value.dependencies) ||
-    !value.upstream ||
-    !COMMIT.test(value.upstream.commit ?? "")
+    !Array.isArray(value.dependencies)
   ) {
+    errors.push(name + ": provenance metadata is invalid");
+    return null;
+  }
+
+  const explicit = value.sourceProvenance;
+  const pinned = pinnedSourceProvenance(value);
+  if (explicit?.type === "absent") {
+    if (
+      Object.prototype.hasOwnProperty.call(value, "upstream") ||
+      Object.prototype.hasOwnProperty.call(value, "license") ||
+      Object.prototype.hasOwnProperty.call(value, "attribution")
+    ) {
+      errors.push(name + ": absent Source Provenance must not fabricate pinned metadata");
+      return null;
+    }
+  } else if (!pinned || !COMMIT.test(pinned.commit ?? "")) {
     errors.push(name + ": provenance metadata is invalid");
     return null;
   }
@@ -70,8 +103,9 @@ function unresolvedSupportingLinks(runtime, provenance) {
   const sourcePaths = provenance.projection.sources.map((source) => source.path);
   const generatedPaths = new Set(sourcePaths);
   const generatedNames = new Set(sourcePaths.map((path) => basename(path)));
+  const pinned = pinnedSourceProvenance(provenance);
   const inlinedUpstreamNames = new Set([
-    basename(provenance.upstream.location).toLowerCase(),
+    ...(pinned?.location ? [basename(pinned.location).toLowerCase()] : []),
     ...sourcePaths
       .map((path) => basename(path).toLowerCase())
       .filter((name) => name.startsWith("upstream-"))
@@ -185,11 +219,18 @@ export async function auditCorpus(root) {
     const name = entry.name;
     const provenanceSource = await required(root, name, "provenance.json", errors);
     const runtime = await required(root, name, "runtime.md", errors);
-    await required(root, name, "upstream.md", errors);
-    await required(root, name, "LICENSE", errors);
 
     const provenance = parseProvenance(name, provenanceSource, errors);
     if (!provenance || !runtime) continue;
+
+    for (const source of provenance.projection.sources) {
+      if (typeof source?.path === "string") {
+        await required(root, name, source.path, errors);
+      }
+    }
+    if (pinnedSourceProvenance(provenance)) {
+      await required(root, name, "LICENSE", errors);
+    }
 
     const unresolved = unresolvedSupportingLinks(runtime, provenance);
     if (unresolved.length) {
