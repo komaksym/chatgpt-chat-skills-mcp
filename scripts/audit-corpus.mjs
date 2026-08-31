@@ -4,6 +4,8 @@ import { basename, join } from "node:path";
 import { readdir, readFile } from "node:fs/promises";
 import process from "node:process";
 
+import { pinnedSourceProvenance } from "../src/provenance-state.mjs";
+
 const CANONICAL = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
 const COMMIT = /^[a-f0-9]{40}$/;
 const LOCAL_MARKDOWN_LINK = /\]\((?!https?:\/\/|mailto:|#)([^)\s]+\.md(?:#[^)\s]*)?)\)/g;
@@ -21,25 +23,6 @@ async function required(root, name, file, errors) {
     errors.push(name + ": missing " + file);
     return "";
   }
-}
-
-function pinnedSourceProvenance(provenance) {
-  if (provenance?.sourceProvenance?.type === "pinned-github") {
-    const entrypoint = provenance.projection?.sources?.find(
-      (source) => source?.path === provenance.projection.entrypoint,
-    );
-    return {
-      commit: provenance.sourceProvenance.commit,
-      location: entrypoint?.upstreamPath,
-    };
-  }
-  if (provenance?.sourceProvenance === undefined && provenance?.upstream) {
-    return {
-      commit: provenance.upstream.commit,
-      location: provenance.upstream.location,
-    };
-  }
-  return null;
 }
 
 function parseProvenance(name, source, errors) {
