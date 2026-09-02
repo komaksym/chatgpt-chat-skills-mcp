@@ -140,14 +140,14 @@ function defineCodeReviewRuntimeSuite(): void {
   async function requiresLifecycleBasedChildCollection(): Promise<void> {
     const runtime = await generateSkillRuntime("code-review");
     expect(runtime).toContain(
-      "FAILED_TRANSIENT with error.retryable: true is recoverable, not terminal",
+      "`FAILED_TRANSIENT` with `error.retryable: true` is recoverable, not terminal",
     );
     expect(runtime).toContain(
-      "If the overall run is RUNNING, do not cancel it solely because spawn_agents reports a retryable transient child snapshot.",
+      "If the overall run is `RUNNING`, do not cancel it solely because `spawn_agents` reports a retryable transient child snapshot.",
     );
-    expect(runtime).toContain("collect_agents(run_id)");
+    expect(runtime).toContain("`collect_agents(run_id)`");
     expect(runtime).toContain(
-      "failed: [] with pending recoverable children means the run is still alive",
+      "`failed: []` with pending recoverable children means the run is still alive",
     );
     expect(runtime).toContain(
       "Only treat a child as failed when collection reports a genuinely terminal failure",
