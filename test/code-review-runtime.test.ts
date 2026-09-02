@@ -137,6 +137,30 @@ function defineCodeReviewRuntimeSuite(): void {
     );
   }
 
+  async function requiresLifecycleBasedChildCollection(): Promise<void> {
+    const runtime = await generateSkillRuntime("code-review");
+    expect(runtime).toContain(
+      "FAILED_TRANSIENT with error.retryable: true is recoverable, not terminal",
+    );
+    expect(runtime).toContain(
+      "If the overall run is RUNNING, do not cancel it solely because spawn_agents reports a retryable transient child snapshot.",
+    );
+    expect(runtime).toContain("collect_agents(run_id)");
+    expect(runtime).toContain(
+      "failed: [] with pending recoverable children means the run is still alive",
+    );
+    expect(runtime).toContain(
+      "Only treat a child as failed when collection reports a genuinely terminal failure",
+    );
+    expect(runtime).toContain(
+      "Do not inspect, close, cancel, or aggregate any child early",
+    );
+    expect(runtime).toContain(
+      "Aggregate only after the required collection barrier is satisfied",
+    );
+    expect(runtime).toContain("bounded polling/timeout policy");
+  }
+
   async function keepsChildEvidenceDirectAndUncontaminated(): Promise<void> {
     const runtime = await generateSkillRuntime("code-review");
     expect(runtime).toContain(
@@ -226,6 +250,7 @@ function defineCodeReviewRuntimeSuite(): void {
   it("preserves both axes and upstream process order", preservesAxisMethodologyAndOrder);
   it("rejects fake isolation and false capability claims", rejectsFakeIsolationAndFalseCapabilityClaims);
   it("requires chrome-mcp parallel dispatch and strict stop", requiresChromeMcpParallelDispatchAndStrictStop);
+  it("requires lifecycle-based child collection", requiresLifecycleBasedChildCollection);
   it("keeps child evidence direct and uncontaminated", keepsChildEvidenceDirectAndUncontaminated);
   it("preserves upstream stop behavior and remote mechanics", preservesUpstreamStopsAndRemoteTranslation);
   it("records the child-conversation smoke result truthfully", recordsSmokeTruthfully);
