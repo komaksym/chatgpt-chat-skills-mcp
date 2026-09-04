@@ -137,6 +137,32 @@ function defineCodeReviewRuntimeSuite(): void {
     );
   }
 
+  async function requiresLifecycleBasedChildCollection(): Promise<void> {
+    const runtime = await generateSkillRuntime("code-review");
+    expect(runtime).toContain(
+      "`FAILED_TRANSIENT` with `error.retryable: true` is recoverable, not terminal",
+    );
+    expect(runtime).toContain(
+      "If the overall run is `RUNNING`, do not cancel it solely because `spawn_agents` reports a retryable transient child snapshot.",
+    );
+    expect(runtime).toContain("`collect_agents(run_id)`");
+    expect(runtime).toContain(
+      "`failed: []` with pending recoverable children means the run is still alive",
+    );
+    expect(runtime).toContain(
+      "Treat a child as failed only when collection reports a genuinely terminal failure",
+    );
+    expect(runtime).toContain(
+      "Separately, stop strict review when a defined bounded polling/timeout policy expires or the user explicitly cancels",
+    );
+    expect(runtime).toContain(
+      "Unless one of those separate stop conditions applies, do not inspect, close, cancel, or aggregate any child early",
+    );
+    expect(runtime).toContain(
+      "Aggregate only after `collect_agents(run_id)` reports `barrier.satisfied: true` for all required child reviews",
+    );
+  }
+
   async function keepsChildEvidenceDirectAndUncontaminated(): Promise<void> {
     const runtime = await generateSkillRuntime("code-review");
     expect(runtime).toContain(
@@ -226,6 +252,7 @@ function defineCodeReviewRuntimeSuite(): void {
   it("preserves both axes and upstream process order", preservesAxisMethodologyAndOrder);
   it("rejects fake isolation and false capability claims", rejectsFakeIsolationAndFalseCapabilityClaims);
   it("requires chrome-mcp parallel dispatch and strict stop", requiresChromeMcpParallelDispatchAndStrictStop);
+  it("requires lifecycle-based child collection", requiresLifecycleBasedChildCollection);
   it("keeps child evidence direct and uncontaminated", keepsChildEvidenceDirectAndUncontaminated);
   it("preserves upstream stop behavior and remote mechanics", preservesUpstreamStopsAndRemoteTranslation);
   it("records the child-conversation smoke result truthfully", recordsSmokeTruthfully);
