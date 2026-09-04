@@ -64,7 +64,7 @@ describe("issue 15 release documentation", () => {
     const proof = await read("docs/release-proof.md");
     expect(proof).toContain("Status: NOT EXERCISED");
     expect(proof).not.toContain("Status: FAIL");
-    expect(proof).toContain("exactly seven public skills");
+    expect(proof).toMatch(/exactly seven public\s+skills/);
     for (const skill of ["code-review", "grill-with-docs", "handoff", "implement", "improve-codebase-architecture", "to-spec", "to-tickets"]) {
       expect(proof).toContain(skill);
     }
