@@ -150,15 +150,17 @@ function defineCodeReviewRuntimeSuite(): void {
       "`failed: []` with pending recoverable children means the run is still alive",
     );
     expect(runtime).toContain(
-      "Only treat a child as failed when collection reports a genuinely terminal failure",
+      "Treat a child as failed only when collection reports a genuinely terminal failure",
+    );
+    expect(runtime).toContain(
+      "Separately, stop strict review when a defined bounded polling/timeout policy expires or the user explicitly cancels",
     );
     expect(runtime).toContain(
       "Do not inspect, close, cancel, or aggregate any child early",
     );
     expect(runtime).toContain(
-      "Aggregate only after the required collection barrier is satisfied",
+      "Aggregate only after `collect_agents(run_id)` reports `barrier.satisfied: true` for all required child reviews",
     );
-    expect(runtime).toContain("bounded polling/timeout policy");
   }
 
   async function keepsChildEvidenceDirectAndUncontaminated(): Promise<void> {
