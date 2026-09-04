@@ -8,6 +8,9 @@ import { describe, expect, it } from "vitest";
 
 const ROOT = new URL("../evals/release/", import.meta.url);
 const PIN = "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76";
+const WORKFLOW_REPOSITORY = "komaksym/chatgpt-chat-skills-mcp";
+const WORKFLOW_PIN = "de37f7c16bb2ec229f13d3edbde8cdcb3dcfe246";
+const ADAPTER_REPOSITORY = "komaksym/skills-mcp";
 const ADAPTER_PIN = "976f7cd0ec7236a1e2375f00ad59c2ba5b063fcf";
 
 interface SourceReference {
@@ -70,28 +73,41 @@ function completedRun(data: Suite): Record<string, unknown> {
       const externalResults = item.rubric.some((criterion) => criterion.requiresExternalEvidence)
         ? ["Observed external fixture result."]
         : [];
-      const skillsMcp = {
-        repository: "komaksym/chatgpt-chat-skills-mcp",
-        releaseSha,
-        evidence: "Observed fixture service revision.",
-      };
       const repository = {
         sourceRepository: item.repositoryContext.sourceRepository,
         baseSha: item.repositoryContext.baseSha,
       };
+      const evidence = item.workflow === "adapt-codex-skill"
+        ? {
+            skillsMcp: null,
+            adapter: {
+              repository: ADAPTER_REPOSITORY,
+              commit: ADAPTER_PIN,
+              path: "docs/adapt-codex-skill.md",
+              evidence: "Observed fixture adapter revision.",
+            },
+          }
+        : {
+            skillsMcp: {
+              repository: WORKFLOW_REPOSITORY,
+              releaseSha,
+              evidence: "Observed fixture service revision.",
+            },
+            adapter: null,
+          };
 
-      const baseline = item.mode === "paired" ? {
-        skill: null,
+      const variant = (skill: string | null, suffix: string) => ({
+        skill,
         model: item.model,
-        skillsMcp: { ...skillsMcp },
-        repository: { ...repository, url: `https://example.test/baseline-${index}` },
+        ...evidence,
+        repository: { ...repository, url: `https://example.test/${suffix}-${index}` },
         capabilities: item.capabilities,
-        output: "Observed baseline output.",
+        output: "Observed output.",
         externalResults: [...externalResults],
-        rubric,
+        rubric: rubric.map((entry) => ({ ...entry })),
         pass: true,
-        rationale: "Baseline fixture completed.",
-      } : null;
+        rationale: "Observed fixture completed.",
+      });
 
       return {
         caseId: item.id,
@@ -99,19 +115,8 @@ function completedRun(data: Suite): Record<string, unknown> {
         task: item.task,
         prompt: item.prompt,
         followUp: item.followUp ?? null,
-        baseline,
-        adapted: {
-          skill: item.workflow,
-          model: item.model,
-          skillsMcp: { ...skillsMcp },
-          repository: { ...repository, url: `https://example.test/adapted-${index}` },
-          capabilities: item.capabilities,
-          output: "Observed adapted output.",
-          externalResults: [...externalResults],
-          rubric: rubric.map((entry) => ({ ...entry })),
-          pass: true,
-          rationale: "Adapted fixture completed.",
-        },
+        baseline: item.mode === "paired" ? variant(null, "baseline") : null,
+        adapted: variant(item.workflow, "adapted"),
         pass: true,
         rationale: "Adapted condition meets the fixed rubric.",
         comparison: "Recorded behavioral delta.",
@@ -125,18 +130,24 @@ describe("manual faithful-workflow release evaluations", () => {
     const data = await suite();
     expect(data.version).toBe(4);
     expect(data.mode).toBe("manual-release-only");
-    expect(data.cases).toHaveLength(4);
+    expect(data.cases).toHaveLength(5);
     expect(data.cases.filter((item) => item.mode === "paired")).toHaveLength(1);
-    expect(data.cases.filter((item) => item.mode === "observation")).toHaveLength(3);
+    expect(data.cases.filter((item) => item.mode === "observation")).toHaveLength(4);
 
     for (const item of data.cases) {
       expect(item.model).toBe("GPT-5.6 Sol");
       expect(item.task.trim()).not.toBe("");
-      expect([
-        "komaksym/chatgpt-chat-skills-mcp",
-        "komaksym/skills-mcp",
-      ]).toContain(item.repositoryContext.sourceRepository);
-      expect(item.repositoryContext.baseSha).toMatch(/^[0-9a-f]{40}$/);
+      if (item.workflow === "adapt-codex-skill") {
+        expect(item.repositoryContext).toMatchObject({
+          sourceRepository: ADAPTER_REPOSITORY,
+          baseSha: ADAPTER_PIN,
+        });
+      } else {
+        expect(item.repositoryContext).toMatchObject({
+          sourceRepository: WORKFLOW_REPOSITORY,
+          baseSha: WORKFLOW_PIN,
+        });
+      }
       expect(item.repositoryContext.reset.trim()).not.toBe("");
       expect(item.capabilities.length).toBeGreaterThan(0);
       expect(item.prompt.trim()).not.toBe("");
@@ -160,11 +171,9 @@ describe("manual faithful-workflow release evaluations", () => {
           expect(criterion.source.upstream.path).not.toContain("runtime.md");
           expect(criterion.source.upstream.section.trim()).not.toBe("");
         } else {
-          expect(criterion.source.adapter).toEqual({
-            commit: ADAPTER_PIN,
-            path: "docs/adapt-codex-skill.md",
-            section: "Inspect",
-          });
+          expect(criterion.source.adapter?.commit).toBe(ADAPTER_PIN);
+          expect(criterion.source.adapter?.path).toBe("docs/adapt-codex-skill.md");
+          expect(["Inspect", "Adapt", "Output"]).toContain(criterion.source.adapter?.section);
         }
         expect(criterion.source.contract.issue).toBe(1);
         expect(criterion.source.contract.userStory).toBeGreaterThan(0);
@@ -183,12 +192,17 @@ describe("manual faithful-workflow release evaluations", () => {
         "stop-instead-degrade",
         "missing-supporting-document-named",
         "stop-before-adaptation-spec",
+        "preserves-unforced-methodology",
+        "maps-required-runtime-seams",
+        "preserves-helper-and-dependency-boundary",
+        "records-absent-source-provenance",
+        "emits-complete-adaptation-spec",
       ]),
     );
     expect(data.cases.find((item) => item.workflow === "to-spec")?.mode).toBe("paired");
     expect(data.cases.find((item) => item.workflow === "grill-with-docs")?.mode).toBe("observation");
     expect(data.cases.find((item) => item.workflow === "code-review")?.mode).toBe("observation");
-    expect(data.cases.find((item) => item.workflow === "adapt-codex-skill")?.mode).toBe("observation");
+    expect(data.cases.filter((item) => item.workflow === "adapt-codex-skill")).toHaveLength(2);
   });
 
   it("keeps workflow answers and forbidden product changes out of evaluation inputs", async () => {
@@ -241,6 +255,7 @@ describe("manual faithful-workflow release evaluations", () => {
             skill: null,
             model: "",
             skillsMcp: { repository: "", releaseSha: "", evidence: "" },
+            adapter: null,
             repository: { url: "", sourceRepository: "", baseSha: "" },
             capabilities: [],
             output: "",
@@ -253,6 +268,7 @@ describe("manual faithful-workflow release evaluations", () => {
             skill: "",
             model: "",
             skillsMcp: { repository: "", releaseSha: "", evidence: "" },
+            adapter: null,
             repository: { url: "", sourceRepository: "", baseSha: "" },
             capabilities: [],
             output: "",
@@ -304,12 +320,13 @@ describe("manual faithful-workflow release evaluations", () => {
     try {
       const run = completedRun(data) as {
         cases: Array<{
-          adapted: { skillsMcp: { releaseSha: string } };
+          caseId: string;
+          adapted: { skillsMcp: { releaseSha: string } | null };
         }>;
       };
-      const firstCase = run.cases[0];
-      if (!firstCase) throw new Error("expected at least one evaluation case");
-      firstCase.adapted.skillsMcp.releaseSha = "b".repeat(40);
+      const toSpec = run.cases.find((item) => item.caseId === "representative-to-spec");
+      if (!toSpec?.adapted.skillsMcp) throw new Error("expected Skills MCP evaluation case");
+      toSpec.adapted.skillsMcp.releaseSha = "b".repeat(40);
       await writeFile(runPath, JSON.stringify(run), "utf8");
 
       const rejected = spawnSync(process.execPath, [validatorPath, runPath], { encoding: "utf8" });
@@ -332,7 +349,7 @@ describe("manual faithful-workflow release evaluations", () => {
 
       const valid = spawnSync(process.execPath, [validatorPath, runPath], { encoding: "utf8" });
       expect(valid.status).toBe(0);
-      expect(valid.stdout).toContain("Validated 4 manual release evaluations.");
+      expect(valid.stdout).toContain("Validated 5 manual release evaluations.");
 
       const invalid = run as {
         cases: Array<{ adapted: { capabilities: string[] } }>;
@@ -381,14 +398,16 @@ describe("manual faithful-workflow release evaluations", () => {
 
     expect(guide).toContain("manual/release only");
     expect(guide).toContain("same model receives the same task");
-    expect(guide).toContain("pinned upstream");
+    expect(guide).toContain("pinned behavioral source");
     expect(guide).toMatch(/Skill Adaptation\s+Contract/);
     expect(guide).toContain("failed or unavailable Live Capability");
     expect(guide).toContain("node evals/release/validate-run.mjs");
     expect(guide).toContain("must not call a model");
-    expect(guide).toContain("built from the recorded releaseSha");
+    expect(guide).toContain("recorded `releaseSha`");
     expect(guide).toContain("observed Skills MCP revision");
+    expect(guide).toContain("do **not** pretend the adapter is an");
     expect(validator).toContain("capabilities must exactly match the fixed case capabilities");
+    expect(validator).toContain("adapter evidence must match the fixed adapter repository");
     expect(validator).toContain("paired result cannot pass unless the adapted condition passes");
   });
 });
