@@ -156,7 +156,7 @@ function defineCodeReviewRuntimeSuite(): void {
       "Separately, stop strict review when a defined bounded polling/timeout policy expires or the user explicitly cancels",
     );
     expect(runtime).toContain(
-      "Do not inspect, close, cancel, or aggregate any child early",
+      "Unless one of those separate stop conditions applies, do not inspect, close, cancel, or aggregate any child early",
     );
     expect(runtime).toContain(
       "Aggregate only after `collect_agents(run_id)` reports `barrier.satisfied: true` for all required child reviews",
