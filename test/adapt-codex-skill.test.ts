@@ -11,14 +11,28 @@ function paragraphs(source: string): string[] {
     .filter(Boolean);
 }
 
+function statements(source: string): string[] {
+  return source
+    .split(/\n+/)
+    .flatMap((line) => line.split(/(?<=[.!?;])\s+/))
+    .map((statement) => statement.trim())
+    .filter(Boolean);
+}
+
 function hasParagraphWith(source: string, concepts: RegExp[]): boolean {
   return paragraphs(source).some((paragraph) =>
     concepts.every((concept) => concept.test(paragraph)),
   );
 }
 
+function hasStatementWith(source: string, concepts: RegExp[]): boolean {
+  return statements(source).some((statement) =>
+    concepts.every((concept) => concept.test(statement)),
+  );
+}
+
 function describesMissingRequiredInputStop(source: string): boolean {
-  return hasParagraphWith(source, [
+  return hasStatementWith(source, [
     /\b(?:missing|unavailable|not available|cannot inspect)\b/i,
     /\b(?:required|source|upstream|supporting document|script|asset|dependency|input|material)\b/i,
     /\b(?:stop|stops|stopped|abort|fail|without emitting|partial spec)\b/i,
