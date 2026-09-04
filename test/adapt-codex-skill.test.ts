@@ -50,12 +50,9 @@ describe("Codex-to-ChatGPT adaptation-spec skill", () => {
     const source = await readFile(ADAPTER, "utf8");
 
     expect(source).toMatch(/name:\s*adapt-codex-skill/i);
-    expect(
-      hasParagraphWith(source, [
-        /preserve upstream methodology/i,
-        /concrete target-runtime constraint/i,
-      ]),
-    ).toBe(true);
+    expect(source).toMatch(
+      /preserve upstream methodology[\s\S]{0,300}concrete target-runtime constraint/i,
+    );
     expect(
       hasParagraphWith(source, [/sole successful output/i, /Adaptation Spec/i]),
     ).toBe(true);
