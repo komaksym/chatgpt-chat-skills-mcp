@@ -208,7 +208,7 @@ describe("release evaluation hardening", () => {
   });
 
   it("keeps release proof incomplete until the five-case manual record exists", async () => {
-    const proof = await readFile(new URL("../../docs/release-proof.md", import.meta.url), "utf8");
+    const proof = await readFile(new URL("../docs/release-proof.md", import.meta.url), "utf8");
 
     expect(proof).toContain("Status: NOT EXERCISED");
     expect(proof).toMatch(/Targeted manual release evaluations:\s+`NOT EXERCISED`/);
