@@ -132,6 +132,50 @@ function defineServiceSuite(): void {
   }
 
   it("lists and loads handoff through the real loopback transport", listsAndLoadsHandoff);
+
+  it("serves concurrent independent clients from one stateless listener", async () => {
+    const sharedService = await startService({ port: 0 });
+    const clients = [
+      new Client({ name: "concurrent-client-a", version: "1.0.0" }),
+      new Client({ name: "concurrent-client-b", version: "1.0.0" }),
+      new Client({ name: "concurrent-client-c", version: "1.0.0" }),
+    ];
+
+    try {
+      await Promise.all(
+        clients.map((peer) =>
+          peer.connect(new StreamableHTTPClientTransport(new URL("/mcp", sharedService.url))),
+        ),
+      );
+      const toolLists = await Promise.all(clients.map((peer) => peer.listTools()));
+      for (const tools of toolLists) {
+        if (!tools) throw new Error("Expected every client to return a tool list");
+        expect(tools.tools.map(readToolName)).toEqual(["load_skill", "list_skills"]);
+      }
+
+      const [firstClient, secondClient, thirdClient] = clients;
+      if (!firstClient || !secondClient || !thirdClient) {
+        throw new Error("Expected three connected clients");
+      }
+      const [listing, loaded, secondLoaded] = await Promise.all([
+        firstClient.callTool({ name: "list_skills", arguments: {} }),
+        secondClient.callTool({ name: "load_skill", arguments: { name: "handoff" } }),
+        thirdClient.callTool({ name: "load_skill", arguments: { name: "implement" } }),
+      ]);
+      expect(CallToolResultSchema.parse(listing).structuredContent).toMatchObject({
+        skills: expect.any(Array),
+      });
+      expect(CallToolResultSchema.parse(loaded).content[0]).toMatchObject({
+        type: "text",
+      });
+      expect(CallToolResultSchema.parse(secondLoaded).content[0]).toMatchObject({
+        type: "text",
+      });
+    } finally {
+      await Promise.all(clients.map((peer) => peer.close()));
+      await sharedService.close();
+    }
+  });
 }
 
 describe("skills MCP service", defineServiceSuite);
