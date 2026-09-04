@@ -31,6 +31,18 @@ function hasStatementWith(source: string, concepts: RegExp[]): boolean {
   );
 }
 
+function extractSection(source: string, heading: string): string | undefined {
+  const marker = `## ${heading}\n`;
+  const start = source.indexOf(marker);
+  if (start === -1) {
+    return undefined;
+  }
+
+  const bodyStart = start + marker.length;
+  const nextHeading = source.indexOf("\n## ", bodyStart);
+  return source.slice(bodyStart, nextHeading === -1 ? undefined : nextHeading).trim();
+}
+
 function describesMissingRequiredInputStop(source: string): boolean {
   return hasStatementWith(source, [
     /\b(?:missing|unavailable|not available|cannot inspect)\b/i,
@@ -92,27 +104,148 @@ describe("Codex-to-ChatGPT adaptation-spec skill", () => {
     expect(source).toMatch(/underlined, single-sentence note/i);
   });
 
-  it("makes freshly inspected mcps-launcher bindings authoritative instead of hardcoded current bindings", async () => {
+  it("makes inspected environment evidence authoritative for inventory and exact MCP semantics", async () => {
     const source = await readFile(ADAPTER, "utf8");
-    const environmentEvidence = source.match(
-      /## Environment evidence\n(?<body>[\s\S]*?)\n## Target Runtime Profile versus Live Capability/,
-    )?.groups?.body;
+    const environmentEvidence = extractSection(source, "Environment evidence");
 
     expect(environmentEvidence).toBeDefined();
-    expect(environmentEvidence).toContain(
-      "freshly inspected `mcps-launcher` inventory is authoritative",
-    );
-    expect(environmentEvidence).toContain("non-authoritative examples");
+    expect(
+      hasParagraphWith(environmentEvidence ?? "", [
+        /mcps-launcher/i,
+        /inventory/i,
+        /authoritative/i,
+      ]),
+    ).toBe(true);
+    expect(
+      hasParagraphWith(environmentEvidence ?? "", [
+        /individual MCP repositories/i,
+        /relevant/i,
+        /exact/i,
+        /capability/i,
+        /limitation/i,
+      ]),
+    ).toBe(true);
+    expect(environmentEvidence).toMatch(/non-authoritative examples/i);
     expect(environmentEvidence).not.toContain("In the current environment that is");
     expect(environmentEvidence).not.toContain("The current launcher invokes");
+  });
+
+  it("protects durable resource and state mappings semantically", async () => {
+    const source = await readFile(ADAPTER, "utf8");
+    const mapping = extractSection(source, "Semantic classification");
+
+    expect(mapping).toBeDefined();
+    expect(
+      hasStatementWith(mapping ?? "", [
+        /ephemeral|intermediate/i,
+        /working state/i,
+        /ChatGPT sandbox/i,
+      ]),
+    ).toBe(true);
+    expect(
+      hasStatementWith(mapping ?? "", [
+        /repository state|versioned skill state/i,
+        /connected GitHub/i,
+      ]),
+    ).toBe(true);
+    expect(
+      hasStatementWith(mapping ?? "", [
+        /Repository Assets/i,
+        /GitHub-backed skill resources/i,
+      ]),
+    ).toBe(true);
+    expect(
+      hasStatementWith(mapping ?? "", [
+        /user-facing generated deliverable/i,
+        /ChatGPT Library/i,
+        /appropriate/i,
+      ]),
+    ).toBe(true);
+    expect(
+      hasStatementWith(mapping ?? "", [/Storage/i, /consumption/i, /separate/i]),
+    ).toBe(true);
+  });
+
+  it("protects browser-context and child-worker semantics", async () => {
+    const source = await readFile(ADAPTER, "utf8");
+    const browserContexts = extractSection(source, "Browser contexts");
+
+    expect(browserContexts).toBeDefined();
+    expect(
+      hasParagraphWith(browserContexts ?? "", [
+        /Chrome Browser MCP/i,
+        /existing Chrome session|already-open tabs|real current Chrome context/i,
+      ]),
+    ).toBe(true);
+    expect(
+      hasParagraphWith(browserContexts ?? "", [
+        /Playwright MCP/i,
+        /dedicated automated browser context|independent browser lifecycle/i,
+      ]),
+    ).toBe(true);
+    expect(
+      hasParagraphWith(browserContexts ?? "", [
+        /isolated|parallel/i,
+        /verified child-worker mechanism/i,
+        /upstream requirements/i,
+      ]),
+    ).toBe(true);
+    expect(
+      hasStatementWith(browserContexts ?? "", [
+        /independent workers/i,
+        /parallel dispatch/i,
+        /verified live/i,
+        /sequential prompts/i,
+      ]),
+    ).toBe(true);
+  });
+
+  it("protects interface-metadata intent without porting Codex-only UI mechanics", async () => {
+    const source = await readFile(ADAPTER, "utf8");
+    const interfaceMetadata = extractSection(source, "Codex interface metadata");
+
+    expect(interfaceMetadata).toBeDefined();
+    expect(interfaceMetadata).toMatch(/agents\/openai\.yaml/i);
+    expect(interfaceMetadata).toMatch(/meaningful author intent/i);
+    expect(interfaceMetadata).toMatch(/explicit-only|discoverable/i);
+    expect(interfaceMetadata).toMatch(
+      /workflow constraints|description|argument intent/i,
+    );
+    expect(interfaceMetadata).toMatch(/Codex-only UI mechanics/i);
+    expect(interfaceMetadata).toMatch(/semantic intent/i);
+    expect(interfaceMetadata).toMatch(/concrete runtime constraint/i);
+  });
+
+  it("protects truthful stopping for unsupported host-macOS behavior", async () => {
+    const source = await readFile(ADAPTER, "utf8");
+    const unsupportedHost = extractSection(source, "Unsupported host behavior");
+
+    expect(unsupportedHost).toBeDefined();
+    expect(
+      hasParagraphWith(unsupportedHost ?? "", [
+        /host macOS/i,
+        /Do not assume access/i,
+      ]),
+    ).toBe(true);
+    expect(
+      hasParagraphWith(unsupportedHost ?? "", [
+        /arbitrary files/i,
+        /native apps/i,
+        /local daemons|host processes/i,
+      ]),
+    ).toBe(true);
+    expect(
+      hasStatementWith(unsupportedHost ?? "", [
+        /no Equivalent Mechanism/i,
+        /stopped behavior/i,
+      ]),
+    ).toBe(true);
   });
 
   it("keeps missing-input stopped behavior outside the success-only Adaptation Spec template", async () => {
     const source = await readFile(ADAPTER, "utf8");
     const template = extractTemplate(source);
-    const requiredInput = source.match(
-      /## Required input\n(?<body>[\s\S]*?)\n## Environment evidence/,
-    )?.groups?.body;
+    const requiredInput = extractSection(source, "Required input");
 
     expect(requiredInput).toBeDefined();
     expect(describesMissingRequiredInputStop(requiredInput ?? "")).toBe(true);
