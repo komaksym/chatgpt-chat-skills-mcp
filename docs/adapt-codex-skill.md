@@ -33,10 +33,10 @@ If any required Supporting Document, script, asset, or Dependency Skill input is
 Before deciding adaptations, inspect the current target environment. Do not rely on memory of old repository state.
 
 1. Inspect `komaksym/chatgpt-chat-skills-mcp` for the current Faithful Adapter architecture, domain vocabulary, Skill Adaptation Contract, Target Runtime Profile versions, Source Provenance model, catalog/dependency rules, Mechanical Projection rules, and repository conventions.
-2. Use `komaksym/mcps-launcher` as the target-environment inventory. It tells you which MCPs and tunnel-backed components are intended to exist in the user's ChatGPT environment.
+2. Use `komaksym/mcps-launcher` as the target-environment inventory. The freshly inspected `mcps-launcher` inventory is authoritative for which target bindings are current; do not let examples in this skill override it.
 3. Inspect only the individual MCP repositories relevant to behaviors in the source skill, and use those repositories for exact capability and limitation semantics. Do not infer capabilities from an MCP name alone.
-4. For Chrome behavior, inspect the current Chrome Browser MCP repository. In the current environment that is `komaksym/chrome-browser-mcp`; its worker mechanism exposes `spawn_agents`, `collect_agents`, and `cancel_agents`.
-5. For dedicated Playwright automation, inspect the Playwright implementation identified by `mcps-launcher`. The current launcher invokes `@playwright/mcp@latest`, whose upstream implementation is `microsoft/playwright-mcp`.
+4. For Chrome behavior, inspect the Chrome implementation identified by the freshly inspected `mcps-launcher`. A launcher revision may identify `komaksym/chrome-browser-mcp`; if so, inspect that repository for its actual worker mechanism and operation semantics. Concrete repository and operation names in this document are non-authoritative examples, not claims about the current target binding.
+5. For dedicated Playwright automation, inspect the Playwright implementation identified by the freshly inspected `mcps-launcher`. For example, a launcher revision may bind `@playwright/mcp@latest` to the upstream `microsoft/playwright-mcp`; treat those names as non-authoritative examples and verify the current binding before relying on them.
 6. Inspect other MCP repositories only when the source skill actually needs them.
 
 Treat repository documentation as evidence about stable product support, not proof that a capability is live in the current conversation.
@@ -141,7 +141,7 @@ Use **Playwright MCP** when the source behavior requires a dedicated automated b
 
 Do not treat those contexts as interchangeable merely because both can navigate web pages.
 
-For isolated or parallel ChatGPT work, use the verified Chrome Browser MCP child-worker mechanism only when its observed guarantees satisfy the upstream requirements. The current mechanism uses `spawn_agents` and returns stable worker/run identities. If independent workers, direct repository access, parallel dispatch, or required ordering cannot be verified live, do not simulate them with sequential prompts in the parent conversation.
+For isolated or parallel ChatGPT work, use a verified child-worker mechanism only when the freshly inspected target binding and its observed guarantees satisfy the upstream requirements. For example, an inspected Chrome Browser MCP may expose `spawn_agents` and stable worker/run identities. If independent workers, direct repository access, parallel dispatch, or required ordering cannot be verified live, do not simulate them with sequential prompts in the parent conversation.
 
 ## Dependency Skills
 
@@ -215,8 +215,6 @@ Explain why the source Codex skill cannot be used unchanged in the target ChatGP
 ## Source Skill and Provenance
 
 Describe the complete inspected Upstream Skill Bundle, its Source Provenance state, required Supporting Documents, scripts, Repository Assets, Dependency Skills, and meaningful interface metadata.
-
-State that adaptation was stopped instead if any required upstream material was missing.
 
 ## Preserved Upstream Behavior
 
