@@ -14,10 +14,12 @@ job of the normal test suite and issue #13.
 
 ## Source of truth
 
-Judge behavior only from the pinned upstream workflow plus the Skill Adaptation
-Contract in issue #1. Every rubric item in `cases.json` names its upstream commit,
-upstream `SKILL.md` section, and contract user story. Do not derive judgments from a
-locally rewritten `runtime.md`, provenance prose, or evaluator preference.
+Judge behavior only from the pinned behavioral source plus the Skill Adaptation
+Contract in issue #1. Workflow rubric items in `cases.json` name their pinned upstream
+commit, upstream `SKILL.md` section, and contract user story. Adapter rubric items may
+instead name the pinned `docs/adapt-codex-skill.md` section they exercise. Do not derive
+judgments from a locally rewritten `runtime.md`, provenance prose, or evaluator
+preference.
 
 This matters especially for allowed adaptations: evaluate the upstream outcome, not
 the local mechanism. For example, architecture reporting is judged by the upstream
@@ -38,8 +40,9 @@ For the paired representative case:
    `prompt`, optional `followUp`, and rubric. These inputs are identical between
    variants.
 4. Baseline: use a fresh conversation and do **not** load the evaluated workflow.
-5. Adapted: use another fresh conversation, load only the named public workflow, then
-   send the exact same prompt.
+5. Adapted: use another fresh conversation. For MCP workflow cases, load only the named
+   public workflow. For an external-adapter observation, load the exact pinned adapter
+   document named by the rubric source. Then send the exact fixed prompt.
 6. Send the fixed `followUp` only at the scripted boundary. If a variant crosses that
    boundary early, record the relevant rubric failure before continuing.
 7. A failed or unavailable Live Capability never passes because a weaker fallback
@@ -55,8 +58,9 @@ the direct observation. Do not invent a no-skill comparison for dependency timin
 an unavailable-capability stop check when direct observation is the meaningful test.
 
 The suite contains one representative normal workflow and focused observations for
-dependency timing and truthful stopping. Add another case only for a documented
-regression or uncovered high-risk behavior.
+dependency timing, truthful stopping, and the adapter's missing-required-material
+stop behavior. Add another case only for a documented regression or uncovered
+high-risk behavior.
 
 ## Recording
 
