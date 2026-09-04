@@ -59,10 +59,10 @@ describe("issue 15 release documentation", () => {
     expect(tunnel).not.toContain("tunnel-client runtimes connect");
   });
 
-  /** Verifies that the completed release proof has one consistent success status. */
-  it("keeps release proof status aligned with completed observations", async () => {
+  /** Verifies that historical release evidence remains while the expanded manual gate is incomplete. */
+  it("keeps release proof truthful while new adapter observations are pending", async () => {
     const proof = await read("docs/release-proof.md");
-    expect(proof).toContain("Status: PASS");
+    expect(proof).toContain("Status: NOT EXERCISED");
     expect(proof).not.toContain("Status: FAIL");
     expect(proof).toContain("exactly seven public skills");
     for (const skill of ["code-review", "grill-with-docs", "handoff", "implement", "improve-codebase-architecture", "to-spec", "to-tickets"]) {
@@ -75,6 +75,8 @@ describe("issue 15 release documentation", () => {
     expect(proof).toContain("evals/release/README.md");
     expect(proof).toContain("#12");
     expect(proof).not.toContain("exactly eight public skills");
-    expect(proof).toContain("Overall status: `PASS`");
+    expect(proof).toContain("Overall status: `NOT EXERCISED`");
+    expect(proof).toContain("five-case suite");
+    expect(proof).toContain("historical three-case record");
   });
 });
