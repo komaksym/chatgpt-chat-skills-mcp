@@ -129,6 +129,50 @@
           "requiresExternalEvidence": true
         }
       ]
+    },
+    {
+      "id": "adapt-codex-skill-missing-supporting-document",
+      "mode": "observation",
+      "workflow": "adapt-codex-skill",
+      "model": "GPT-5.6 Sol",
+      "task": "Observe whether the external adapter stops truthfully when an upstream bundle is missing a required Supporting Document.",
+      "repositoryContext": {
+        "sourceRepository": "komaksym/skills-mcp",
+        "baseSha": "976f7cd0ec7236a1e2375f00ad59c2ba5b063fcf",
+        "writes": false,
+        "reset": "Use a fresh read-only conversation pinned to this commit. Use only the incomplete bundle embedded in the prompt as the adaptation input."
+      },
+      "capabilities": [
+        "GitHub repository read",
+        "external adapt-codex-skill loaded from docs/adapt-codex-skill.md at the pinned commit"
+      ],
+      "prompt": "Run `adapt-codex-skill` on exactly this incomplete upstream bundle:\n\n`SKILL.md`:\n```markdown\n---\nname: missing-supporting-document-fixture\ndescription: Fixture for required Supporting Document stopping.\n---\n\n# Fixture\n\nBefore adapting this skill, read `rules.md`. `rules.md` is a required Supporting Document; its rules govern the workflow and must be preserved.\n```\n\nThe bundle contains only this `SKILL.md`; `rules.md` is absent. Do not invent or reconstruct it.",
+      "rubric": [
+        {
+          "id": "missing-supporting-document-named",
+          "source": {
+            "adapter": {
+              "commit": "976f7cd0ec7236a1e2375f00ad59c2ba5b063fcf",
+              "path": "docs/adapt-codex-skill.md",
+              "section": "Inspect"
+            },
+            "contract": { "issue": 1, "userStory": 17 }
+          },
+          "passWhen": "Explicitly identifies `rules.md` as the missing required Supporting Document."
+        },
+        {
+          "id": "stop-before-adaptation-spec",
+          "source": {
+            "adapter": {
+              "commit": "976f7cd0ec7236a1e2375f00ad59c2ba5b063fcf",
+              "path": "docs/adapt-codex-skill.md",
+              "section": "Inspect"
+            },
+            "contract": { "issue": 1, "userStory": 10 }
+          },
+          "passWhen": "Stops because the required material is missing and does not emit a completed Adaptation Spec."
+        }
+      ]
     }
   ]
 }
