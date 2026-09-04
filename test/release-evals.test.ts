@@ -8,12 +8,21 @@ import { describe, expect, it } from "vitest";
 
 const ROOT = new URL("../evals/release/", import.meta.url);
 const PIN = "6654f6b60cd9d5be8b54c6fafe44346dabeb3b76";
+const ADAPTER_PIN = "976f7cd0ec7236a1e2375f00ad59c2ba5b063fcf";
+
+interface SourceReference {
+  commit: string;
+  path: string;
+  section: string;
+}
+
 interface RubricCriterion {
   id: string;
   passWhen: string;
   requiresExternalEvidence?: boolean;
   source: {
-    upstream: { commit: string; path: string; section: string };
+    upstream?: SourceReference;
+    adapter?: SourceReference;
     contract: { issue: number; userStory: number };
   };
 }
@@ -45,7 +54,6 @@ interface Suite {
 async function suite(): Promise<Suite> {
   return JSON.parse(await readFile(new URL("cases.json", ROOT), "utf8")) as Suite;
 }
-
 
 function completedRun(data: Suite): Record<string, unknown> {
   const releaseSha = "a".repeat(40);
@@ -117,14 +125,17 @@ describe("manual faithful-workflow release evaluations", () => {
     const data = await suite();
     expect(data.version).toBe(4);
     expect(data.mode).toBe("manual-release-only");
-    expect(data.cases).toHaveLength(3);
+    expect(data.cases).toHaveLength(4);
     expect(data.cases.filter((item) => item.mode === "paired")).toHaveLength(1);
-    expect(data.cases.filter((item) => item.mode === "observation")).toHaveLength(2);
+    expect(data.cases.filter((item) => item.mode === "observation")).toHaveLength(3);
 
     for (const item of data.cases) {
       expect(item.model).toBe("GPT-5.6 Sol");
       expect(item.task.trim()).not.toBe("");
-      expect(item.repositoryContext.sourceRepository).toBe("komaksym/chatgpt-chat-skills-mcp");
+      expect([
+        "komaksym/chatgpt-chat-skills-mcp",
+        "komaksym/skills-mcp",
+      ]).toContain(item.repositoryContext.sourceRepository);
       expect(item.repositoryContext.baseSha).toMatch(/^[0-9a-f]{40}$/);
       expect(item.repositoryContext.reset.trim()).not.toBe("");
       expect(item.capabilities.length).toBeGreaterThan(0);
@@ -133,16 +144,28 @@ describe("manual faithful-workflow release evaluations", () => {
     }
   });
 
-  it("derives every rubric from pinned upstream plus the adaptation contract", async () => {
+  it("derives every rubric from a pinned behavioral source plus the adaptation contract", async () => {
     const data = await suite();
 
     for (const item of data.cases) {
       for (const criterion of item.rubric) {
-        expect(criterion.passWhen.trim()).not.toBe("");
-        expect(criterion.source.upstream.commit).toBe(PIN);
-        expect(criterion.source.upstream.path).toMatch(/\/SKILL\.md$/);
-        expect(criterion.source.upstream.path).not.toContain("runtime.md");
-        expect(criterion.source.upstream.section.trim()).not.toBe("");
+        const sourceReferences = [criterion.source.upstream, criterion.source.adapter].filter(
+          (reference): reference is SourceReference => reference !== undefined,
+        );
+        expect(sourceReferences).toHaveLength(1);
+
+        if (criterion.source.upstream) {
+          expect(criterion.source.upstream.commit).toBe(PIN);
+          expect(criterion.source.upstream.path).toMatch(/\/SKILL\.md$/);
+          expect(criterion.source.upstream.path).not.toContain("runtime.md");
+          expect(criterion.source.upstream.section.trim()).not.toBe("");
+        } else {
+          expect(criterion.source.adapter).toEqual({
+            commit: ADAPTER_PIN,
+            path: "docs/adapt-codex-skill.md",
+            section: "Inspect",
+          });
+        }
         expect(criterion.source.contract.issue).toBe(1);
         expect(criterion.source.contract.userStory).toBeGreaterThan(0);
       }
@@ -158,11 +181,14 @@ describe("manual faithful-workflow release evaluations", () => {
         "dependency-timing",
         "ready-for-agent",
         "stop-instead-degrade",
+        "missing-supporting-document-named",
+        "stop-before-adaptation-spec",
       ]),
     );
     expect(data.cases.find((item) => item.workflow === "to-spec")?.mode).toBe("paired");
     expect(data.cases.find((item) => item.workflow === "grill-with-docs")?.mode).toBe("observation");
     expect(data.cases.find((item) => item.workflow === "code-review")?.mode).toBe("observation");
+    expect(data.cases.find((item) => item.workflow === "adapt-codex-skill")?.mode).toBe("observation");
   });
 
   it("keeps workflow answers and forbidden product changes out of evaluation inputs", async () => {
@@ -243,7 +269,6 @@ describe("manual faithful-workflow release evaluations", () => {
     });
   });
 
-
   it("rejects passing externally observed criteria without external results", async () => {
     const data = await suite();
     const directory = await mkdtemp(join(tmpdir(), "release-evals-"));
@@ -307,7 +332,7 @@ describe("manual faithful-workflow release evaluations", () => {
 
       const valid = spawnSync(process.execPath, [validatorPath, runPath], { encoding: "utf8" });
       expect(valid.status).toBe(0);
-      expect(valid.stdout).toContain("Validated 3 manual release evaluations.");
+      expect(valid.stdout).toContain("Validated 4 manual release evaluations.");
 
       const invalid = run as {
         cases: Array<{ adapted: { capabilities: string[] } }>;
