@@ -244,7 +244,13 @@ describe("v2 adaptation contract end to end", () => {
         arguments: { name: "fixture-dependency" },
       }),
     );
-    expect(JSON.stringify(hiddenDependency)).toContain(dependencyRuntime.trim());
+    const hiddenBlock = hiddenDependency.content[0];
+    if (!hiddenBlock || hiddenBlock.type !== "text") {
+      throw new Error("Expected text Generated Runtime for hidden Dependency Skill.");
+    }
+    expect(hiddenBlock.text).toBe(
+      `${REMOTE_EXECUTION_CONTRACT}\n\n# fixture-dependency\n\n${dependencyRuntime.trim()}\n`,
+    );
   });
 
   it("stops a missing required Supporting Document before a complete Adaptation Spec exists", async () => {
