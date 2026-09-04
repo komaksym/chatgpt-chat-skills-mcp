@@ -403,7 +403,7 @@ describe("manual faithful-workflow release evaluations", () => {
     expect(guide).toContain("failed or unavailable Live Capability");
     expect(guide).toContain("node evals/release/validate-run.mjs");
     expect(guide).toContain("must not call a model");
-    expect(guide).toContain("recorded `releaseSha`");
+    expect(guide).toMatch(/recorded\s+`releaseSha`/);
     expect(guide).toContain("observed Skills MCP revision");
     expect(guide).toContain("do **not** pretend the adapter is an");
     expect(validator).toContain("capabilities must exactly match the fixed case capabilities");
