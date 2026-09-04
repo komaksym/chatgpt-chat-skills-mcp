@@ -4,6 +4,8 @@ import { URL } from "node:url";
 
 const CASES_URL = new URL("./cases.json", import.meta.url);
 const JUDGMENTS = new Set(["pass", "fail", "not-observed"]);
+const SKILLS_MCP_REPOSITORY = "komaksym/chatgpt-chat-skills-mcp";
+const ADAPTER_WORKFLOW = "adapt-codex-skill";
 
 function fail(message) {
   throw new Error(message);
@@ -25,6 +27,21 @@ function text(value, label) {
 
 function same(left, right) {
   return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function adapterSource(definition) {
+  const references = definition.rubric.map((criterion) => criterion.source?.adapter);
+  if (references.some((reference) => !reference)) {
+    fail(definition.id + " adapter criteria must all name the pinned adapter source.");
+  }
+  const first = object(references[0], definition.id + ".adapter source");
+  for (const referenceValue of references.slice(1)) {
+    const reference = object(referenceValue, definition.id + ".adapter source");
+    if (reference.commit !== first.commit || reference.path !== first.path) {
+      fail(definition.id + " adapter criteria must use one pinned adapter commit and path.");
+    }
+  }
+  return first;
 }
 
 function definitions(suite) {
@@ -60,6 +77,9 @@ function definitions(suite) {
         fail(definition.id + "." + criterion.id + ".requiresExternalEvidence must be boolean.");
       }
     }
+    if (definition.workflow === ADAPTER_WORKFLOW) {
+      adapterSource(definition);
+    }
   }
   for (const [workflow, count] of counts) {
     if (count > 2) fail(workflow + " has more than two representative cases.");
@@ -67,19 +87,43 @@ function definitions(suite) {
   return new Map(suite.cases.map((item) => [item.id, item]));
 }
 
-function variant(value, definition, expectedSkill, releaseSha, label) {
-  const item = object(value, label);
-  if (item.skill !== expectedSkill) fail(label + ".skill does not match the fixed condition.");
-  if (item.model !== definition.model) fail(label + ".model does not match the fixed case model.");
+function validateEvidenceSource(item, definition, releaseSha, label) {
+  if (definition.workflow === ADAPTER_WORKFLOW) {
+    if (item.skillsMcp !== null) {
+      fail(label + ".skillsMcp must be null when adapter evidence is required.");
+    }
+    const expected = adapterSource(definition);
+    const adapter = object(item.adapter, label + ".adapter evidence");
+    if (
+      adapter.repository !== definition.repositoryContext.sourceRepository ||
+      adapter.commit !== expected.commit ||
+      adapter.path !== expected.path
+    ) {
+      fail(label + ".adapter evidence must match the fixed adapter repository, commit, and path.");
+    }
+    text(adapter.evidence, label + ".adapter.evidence");
+    return;
+  }
 
+  if (item.adapter !== null) {
+    fail(label + ".adapter must be null for Skills MCP workflow evidence.");
+  }
   const skillsMcp = object(item.skillsMcp, label + ".skillsMcp");
-  if (skillsMcp.repository !== "komaksym/chatgpt-chat-skills-mcp") {
+  if (skillsMcp.repository !== SKILLS_MCP_REPOSITORY) {
     fail(label + ".skillsMcp.repository must identify the evaluated Skills MCP repository.");
   }
   if (skillsMcp.releaseSha !== releaseSha) {
     fail(label + ".Skills MCP release SHA must match run.releaseSha.");
   }
   text(skillsMcp.evidence, label + ".skillsMcp.evidence");
+}
+
+function variant(value, definition, expectedSkill, releaseSha, label) {
+  const item = object(value, label);
+  if (item.skill !== expectedSkill) fail(label + ".skill does not match the fixed condition.");
+  if (item.model !== definition.model) fail(label + ".model does not match the fixed case model.");
+
+  validateEvidenceSource(item, definition, releaseSha, label);
 
   if (!same(item.capabilities, definition.capabilities)) {
     fail(label + ".capabilities must exactly match the fixed case capabilities.");

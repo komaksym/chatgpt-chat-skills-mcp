@@ -17,6 +17,7 @@
           "releaseSha": "",
           "evidence": ""
         },
+        "adapter": null,
         "repository": {
           "url": "",
           "sourceRepository": "",
@@ -37,6 +38,7 @@
           "releaseSha": "",
           "evidence": ""
         },
+        "adapter": null,
         "repository": {
           "url": "",
           "sourceRepository": "",

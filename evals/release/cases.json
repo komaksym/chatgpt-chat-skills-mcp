@@ -129,6 +129,130 @@
           "requiresExternalEvidence": true
         }
       ]
+    },
+    {
+      "id": "adapt-codex-skill-missing-supporting-document",
+      "mode": "observation",
+      "workflow": "adapt-codex-skill",
+      "model": "GPT-5.6 Sol",
+      "task": "Observe whether the external adapter stops truthfully when an upstream bundle is missing a required Supporting Document.",
+      "repositoryContext": {
+        "sourceRepository": "komaksym/skills-mcp",
+        "baseSha": "976f7cd0ec7236a1e2375f00ad59c2ba5b063fcf",
+        "writes": false,
+        "reset": "Use a fresh read-only conversation pinned to this commit. Use only the incomplete bundle embedded in the prompt as the adaptation input."
+      },
+      "capabilities": [
+        "GitHub repository read",
+        "external adapt-codex-skill loaded from docs/adapt-codex-skill.md at the pinned commit"
+      ],
+      "prompt": "Run `adapt-codex-skill` on exactly this incomplete upstream bundle:\n\n`SKILL.md`:\n```markdown\n---\nname: missing-supporting-document-fixture\ndescription: Fixture for required Supporting Document stopping.\n---\n\n# Fixture\n\nBefore adapting this skill, read `rules.md`. `rules.md` is a required Supporting Document; its rules govern the workflow and must be preserved.\n```\n\nThe bundle contains only this `SKILL.md`; `rules.md` is absent. Do not invent or reconstruct it.",
+      "rubric": [
+        {
+          "id": "missing-supporting-document-named",
+          "source": {
+            "adapter": {
+              "commit": "976f7cd0ec7236a1e2375f00ad59c2ba5b063fcf",
+              "path": "docs/adapt-codex-skill.md",
+              "section": "Inspect"
+            },
+            "contract": { "issue": 1, "userStory": 17 }
+          },
+          "passWhen": "Explicitly identifies `rules.md` as the missing required Supporting Document."
+        },
+        {
+          "id": "stop-before-adaptation-spec",
+          "source": {
+            "adapter": {
+              "commit": "976f7cd0ec7236a1e2375f00ad59c2ba5b063fcf",
+              "path": "docs/adapt-codex-skill.md",
+              "section": "Inspect"
+            },
+            "contract": { "issue": 1, "userStory": 10 }
+          },
+          "passWhen": "Stops because the required material is missing and does not emit a completed Adaptation Spec."
+        }
+      ]
+    },
+    {
+      "id": "adapt-codex-skill-representative-success",
+      "mode": "observation",
+      "workflow": "adapt-codex-skill",
+      "model": "GPT-5.6 Sol",
+      "task": "Observe whether the pinned external adapter produces a faithful, implementable Adaptation Spec for a complete representative v2 bundle.",
+      "repositoryContext": {
+        "sourceRepository": "komaksym/skills-mcp",
+        "baseSha": "976f7cd0ec7236a1e2375f00ad59c2ba5b063fcf",
+        "writes": false,
+        "reset": "Use a fresh read-only conversation pinned to this commit. Load the exact pinned adapter document, then inspect the complete representative bundle from the pinned repository without using the pre-authored adaptation-spec.md as expected output."
+      },
+      "capabilities": [
+        "GitHub repository read across the source and referenced target repositories",
+        "external adapt-codex-skill loaded from docs/adapt-codex-skill.md at the pinned commit"
+      ],
+      "prompt": "Run `adapt-codex-skill` on the complete representative bundle at `test/fixtures/adaptation-v2/skills/representative-v2/` in the pinned repository. Treat `source.md` as the bundle entrypoint, `helper.md` as its required Supporting Document, `assets/report.key` as its Repository Asset, and `fixture-dependency` as the separate Dependency Skill referenced by the entrypoint. The fixture intentionally has no canonical upstream GitHub source. Inspect the pinned bundle and the target repositories required by the adapter, then return only the resulting Adaptation Spec. Do not read or use `test/fixtures/adaptation-v2/adaptation-spec.md` as expected output.",
+      "rubric": [
+        {
+          "id": "preserves-unforced-methodology",
+          "source": {
+            "adapter": {
+              "commit": "976f7cd0ec7236a1e2375f00ad59c2ba5b063fcf",
+              "path": "docs/adapt-codex-skill.md",
+              "section": "Adapt"
+            },
+            "contract": { "issue": 1, "userStory": 27 }
+          },
+          "passWhen": "Preserves the upstream first-acceptable-label decision rule and does not replace it with a preference-based 'better label' methodology."
+        },
+        {
+          "id": "maps-required-runtime-seams",
+          "source": {
+            "adapter": {
+              "commit": "976f7cd0ec7236a1e2375f00ad59c2ba5b063fcf",
+              "path": "docs/adapt-codex-skill.md",
+              "section": "Adapt"
+            },
+            "contract": { "issue": 1, "userStory": 11 }
+          },
+          "passWhen": "Specifies faithful mappings for ephemeral sandbox state, repository mutation through connected GitHub, the user's existing Chrome session, genuinely independent parallel workers with truthful stopping, Repository Asset storage versus live consumption, and unsupported native macOS notification behavior without weaker substitutes."
+        },
+        {
+          "id": "preserves-helper-and-dependency-boundary",
+          "source": {
+            "adapter": {
+              "commit": "976f7cd0ec7236a1e2375f00ad59c2ba5b063fcf",
+              "path": "docs/adapt-codex-skill.md",
+              "section": "Adapt"
+            },
+            "contract": { "issue": 1, "userStory": 20 }
+          },
+          "passWhen": "Preserves the deterministic helper algorithm, keeps `fixture-dependency` separate, preserves its immediately-before-scoring invocation timing, and warns that the Dependency Skill may need its own adaptation."
+        },
+        {
+          "id": "records-absent-source-provenance",
+          "source": {
+            "adapter": {
+              "commit": "976f7cd0ec7236a1e2375f00ad59c2ba5b063fcf",
+              "path": "docs/adapt-codex-skill.md",
+              "section": "Inspect"
+            },
+            "contract": { "issue": 1, "userStory": 9 }
+          },
+          "passWhen": "Records Source Provenance as absent and does not fabricate a GitHub repository or commit for the source bundle."
+        },
+        {
+          "id": "emits-complete-adaptation-spec",
+          "source": {
+            "adapter": {
+              "commit": "976f7cd0ec7236a1e2375f00ad59c2ba5b063fcf",
+              "path": "docs/adapt-codex-skill.md",
+              "section": "Output"
+            },
+            "contract": { "issue": 1, "userStory": 43 }
+          },
+          "passWhen": "Emits a completed, issue-ready Adaptation Spec with semantic acceptance criteria rather than refusing, returning an incomplete draft, or relying on exact expected wording."
+        }
+      ]
     }
   ]
 }
