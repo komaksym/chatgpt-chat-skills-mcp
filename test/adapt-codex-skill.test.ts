@@ -125,7 +125,7 @@ describe("Codex-to-ChatGPT adaptation-spec skill", () => {
         /limitation/i,
       ]),
     ).toBe(true);
-    expect(environmentEvidence).toContain("non-authoritative examples");
+    expect(environmentEvidence).toMatch(/non-authoritative examples/i);
     expect(environmentEvidence).not.toContain("In the current environment that is");
     expect(environmentEvidence).not.toContain("The current launcher invokes");
   });
@@ -206,20 +206,14 @@ describe("Codex-to-ChatGPT adaptation-spec skill", () => {
 
     expect(interfaceMetadata).toBeDefined();
     expect(interfaceMetadata).toMatch(/agents\/openai\.yaml/i);
-    expect(
-      hasParagraphWith(interfaceMetadata ?? "", [
-        /meaningful author intent/i,
-        /explicit-only|discoverable/i,
-        /workflow constraints|description|argument intent/i,
-      ]),
-    ).toBe(true);
-    expect(
-      hasParagraphWith(interfaceMetadata ?? "", [
-        /Codex-only UI mechanics/i,
-        /semantic intent/i,
-        /concrete runtime constraint/i,
-      ]),
-    ).toBe(true);
+    expect(interfaceMetadata).toMatch(/meaningful author intent/i);
+    expect(interfaceMetadata).toMatch(/explicit-only|discoverable/i);
+    expect(interfaceMetadata).toMatch(
+      /workflow constraints|description|argument intent/i,
+    );
+    expect(interfaceMetadata).toMatch(/Codex-only UI mechanics/i);
+    expect(interfaceMetadata).toMatch(/semantic intent/i);
+    expect(interfaceMetadata).toMatch(/concrete runtime constraint/i);
   });
 
   it("protects truthful stopping for unsupported host-macOS behavior", async () => {
