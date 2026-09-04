@@ -26,7 +26,6 @@ describe("Codex-to-ChatGPT adaptation-spec skill", () => {
       "Repository Assets",
       "Chrome Browser MCP",
       "Playwright MCP",
-      "spawn_agents",
       "Dependency Skills",
       "agents/openai.yaml",
       "host macOS",
@@ -40,5 +39,31 @@ describe("Codex-to-ChatGPT adaptation-spec skill", () => {
 
     const missing = required.filter((fragment) => !source.includes(fragment));
     expect(missing).toEqual([]);
+  });
+
+  it("makes freshly inspected mcps-launcher bindings authoritative instead of hardcoded current bindings", async () => {
+    const source = await readFile(ADAPTER, "utf8");
+    const environmentEvidence = source.match(
+      /## Environment evidence\n(?<body>[\s\S]*?)\n## Target Runtime Profile versus Live Capability/,
+    )?.groups?.body;
+
+    expect(environmentEvidence).toBeDefined();
+    expect(environmentEvidence).toContain(
+      "freshly inspected `mcps-launcher` inventory is authoritative",
+    );
+    expect(environmentEvidence).toContain("non-authoritative examples");
+    expect(environmentEvidence).not.toContain("In the current environment that is");
+    expect(environmentEvidence).not.toContain("The current launcher invokes");
+  });
+
+  it("keeps missing-input stopped behavior out of the success-only Adaptation Spec template", async () => {
+    const source = await readFile(ADAPTER, "utf8");
+    const template = source.match(
+      /<adaptation-spec-template>\n(?<body>[\s\S]*?)\n<\/adaptation-spec-template>/,
+    )?.groups?.body;
+
+    expect(source).toContain("stop without emitting an Adaptation Spec");
+    expect(template).toBeDefined();
+    expect(template).not.toMatch(/missing upstream material[\s\S]{0,120}stopp?ed/i);
   });
 });
