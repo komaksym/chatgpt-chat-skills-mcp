@@ -63,7 +63,7 @@ describe("v2 adaptation acceptance", () => {
     if (!parsed.success) {
       throw new Error("Expected valid representative v2 provenance.");
     }
-    expect(parsed.data.sourceProvenance).toEqual({ type: "absent" });
+    expect(parsed.data).toMatchObject({ sourceProvenance: { type: "absent" } });
     expect(parsed.data.dependencies).toEqual(["fixture-dependency"]);
 
     const generated = await generateSkillRuntime("representative-v2", {
