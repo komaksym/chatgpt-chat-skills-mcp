@@ -68,9 +68,9 @@ describe("issue 15 release documentation", () => {
     for (const skill of ["code-review", "grill-with-docs", "handoff", "implement", "improve-codebase-architecture", "to-spec", "to-tickets"]) {
       expect(proof).toContain(skill);
     }
-    expect(proof).toContain("native GitHub relationship or label");
-    expect(proof).toContain("required Live Capability");
-    expect(proof).toContain("two genuinely independent child conversations");
+    expect(proof).toMatch(/native\s+GitHub relationship or label/);
+    expect(proof).toMatch(/required\s+Live Capability/);
+    expect(proof).toMatch(/two genuinely independent child\s+conversations/);
     expect(proof).toContain("npm run corpus:check");
     expect(proof).toContain("evals/release/README.md");
     expect(proof).toContain("#12");
