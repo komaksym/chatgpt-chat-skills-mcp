@@ -1,1 +1,0 @@
-Stopped before producing an Adaptation Spec: required Supporting Document rules.md is unavailable for inspection.
