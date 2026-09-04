@@ -59,13 +59,9 @@ describe("Codex-to-ChatGPT adaptation-spec skill", () => {
     expect(
       hasParagraphWith(source, [/mcps-launcher/i, /(?:inventory|authoritative)/i]),
     ).toBe(true);
-    expect(
-      hasParagraphWith(source, [
-        /Target Runtime Profile/i,
-        /Live Capability/i,
-        /(?:separate|distinguish)/i,
-      ]),
-    ).toBe(true);
+    expect(source).toMatch(
+      /Keep these concepts separate:[\s\S]{0,400}Target Runtime Profile[\s\S]{0,400}Live Capability/i,
+    );
     expect(
       hasParagraphWith(source, [
         /deterministic/i,
@@ -79,13 +75,9 @@ describe("Codex-to-ChatGPT adaptation-spec skill", () => {
         /(?:separate|invocation timing|immediate|deferred)/i,
       ]),
     ).toBe(true);
-    expect(
-      hasParagraphWith(source, [
-        /Source Provenance/i,
-        /pinned-github/i,
-        /absent/i,
-      ]),
-    ).toBe(true);
+    expect(source).toMatch(
+      /Represent source origin truthfully\.[\s\S]{0,700}pinned-github[\s\S]{0,700}absent/i,
+    );
     expect(source).toMatch(/underlined, single-sentence note/i);
   });
 
