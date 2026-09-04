@@ -53,6 +53,9 @@ describe("issue 15 release documentation", () => {
   it("keeps the Secure MCP Tunnel guide aligned with the launcher lifecycle", async () => {
     const tunnel = await read("docs/SECURE_MCP_TUNNEL.md");
     expect(tunnel).toContain("chatgpt-chat-skills-mcp");
+    expect(tunnel).toContain("chatgpt-chat-skills-mcp-2");
+    expect(tunnel).toContain("chatgpt-chat-skills-mcp-3");
+    expect(tunnel).toContain("stateless loopback service");
     expect(tunnel).toContain("mcp-skills");
     expect(tunnel).toContain("mcps status");
     expect(tunnel).not.toContain("tunnel-client runtimes create");

@@ -21,3 +21,11 @@ Live GitHub capability is still per-conversation evidence. A missing read, write
 ## Loopback transport
 
 The TypeScript service binds to loopback, normally `127.0.0.1:2092`, with MCP at `/mcp` and readiness at `/healthz`. OpenAI Secure MCP Tunnel provides the authenticated outbound path from that local process to ChatGPT Web. The repository therefore needs neither a public listener nor a second authentication protocol.
+
+The service is stateless at the HTTP request boundary: it discovers and
+validates the catalog once, then creates isolated MCP resources per request.
+That makes one healthy `:2092` process safe to serve multiple tunnel clients.
+Each account or logical ChatGPT session still uses a distinct tunnel profile
+and runtime-key reference; the shared loopback process does not make those
+remote identities interchangeable. Run separate Skills processes only when a
+different catalog or failure domain is required.

@@ -28,15 +28,28 @@ process that already owns the configured port.
 
 ## Configure the machine-local tunnel profile
 
-The current launcher convention uses one dedicated machine-local profile named
-`chatgpt-chat-skills-mcp`. Create it with the installed tunnel client and the
-loopback MCP URL:
+The current launcher convention uses one machine-local profile per ChatGPT
+account or logical session. All three clients can safely target the same
+stateless loopback service:
 
 ```sh
 tunnel-client init \
   --profile chatgpt-chat-skills-mcp \
   --tunnel-id '<tunnel-id>' \
-  --mcp-server-url http://127.0.0.1:2092/mcp
+  --mcp-server-url http://127.0.0.1:2092/mcp \
+  --control-plane-api-key-ref env:CONTROL_PLANE_API_KEY
+
+tunnel-client init \
+  --profile chatgpt-chat-skills-mcp-2 \
+  --tunnel-id '<second-tunnel-id>' \
+  --mcp-server-url http://127.0.0.1:2092/mcp \
+  --control-plane-api-key-ref env:CONTROL_PLANE_API_KEY_2
+
+tunnel-client init \
+  --profile chatgpt-chat-skills-mcp-3 \
+  --tunnel-id '<agent-tunnel-id>' \
+  --mcp-server-url http://127.0.0.1:2092/mcp \
+  --control-plane-api-key-ref env:CONTROL_PLANE_API_KEY_AGENT
 ```
 
 Keep tunnel configuration and credentials outside the repository. If the installed
@@ -55,9 +68,9 @@ mcps stop skills
 ```
 
 `mcp-skills` starts the built loopback server, waits for the exact health response,
-then starts the dedicated tunnel. `mcps status` reports Skills as running only when
-both managed processes still match their expected identities. The launcher does not
-print profile contents or credential values.
+then starts all three dedicated tunnels. `mcps status` reports the shared server
+and each tunnel route separately, and the launcher does not print profile contents
+or credential values.
 
 Tunnel profiles, state, logs, and credential references belong in machine-local
 config/state locations. This repository ignores `.env`, `.env.*`,
@@ -68,11 +81,11 @@ config/state locations. This repository ignores `.env`, `.env.*`,
 A healthy local process is necessary but does not prove that ChatGPT reached it.
 When Developer Mode and Secure MCP Tunnel are available:
 
-1. Run `mcp-skills` and observe `mcps status` reporting both the Skills server
-   and tunnel as running.
+1. Run `mcp-skills` and observe `mcps status` reporting the shared Skills server
+   and three tunnel routes as running.
 2. Observe `/healthz` succeeding on the configured loopback port.
-3. In ChatGPT Developer Mode, create or select the app backed by the
-   `chatgpt-chat-skills-mcp` tunnel profile.
+3. In each ChatGPT Developer Mode account/session, create or select the app
+   backed by its corresponding Skills tunnel profile.
 4. Ask ChatGPT to discover the MCP tools and confirm the observed tool names are
    exactly `load_skill` and `list_skills`.
 5. Invoke `list_skills` and record the returned public catalog.
@@ -86,9 +99,10 @@ Mode capability was unavailable.
 
 ## Troubleshooting
 
-Use `mcps status` first, then `mcps logs skills` for the managed server and tunnel
-logs. Use `mcps restart skills` to replace the complete Skills lifecycle or
-`mcps stop skills` to stop both managed processes.
+Use `mcps status` first, then `mcps logs skills` for the managed server and all
+tunnel logs. Use `mcps restart skills` to replace the complete Skills lifecycle,
+`mcps restart skills2`/`skills3` to replace one account route, or `mcps stop
+skills` to stop the complete shared lifecycle.
 
 If the service reports `EADDRINUSE`, stop the process using the configured port or
 choose a different loopback port consistently for both the service and tunnel.
