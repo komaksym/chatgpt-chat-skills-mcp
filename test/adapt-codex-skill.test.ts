@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 
 import { describe, expect, it } from "vitest";
 
+// Temporary CI synchronization trigger; removed in the next commit.
 const ADAPTER = new URL("../docs/adapt-codex-skill.md", import.meta.url);
 
 function paragraphs(source: string): string[] {
