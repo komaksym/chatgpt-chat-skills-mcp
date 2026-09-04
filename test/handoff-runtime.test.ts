@@ -72,7 +72,7 @@ describe("handoff fresh-session runtime", () => {
   it("places and verifies the exact implementation handoff before closing the old tab", async () => {
     const runtime = await handoffRuntime();
     const append = runtime.indexOf("@skills-mcp tool implement()");
-    const type = runtime.indexOf("Call `type()`");
+    const type = runtime.indexOf("call `type()`");
     const verify = runtime.indexOf("Treat the transfer as successful only after this verification succeeds.");
     const close = runtime.indexOf("call `close_tab()` with the old agent tab ID");
 
