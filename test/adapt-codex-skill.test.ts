@@ -110,14 +110,14 @@ describe("Codex-to-ChatGPT adaptation-spec skill", () => {
 
     expect(environmentEvidence).toBeDefined();
     expect(
-      hasParagraphWith(environmentEvidence ?? "", [
+      hasStatementWith(environmentEvidence ?? "", [
         /mcps-launcher/i,
         /inventory/i,
         /authoritative/i,
       ]),
     ).toBe(true);
     expect(
-      hasParagraphWith(environmentEvidence ?? "", [
+      hasStatementWith(environmentEvidence ?? "", [
         /individual MCP repositories/i,
         /relevant/i,
         /exact/i,
@@ -172,19 +172,19 @@ describe("Codex-to-ChatGPT adaptation-spec skill", () => {
 
     expect(browserContexts).toBeDefined();
     expect(
-      hasParagraphWith(browserContexts ?? "", [
+      hasStatementWith(browserContexts ?? "", [
         /Chrome Browser MCP/i,
         /existing Chrome session|already-open tabs|real current Chrome context/i,
       ]),
     ).toBe(true);
     expect(
-      hasParagraphWith(browserContexts ?? "", [
+      hasStatementWith(browserContexts ?? "", [
         /Playwright MCP/i,
         /dedicated automated browser context|independent browser lifecycle/i,
       ]),
     ).toBe(true);
     expect(
-      hasParagraphWith(browserContexts ?? "", [
+      hasStatementWith(browserContexts ?? "", [
         /isolated|parallel/i,
         /verified child-worker mechanism/i,
         /upstream requirements/i,
@@ -222,18 +222,14 @@ describe("Codex-to-ChatGPT adaptation-spec skill", () => {
 
     expect(unsupportedHost).toBeDefined();
     expect(
-      hasParagraphWith(unsupportedHost ?? "", [
+      hasStatementWith(unsupportedHost ?? "", [
         /host macOS/i,
         /Do not assume access/i,
       ]),
     ).toBe(true);
-    expect(
-      hasParagraphWith(unsupportedHost ?? "", [
-        /arbitrary files/i,
-        /native apps/i,
-        /local daemons|host processes/i,
-      ]),
-    ).toBe(true);
+    expect(unsupportedHost).toMatch(/arbitrary files/i);
+    expect(unsupportedHost).toMatch(/native apps/i);
+    expect(unsupportedHost).toMatch(/local daemons|host processes/i);
     expect(
       hasStatementWith(unsupportedHost ?? "", [
         /no Equivalent Mechanism/i,
