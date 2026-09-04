@@ -269,7 +269,6 @@ Include observable criteria that prove:
 - deterministic helpers remain executable when the sandbox can faithfully run them;
 - Dependency Skill boundaries and timing remain intact;
 - Source Provenance is truthful;
-- missing required source material stops adaptation;
 - unavailable Live Capability produces truthful stopped behavior rather than a weaker substitute;
 - implementation can later be verified through the real Skills MCP boundary without requiring this adapter itself to be served by the MCP.
 
