@@ -78,3 +78,31 @@ grill-with-docs (public)
 3. Preserve upstream `domain-modeling` and inline its pinned CONTEXT/ADR formats.
 4. Keep child skills separately loadable and hidden from public discovery.
 5. Verify the upstream-derived runtime invariants through the real MCP HTTP seam.
+
+## Milestone 5 — Shared Skills server with multiple account tunnels
+
+## Summary
+
+Document and test the supported multi-account deployment boundary: one
+stateless loopback Skills service may be reached by multiple distinct
+`tunnel-client` profiles, each with its own tunnel identity and credentials.
+Separate service processes remain the opt-in isolation path for divergent skill
+catalogs or failure domains.
+
+## System-level completion DAG
+
+```text
+validated Skills catalog -> one loopback service :2092
+                              +--> tunnel/profile A -> ChatGPT A
+                              +--> tunnel/profile B -> ChatGPT B
+                              +--> tunnel/profile C -> agent session
+```
+
+## Milestones
+
+1. Add operator documentation for shared-server/multiple-tunnel setup and
+   account-specific runtime-key references.
+2. Add a black-box concurrency regression proving three HTTP MCP clients can
+   use the same stateless service without shared session state.
+3. Run typecheck, lint, tests, build, and documentation checks; keep the
+   default single-server behavior unchanged.
