@@ -98,13 +98,13 @@ async function createProjectionFixture(
         visibility: "public",
         description: "Projection fixture.",
         dependencies: [],
-        upstream: {
+        sourceProvenance: {
+          type: "pinned-github",
           repository: "https://github.com/example/skills",
-          location: "skills/fixture/SKILL.md",
           commit: PIN_B,
+          license: "MIT",
+          attribution: "Fixture author",
         },
-        license: "MIT",
-        attribution: "Fixture author",
         projection,
       },
       null,
@@ -140,16 +140,37 @@ function defineProjectionSuite(): void {
 
   afterEach(cleanup);
 
-  /** Proves handoff is the exact pinned upstream skill plus two recorded Change Records. */
+  /** Proves handoff is the exact pinned upstream skill plus its recorded v2 Change Records. */
   async function generatesHandoffDeterministically(): Promise<void> {
     const upstream = await readFile(new URL("upstream.md", HANDOFF_ROOT), "utf8");
     const committed = await readFile(new URL("runtime.md", HANDOFF_ROOT), "utf8");
     const expected = upstream
       .replace(
-        "Save to the temporary directory of the user's OS - not the current workspace.",
-        "Return the handoff directly in chat as a single fenced Markdown block so the user can copy it in one click and paste it into the next conversation. Do not create a separate document, artifact, or file.",
+        [
+          "---",
+          "name: handoff",
+          "description: Compact the current conversation into a handoff document for another agent to pick up.",
+          'argument-hint: "What will the next session be used for?"',
+          "disable-model-invocation: true",
+          "---",
+        ].join("\n"),
+        [
+          "---",
+          "name: handoff",
+          "description: Compact the current conversation into a handoff prompt for another agent to pick up.",
+          "argument-hint: What will the next session be used for?",
+          "disable-model-invocation: true",
+          "---",
+        ].join("\n"),
       )
-      .replace("call the Skill tool for", "load with `load_skill`");
+      .replace(
+        "Write a handoff document summarising the current conversation so a fresh agent can continue the work. Save to the temporary directory of the user's OS - not the current workspace.",
+        "Write a compact handoff prompt summarising the current conversation so a fresh agent can continue the work. Include only context that is still needed for continuation. Return the handoff directly in chat as a single fenced Markdown block so the user retains a one-click copy fallback. Do not create a separate document, artifact, or file.\n\nAfter constructing the handoff prompt, append exactly one final line:\n`@skills-mcp tool implement()`\nDo not add anything after that line.\n\nThen transfer the entire handoff prompt through the connected Chrome Browser MCP. Call `get_active_tab()` before opening anything and retain that ChatGPT tab ID as the old agent tab. Call `new_tab()` with `https://chatgpt.com/` and `active: false` so the fresh ChatGPT conversation opens in the background without stealing focus. Call `read_tab()` on the new tab to identify its message composer, then call `type()` to place the full handoff prompt into that composer. Call `read_tab()` again and verify that the composer contains the transferred handoff prompt including the exact final `@skills-mcp tool implement()` line. Treat the transfer as successful only after this verification succeeds. Only then call `close_tab()` with the old agent tab ID.\n\nIf Chrome Browser MCP is unavailable, the old agent tab cannot be identified, the background tab cannot be opened, the prompt cannot be placed, or verification fails, do not call `close_tab()`. Report the transfer as incomplete, leave the old agent tab open, and do not claim the handoff is complete.",
+      )
+      .replace(
+        'Include a "suggested skills" section in the document, naming which skills the next agent should call the Skill tool for.',
+        'Include a "suggested skills" section in the prompt, naming which skills the next agent should load through the Skills MCP with `load_skill`.',
+      );
 
     const first = await generateSkillRuntime("handoff");
     const second = await generateSkillRuntime("handoff");

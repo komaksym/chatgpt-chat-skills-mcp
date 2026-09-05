@@ -8,6 +8,10 @@ import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { REMOTE_EXECUTION_CONTRACT } from "../src/contract.js";
+import {
+  getPinnedSourceProvenance,
+  parseSkillProvenance,
+} from "../src/provenance.js";
 import { startService, type RunningService } from "../src/service.js";
 
 const SKILLS_ROOT = new URL("../skills/", import.meta.url);
@@ -23,7 +27,7 @@ interface InstalledBundle {
   metadata: Metadata;
   runtime: string;
   provenance: string;
-  license: string;
+  license?: string;
 }
 
 async function installed(): Promise<InstalledBundle[]> {
@@ -35,11 +39,17 @@ async function installed(): Promise<InstalledBundle[]> {
     entries.map(async (entry) => {
       const root = new URL(entry.name + "/", SKILLS_ROOT);
       const provenance = await readFile(new URL("provenance.json", root), "utf8");
+      const parsed = parseSkillProvenance(provenance);
+      if (!parsed.success) {
+        throw new Error("Invalid provenance for " + entry.name + ".");
+      }
       return {
-        metadata: JSON.parse(provenance) as Metadata,
+        metadata: parsed.data,
         runtime: await readFile(new URL("runtime.md", root), "utf8"),
         provenance,
-        license: await readFile(new URL("LICENSE", root), "utf8"),
+        license: getPinnedSourceProvenance(parsed.data)
+          ? await readFile(new URL("LICENSE", root), "utf8")
+          : undefined,
       };
     }),
   );
@@ -126,7 +136,9 @@ describe("complete corpus through the production MCP boundary", () => {
       );
       expect(loaded.split(REMOTE_EXECUTION_CONTRACT)).toHaveLength(2);
       expect(loaded).not.toContain(bundle.provenance.trim());
-      expect(loaded).not.toContain(bundle.license.trim());
+      if (bundle.license) {
+        expect(loaded).not.toContain(bundle.license.trim());
+      }
     }
   });
 
@@ -207,13 +219,13 @@ describe("complete corpus through the production MCP boundary", () => {
             visibility: "public",
             description: "Dummy skill " + index + ".",
             dependencies: [],
-            upstream: {
+            sourceProvenance: {
+              type: "pinned-github",
               repository: "https://github.com/example/skills",
-              location: "skills/" + name + "/SKILL.md",
               commit: "a".repeat(40),
+              license: "MIT",
+              attribution: "Example",
             },
-            license: "MIT",
-            attribution: "Example",
             projection: {
               entrypoint: "upstream.md",
               sources: [

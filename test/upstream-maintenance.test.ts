@@ -122,13 +122,13 @@ async function fixture(
         visibility: "public",
         description: "Fixture skill.",
         dependencies: [],
-        upstream: {
+        sourceProvenance: {
+          type: "pinned-github",
           repository: "https://github.com/example/skills",
-          location: "skills/example/SKILL.md",
           commit: OLD,
+          license: "MIT",
+          attribution: "Fixture",
         },
-        license: "MIT",
-        attribution: "Fixture",
         projection,
       },
       null,
@@ -201,13 +201,13 @@ async function addUnchangedInvalidBundle(skillsRoot: string): Promise<void> {
         visibility: "hidden",
         description: "Unchanged fixture skill.",
         dependencies: [],
-        upstream: {
+        sourceProvenance: {
+          type: "pinned-github",
           repository: "https://github.com/example/skills",
-          location: "skills/untouched/SKILL.md",
           commit: OLD,
+          license: "MIT",
+          attribution: "Fixture",
         },
-        license: "MIT",
-        attribution: "Fixture",
         projection: {
           entrypoint: "upstream.md",
           sources: [
@@ -301,8 +301,8 @@ describe("reviewable upstream Mechanical Projection updates", () => {
         join(skillsRoot, "example", "provenance.json"),
         "utf8",
       ),
-    ) as { upstream: { commit: string } };
-    expect(provenance.upstream.commit).toBe(NEXT);
+    ) as { sourceProvenance: { commit: string } };
+    expect(provenance.sourceProvenance.commit).toBe(NEXT);
   });
 
   it("regenerates only bundles affected by upstream source changes", async () => {

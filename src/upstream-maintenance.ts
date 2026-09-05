@@ -13,11 +13,15 @@ import { dirname, join, posix } from "node:path";
 import { generateSkillRuntime } from "./projection.js";
 import {
   CANONICAL_NAME,
+  getPinnedSourceProvenance,
+  isPinnedProjectionSource,
   parseSkillProvenance,
+  type PinnedSourceProvenance,
+  type ProjectionSource,
   type SkillProvenance,
 } from "./provenance.js";
 
-type ProjectionSource = SkillProvenance["projection"]["sources"][number];
+type PinnedProjectionSource = Extract<ProjectionSource, { sha256: string }>;
 
 export interface UpstreamClient {
   getFile(
@@ -29,12 +33,13 @@ export interface UpstreamClient {
 }
 
 interface SourceSnapshot {
-  metadata: ProjectionSource;
+  metadata: PinnedProjectionSource;
   before: string;
 }
 
 interface BundleSnapshot {
   directory: string;
+  pinned: PinnedSourceProvenance;
   provenance: SkillProvenance;
   sources: SourceSnapshot[];
 }
@@ -226,14 +231,18 @@ function isWithinDirectory(path: string, directory: string): boolean {
 
 async function findUndeclaredSupportingDocuments(
   provenance: SkillProvenance,
+  pinned: PinnedSourceProvenance,
   sources: Array<{ upstreamPath: string; content: string }>,
   commit: string,
   upstream: UpstreamClient,
 ): Promise<string[]> {
-  const declared = new Set(
-    provenance.projection.sources.map((source) => source.upstreamPath),
-  );
-  const bundleDirectory = posix.dirname(provenance.upstream.location);
+  const declared = new Set<string>();
+  for (const source of provenance.projection.sources) {
+    if (isPinnedProjectionSource(source)) {
+      declared.add(source.upstreamPath);
+    }
+  }
+  const bundleDirectory = posix.dirname(pinned.location);
   const missing = new Set<string>();
 
   for (const source of sources) {
@@ -250,11 +259,7 @@ async function findUndeclaredSupportingDocuments(
       }
 
       try {
-        await upstream.getFile(
-          provenance.upstream.repository,
-          resolved,
-          commit,
-        );
+        await upstream.getFile(pinned.repository, resolved, commit);
         missing.add(resolved);
       } catch (error) {
         if (error instanceof UpstreamFileNotFoundError) continue;
@@ -270,19 +275,29 @@ async function readCurrentBundle(
   skillsRoot: string,
   directory: string,
   upstream: UpstreamClient,
-): Promise<BundleSnapshot> {
+): Promise<BundleSnapshot | undefined> {
   const provenance = await readProvenance(skillsRoot, directory);
+  const pinned = getPinnedSourceProvenance(provenance);
+  if (!pinned) return undefined;
+
   const entrypoint = provenance.projection.sources.find(
     (source) => source.path === provenance.projection.entrypoint,
   );
-  if (!entrypoint || entrypoint.upstreamPath !== provenance.upstream.location) {
+  if (
+    !entrypoint ||
+    !isPinnedProjectionSource(entrypoint) ||
+    entrypoint.upstreamPath !== pinned.location
+  ) {
     throw new Error(
-      `${directory}: entrypoint upstreamPath must exactly equal upstream.location.`,
+      `${directory}: entrypoint upstreamPath must exactly equal pinned Source Provenance location.`,
     );
   }
 
   const sources: SourceSnapshot[] = [];
   for (const metadata of provenance.projection.sources) {
+    if (!isPinnedProjectionSource(metadata)) {
+      throw new Error(`Invalid pinned source metadata for ${directory}.`);
+    }
     let before: string;
     try {
       before = await readFile(
@@ -301,15 +316,15 @@ async function readCurrentBundle(
       );
     }
 
-    const pinned = await upstream.getFile(
-      provenance.upstream.repository,
+    const remoteSource = await upstream.getFile(
+      pinned.repository,
       metadata.upstreamPath,
-      provenance.upstream.commit,
+      pinned.commit,
     );
-    if (pinned !== before) {
+    if (remoteSource !== before) {
       throw new Error(
         `${directory}/${metadata.path} does not match pinned upstream ` +
-          `${provenance.upstream.repository}@${provenance.upstream.commit}:` +
+          `${pinned.repository}@${pinned.commit}:` +
           `${metadata.upstreamPath}.`,
       );
     }
@@ -318,11 +333,17 @@ async function readCurrentBundle(
 
   const undeclared = await findUndeclaredSupportingDocuments(
     provenance,
-    sources.map((source) => ({
-      upstreamPath: source.metadata.upstreamPath,
-      content: source.before,
-    })),
-    provenance.upstream.commit,
+    pinned,
+    sources.map((source) => {
+      if (!isPinnedProjectionSource(source.metadata)) {
+        throw new Error(`Invalid pinned source metadata for ${directory}.`);
+      }
+      return {
+        upstreamPath: source.metadata.upstreamPath,
+        content: source.before,
+      };
+    }),
+    pinned.commit,
     upstream,
   );
   if (undeclared.length > 0) {
@@ -331,7 +352,7 @@ async function readCurrentBundle(
     );
   }
 
-  return { directory, provenance, sources };
+  return { directory, pinned, provenance, sources };
 }
 
 async function latestCompleteBundle(
@@ -343,13 +364,13 @@ async function latestCompleteBundle(
   for (const source of bundle.sources) {
     const upstreamPath = source.metadata.upstreamPath;
     const commit = await upstream.getLatestCommit(
-      bundle.provenance.upstream.repository,
+      bundle.pinned.repository,
       upstreamPath,
     );
     latest.set(upstreamPath, {
       commit,
       content: await upstream.getFile(
-        bundle.provenance.upstream.repository,
+        bundle.pinned.repository,
         upstreamPath,
         commit,
       ),
@@ -366,7 +387,7 @@ async function latestCompleteBundle(
     for (const source of bundle.sources) {
       const upstreamPath = source.metadata.upstreamPath;
       const content = await upstream.getFile(
-        bundle.provenance.upstream.repository,
+        bundle.pinned.repository,
         upstreamPath,
         commit,
       );
@@ -441,6 +462,7 @@ async function planUpdate(
   const undeclaredSupportingDocuments =
     await findUndeclaredSupportingDocuments(
       bundle.provenance,
+      bundle.pinned,
       latestSources,
       latest.commit,
       upstream,
@@ -472,10 +494,7 @@ function nextPins(
   plans: UpdatePlan[],
 ): Map<string, string> {
   const pins = new Map(
-    bundles.map((bundle) => [
-      bundle.provenance.name,
-      bundle.provenance.upstream.commit,
-    ]),
+    bundles.map((bundle) => [bundle.provenance.name, bundle.pinned.commit]),
   );
   for (const plan of plans) {
     pins.set(plan.bundle.provenance.name, plan.newPin);
@@ -635,9 +654,12 @@ export async function checkUpstreamUpdates(options: {
 
   const bundles: BundleSnapshot[] = [];
   for (const directory of directories) {
-    bundles.push(
-      await readCurrentBundle(options.skillsRoot, directory, options.upstream),
+    const bundle = await readCurrentBundle(
+      options.skillsRoot,
+      directory,
+      options.upstream,
     );
+    if (bundle) bundles.push(bundle);
   }
 
   const plans: UpdatePlan[] = [];
@@ -665,7 +687,15 @@ export async function checkUpstreamUpdates(options: {
     const updates: UpstreamUpdate[] = [];
     for (const plan of plans) {
       const next = structuredClone(plan.bundle.provenance);
-      next.upstream.commit = plan.newPin;
+      if ("upstream" in next) {
+        next.upstream.commit = plan.newPin;
+      } else if (next.sourceProvenance.type === "pinned-github") {
+        next.sourceProvenance.commit = plan.newPin;
+      } else {
+        throw new Error(
+          `Cannot update absent Source Provenance for ${plan.bundle.directory}.`,
+        );
+      }
 
       for (const source of plan.sources) {
         await writeFile(
@@ -681,6 +711,11 @@ export async function checkUpstreamUpdates(options: {
             `Projection source disappeared while updating ${plan.bundle.directory}/${source.localPath}.`,
           );
         }
+        if (!isPinnedProjectionSource(metadata)) {
+          throw new Error(
+            `Projection source lost pinned metadata while updating ${plan.bundle.directory}/${source.localPath}.`,
+          );
+        }
         metadata.sha256 = source.newDigest;
       }
 
@@ -692,7 +727,7 @@ export async function checkUpstreamUpdates(options: {
 
       updates.push({
         name: plan.bundle.provenance.name,
-        oldSha: plan.bundle.provenance.upstream.commit,
+        oldSha: plan.bundle.pinned.commit,
         newSha: plan.newPin,
         sources: plan.sources,
       });

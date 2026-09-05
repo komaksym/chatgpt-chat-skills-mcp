@@ -8,15 +8,17 @@ The product exposes exactly `load_skill` and `list_skills`. These tool schemas a
 
 ## Committed runtimes, not runtime generation
 
-Each skill's `runtime.md` is a committed Generated Runtime built as a Mechanical Projection from pinned upstream inputs. The service validates and reads committed artifacts at startup, then serves them directly. This makes the bytes reviewed in Git the bytes returned to ChatGPT and avoids a runtime generator, upstream fetcher, or provenance service on the hot path.
+Each skill's `runtime.md` is a committed Generated Runtime built as a Mechanical Projection from committed source inputs. Pinned GitHub provenance verifies those inputs against an exact repository commit and SHA-256 digest; intentionally absent provenance uses the committed local source bytes without inventing an upstream origin. The service validates and reads committed artifacts at startup, then serves them directly. This makes the bytes reviewed in Git the bytes returned to ChatGPT and avoids a runtime generator, upstream fetcher, or provenance service on the hot path.
 
 There is no runtime provenance service. Source pins, Change Records, licenses, attribution, upstream inputs, and generation data stay in the repository for maintainers and are never returned as part of a skill load.
 
-## GitHub-only remote behavior
+## Versioned Target Runtime Profiles
 
-The Target Runtime Profile supports GitHub-only repository and issue-tracker behavior through connected capabilities. Skills do not assume a local checkout, shell, filesystem, or Git CLI. Where upstream offers multiple repository/tracker branches, the adapter selects the upstream-supported GitHub branch; it does not invent a new methodology.
+`chatgpt-web-mcp-v1` is frozen with its historical GitHub-only, GitHub-centric semantics: it does not assume a local checkout, shell, filesystem, Git CLI, background process, connected tool, or write access. Existing Change Records keep that meaning permanently.
 
-Live GitHub capability is still per-conversation evidence. A missing read, write, label, or native relationship operation must be reported truthfully rather than replaced by a weaker outcome.
+`chatgpt-web-mcp-v2` models the richer ChatGPT Web environment without redefining v1. It can cite stable support for the ChatGPT sandbox, connected GitHub, Chrome Browser MCP, Playwright MCP, independent ChatGPT child workers, and ChatGPT Library for appropriate user-facing deliverables. It still denies arbitrary host filesystem access, native-application control, local daemons, and unrelated host processes.
+
+A Target Runtime Profile describes stable product support, not what is live in one conversation. Required connected capabilities must still be observed at execution time; an unavailable capability must produce truthful stopped behavior rather than a weaker substitute.
 
 ## Loopback transport
 
